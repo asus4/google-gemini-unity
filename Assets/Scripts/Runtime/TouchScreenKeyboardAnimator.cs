@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 namespace GenerativeAI
 {
     /// <summary>
-    /// Move text field up while keyboard is shown on mobile
+    /// Move arbitrary element up while keyboard is shown on mobile
     /// </summary>
     [RequireComponent(typeof(UIDocument))]
     public sealed class TouchScreenKeyboardAnimator : MonoBehaviour
@@ -21,6 +21,12 @@ namespace GenerativeAI
         private VisualElement targetElement;
         private float currentHeight = 0;
         private Coroutine enableCoroutine;
+
+#if UNITY_ANDROID
+        private AndroidJavaObject androidView;
+        private AndroidJavaObject androidRect;
+#endif // UNITY_ANDROID
+
 
         private bool _isFocused;
         private bool IsFocused
@@ -69,7 +75,6 @@ namespace GenerativeAI
                 return;
             }
             rootElement = document.rootVisualElement;
-            Debug.Log($"Root: {rootElement}");
 
             var textField = rootElement.Q<TextField>(triggerTextField);
             targetElement = rootElement.Q<VisualElement>(targetElementName);
@@ -79,6 +84,20 @@ namespace GenerativeAI
             textField.RegisterCallback<FocusOutEvent>(_ => IsFocused = false);
 
             enabled = false;
+        }
+
+        private void OnDestroy()
+        {
+            if (enableCoroutine != null)
+            {
+                StopCoroutine(enableCoroutine);
+                enableCoroutine = null;
+            }
+
+#if UNITY_ANDROID
+            androidView?.Dispose();
+            androidRect?.Dispose();
+#endif // UNITY_ANDROID
         }
 
         private void Update()
@@ -91,6 +110,7 @@ namespace GenerativeAI
             }
         }
 
+#pragma warning disable CS0162 // Unreachable code detected
         /// <summary>
         /// Get keyboard area in normalized coordinates
         /// </summary>
@@ -106,30 +126,34 @@ namespace GenerativeAI
                     : Rect.zero;
             }
 
+            float w = Screen.width;
+            float h = Screen.height;
+
+#if UNITY_ANDROID
             // Returns zero-Rect on Android.
             // https://forum.unity.com/threads/keyboard-height.291038/
-#if UNITY_ANDROID
-            using (AndroidJavaClass UnityClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
+            if (androidView == null)
             {
-                AndroidJavaObject View = UnityClass.GetStatic<AndroidJavaObject>("currentActivity").Get<AndroidJavaObject>("mUnityPlayer").Call<AndroidJavaObject>("getView");
-    
-                using (AndroidJavaObject Rct = new AndroidJavaObject("android.graphics.Rect"))
-                {
-                    View.Call("getWindowVisibleDisplayFrame", Rct);
-    
-                    return Screen.height - Rct.Call<int>("height");
-                }
+                using AndroidJavaClass playerClass = new("com.unity3d.player.UnityPlayer");
+                using AndroidJavaObject activity = playerClass.GetStatic<AndroidJavaObject>("currentActivity");
+                using AndroidJavaObject unityPlayer = activity.Get<AndroidJavaObject>("mUnityPlayer");
+                androidView = unityPlayer.Call<AndroidJavaObject>("getView");
+                androidRect = new AndroidJavaObject("android.graphics.Rect");
             }
+            // TODO: support landscape mode
+            androidView.Call("getWindowVisibleDisplayFrame", androidRect);
+            float height = (Screen.height - androidRect.Call<int>("height")) / h;
+            return new Rect(0, 1f - height, 1f, height);
 #endif // UNITY_ANDROID
 
             // Other supported environments
             {
-                float w = Screen.width;
-                float h = Screen.height;
                 var area = TouchScreenKeyboard.area;
                 return new Rect(area.x / w, area.y / h, area.width / w, area.height / h);
             }
         }
+#pragma warning restore CS0162 // Unreachable code detected
+
 
         private void UpdateKeyboardHeight(float height)
         {
