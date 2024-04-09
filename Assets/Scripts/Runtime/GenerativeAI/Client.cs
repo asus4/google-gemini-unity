@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace AIStudio
+namespace GenerativeAI
 {
     /// <summary>
-    /// (Non official) REST API client for Google AI Studio
+    /// (Non official) REST API client for Generative Language API 
     /// 
     /// See API reference here:
-    /// https://ai.google.dev/api
+    /// https://ai.google.dev/api/rest
     /// </summary>
     public sealed class Client
     {

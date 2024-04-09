@@ -1,0 +1,13 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement style="width: 100%; height: 100%; padding: 16px;">
+        <ui:ScrollView style="flex-grow: 1;">
+            <ui:Label text="Label 1" />
+            <ui:Label text="Label 2" />
+            <ui:Label text="Label 3" />
+        </ui:ScrollView>
+        <ui:VisualElement style="flex-direction: row; align-items: stretch; border-width: 1; border-color: rgb(255, 255, 255); border-radius: 20px;">
+            <ui:TextField name="promptTextField" style="flex-grow: 1;" />
+            <ui:Button name="sendButton" text="Send" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

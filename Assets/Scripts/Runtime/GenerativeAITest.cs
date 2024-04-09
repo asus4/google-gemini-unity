@@ -5,14 +5,18 @@ using UnityEngine;
 
 namespace AIStudioExperiments
 {
-    public sealed class AIStudioTest : MonoBehaviour
+    public sealed class GenerativeAITest : MonoBehaviour
     {
-        private AIStudio.Client client;
+        [SerializeField]
+        [TextArea(3, 10)]
+        private string message;
+
+        private GenerativeAI.Client client;
 
         private async void Start()
         {
             // TODO: support build
-            client = AIStudio.Client.FromEnvFile(Path.Combine(Directory.GetCurrentDirectory(), ".env"));
+            client = GenerativeAI.Client.FromEnvFile(Path.Combine(Directory.GetCurrentDirectory(), ".env"));
             Debug.Log($"Client: {client}");
 
             var models = await client.ListModels(destroyCancellationToken);

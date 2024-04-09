@@ -2,7 +2,7 @@ using System;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-namespace AIStudio
+namespace GenerativeAI
 {
     /// <summary>
     /// Minimum async/await support for Unity's AsyncOperation
@@ -10,16 +10,16 @@ namespace AIStudio
     /// </summary>
     public static class AsyncOperationExtensions
     {
-        public static WebRequestAwaitable GetAwaiter(this AsyncOperation asyncOperation)
+        public static Awaitable GetAwaiter(this AsyncOperation asyncOperation)
         {
-            return new WebRequestAwaitable(asyncOperation);
+            return new Awaitable(asyncOperation);
         }
 
-        public readonly struct WebRequestAwaitable : INotifyCompletion
+        public readonly struct Awaitable : INotifyCompletion
         {
             private readonly AsyncOperation asyncOperation;
 
-            public WebRequestAwaitable(AsyncOperation asyncOperation)
+            public Awaitable(AsyncOperation asyncOperation)
             {
                 this.asyncOperation = asyncOperation;
             }
