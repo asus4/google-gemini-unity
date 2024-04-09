@@ -1,0 +1,7 @@
+/* Animations */
+
+.touch_keyboard_translator {
+    transition-property: translate;
+    transition-duration: 0.25s;
+    transition-timing-function: ease-in-out;
+}
