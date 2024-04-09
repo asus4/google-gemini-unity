@@ -1,3 +1,10 @@
+/* Basic Settings */
+
+
+* {
+    -unity-font-definition: url("/Assets/Resources/Fonts & Materials/Nunito-Medium SDF.asset");
+}
+
 /* Animations */
 
 .touch_keyboard_translator {

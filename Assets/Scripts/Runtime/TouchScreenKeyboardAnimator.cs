@@ -158,7 +158,7 @@ namespace GenerativeAI
         private void UpdateKeyboardHeight(float height)
         {
             height *= rootElement.layout.height;
-            Debug.Log($"Translate Y: {height}");
+            // Debug.Log($"Translate Y: {height}");
             targetElement.style.translate = new(new Translate(0, -height));
         }
 

@@ -10,3 +10,9 @@ Our team submission for [Google AI Hackathon](https://googleai.devpost.com/)
 ```sh
 API_KEY=abc123
 ```
+
+## Third-party Assets and Libraries
+
+### Assets
+
+- [Nunito Font](https://fonts.google.com/specimen/Nunito): OFL 1.1
