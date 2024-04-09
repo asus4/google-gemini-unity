@@ -6,7 +6,7 @@
             <ui:Label text="Label 3" />
         </ui:ScrollView>
         <ui:VisualElement style="flex-direction: row; align-items: stretch; border-width: 1; border-color: rgb(255, 255, 255); border-radius: 20px;">
-            <ui:TextField name="promptTextField" style="flex-grow: 1;" />
+            <ui:TextField name="promptTextField" hide-mobile-input="true" style="flex-grow: 1; transition-property: all, ignored; transition-duration: 0s, 0s; transition-timing-function: ease, ease; transition-delay: 0s, 0s; translate: 0 -100px;" />
             <ui:Button name="sendButton" text="Send" />
         </ui:VisualElement>
     </ui:VisualElement>

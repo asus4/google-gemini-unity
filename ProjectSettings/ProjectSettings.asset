@@ -163,7 +163,7 @@ PlayerSettings:
   applicationIdentifier:
     Android: com.kokiibukuro.GenAIExperiments
     Standalone: com.Unity-Technologies.com.unity.template.urp-blank
-    iPhone: com.github.asus4.vertexaiexp
+    iPhone: com.kokiibukuro.GenAIExperiments
   buildNumber:
     Standalone: 0
     VisionOS: 0

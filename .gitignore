@@ -76,3 +76,5 @@ crashlytics-build.properties
 
 # Project specific ignores
 .env
+Assets/Resources/GenerativeAISettings.asset
+Assets/Resources/GenerativeAISettings.asset.meta

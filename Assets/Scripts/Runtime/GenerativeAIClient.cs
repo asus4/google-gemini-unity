@@ -17,26 +17,32 @@ namespace GenerativeAI
     /// See API reference here:
     /// https://ai.google.dev/api/rest
     /// </summary>
-    public sealed class Client
+    public sealed class GenerativeAIClient
     {
         private const string BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
         private readonly string apiKey;
 
-        public Client(string apiKey)
+        public GenerativeAIClient(string apiKey)
         {
             this.apiKey = apiKey;
         }
 
-        public static Client FromEnvFile(string path)
+        public static GenerativeAIClient FromEnvText(string text)
         {
-            var dict = File.ReadAllLines(path)
+            var dict = text
+                .Split('\n', StringSplitOptions.RemoveEmptyEntries)
                 .Select(line => line.Split('='))
                 .ToDictionary(parts => parts[0], parts => parts[1]);
             if (!dict.TryGetValue("API_KEY", out string apiKey))
             {
                 throw new Exception("API_KEY not found in .env file");
             }
-            return new Client(apiKey);
+            return new GenerativeAIClient(apiKey);
+        }
+
+        public static GenerativeAIClient FromEnvFile(string path)
+        {
+            return FromEnvText(File.ReadAllText(path));
         }
 
         /// <summary>
