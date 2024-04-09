@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.IO;
 using UnityEngine;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif // UNITY_EDITOR
@@ -12,11 +13,15 @@ namespace GenerativeAI
     /// Settings for GenerativeAI
     /// </summary>
     [Serializable]
-    public sealed class GenerativeAISettings : ScriptableObject
+    public sealed class GenerativeAISettings : ScriptableObject, IDisposable
     {
         [SerializeField]
         internal string apiKey;
 
+        public void Dispose()
+        {
+            Resources.UnloadAsset(this);
+        }
 
         public static GenerativeAISettings Get()
         {

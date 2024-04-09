@@ -27,7 +27,7 @@ namespace GenerativeAI
                 throw new Exception("UIDocument not found");
             }
 
-            var settings = GenerativeAISettings.Get();
+            using var settings = GenerativeAISettings.Get();
             client = new GenerativeAIClient(settings.apiKey);
             Debug.Log($"Client: {client}");
 
