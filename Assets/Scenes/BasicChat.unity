@@ -757,7 +757,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inputField: {fileID: 48401126}
-  sendButton: {fileID: 0}
+  sendButton: {fileID: 2035876251}
   message: 
 --- !u!1 &410087039
 GameObject:

@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine.Networking;
@@ -29,7 +28,7 @@ namespace GenerativeAI
         /// <summary>
         /// Return a list of available models
         /// </summary>
-        public async ValueTask<string> ListModels(CancellationToken cancellationToken)
+        public async Task<string> ListModels(CancellationToken cancellationToken)
         {
             using var request = UnityWebRequest.Get($"{BASE_URL}/models?key={apiKey}");
             await request.SendWebRequest();
@@ -47,42 +46,6 @@ namespace GenerativeAI
         public GenerativeModel GetModel(string modelName)
         {
             return new GenerativeModel(modelName, apiKey);
-        }
-
-        [Conditional("DEVELOPMENT_BUILD"), Conditional("UNITY_EDITOR")]
-        private void Log(string message)
-        {
-            UnityEngine.Debug.Log(message);
-        }
-    }
-
-    public sealed class GenerativeModel
-    {
-        public readonly string modelName;
-        private readonly string apiKey;
-
-        public GenerativeModel(string modelName, string apiKey)
-        {
-            this.modelName = modelName;
-            this.apiKey = apiKey;
-        }
-
-        public async ValueTask<string> Chat(string text, CancellationToken cancellationToken)
-        {
-            using var request = UnityWebRequest.PostWwwForm($"{GenerativeAIClient.BASE_URL}/models/{modelName}:chat?key={apiKey}", "");
-            request.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(text));
-            request.downloadHandler = new DownloadHandlerBuffer();
-            request.SetRequestHeader("Content-Type", "application/json");
-            await request.SendWebRequest();
-            if (cancellationToken.IsCancellationRequested)
-            {
-                throw new TaskCanceledException();
-            }
-            if (request.result != UnityWebRequest.Result.Success)
-            {
-                throw new Exception(request.error);
-            }
-            return request.downloadHandler.text;
         }
     }
 }

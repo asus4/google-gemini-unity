@@ -2,6 +2,9 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEditor.Search;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace GenerativeAI
 {
@@ -16,10 +19,6 @@ namespace GenerativeAI
         [SerializeField]
         private Button sendButton;
 
-        [SerializeField]
-        [TextArea(3, 10)]
-        private string message;
-
         private GenerativeModel model;
 
         private void Awake()
@@ -32,27 +31,37 @@ namespace GenerativeAI
         {
             using var settings = GenerativeAISettings.Get();
             var client = new GenerativeAIClient(settings);
-            Debug.Log($"Client: {client}");
 
-            var models = await client.ListModels(destroyCancellationToken);
-            Debug.Log($"Available models: {models}");
-
-            model = client.GetModel("models/gemini-pro");
-
-            // Setup UIs
+            // List all available models
+            if (Application.isEditor)
             {
-                sendButton.onClick.AddListener(async () =>
-                {
-                    var text = inputField.text;
-                    if (string.IsNullOrEmpty(text))
-                    {
-                        return;
-                    }
-                    // var response = await model.Chat(text);
-                    // Debug.Log($"Response: {response}");
-                });
+                var models = await client.ListModels(destroyCancellationToken);
+                Debug.Log($"Available models: {models}");
             }
 
+            model = client.GetModel(Models.GeminiPro);
+
+            // Setup UIs
+            sendButton.onClick.AddListener(async () => await SendRequest());
+            inputField.onSubmit.AddListener(async _ => await SendRequest());
+
+            // for Debug
+            inputField.text = "Hello! what is your name?";
+        }
+
+        private async Task SendRequest()
+        {
+            var input = inputField.text;
+            if (string.IsNullOrEmpty(input))
+            {
+                return;
+            }
+            inputField.text = string.Empty;
+
+            // TODO: add chat history
+            var body = new RequestBody(input);
+            var response = await model.GenerateContent(body, destroyCancellationToken);
+            Debug.Log($"Response: {response}");
         }
     }
 }
