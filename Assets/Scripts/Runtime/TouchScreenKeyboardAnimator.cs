@@ -1,26 +1,27 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.UIElements;
+using TMPro;
 
 namespace GenerativeAI
 {
     /// <summary>
     /// Move arbitrary element up while keyboard is shown on mobile
     /// </summary>
-    [RequireComponent(typeof(UIDocument))]
     public sealed class TouchScreenKeyboardAnimator : MonoBehaviour
     {
         [SerializeField]
-        private string triggerTextField;
+        private TMP_InputField targetInputField;
         [SerializeField]
-        private string targetElementName;
+        private RectTransform target;
         [SerializeField]
         private bool simulateOnEditor;
+        [SerializeField]
+        private AnimationCurve easing;
 
-        private VisualElement rootElement;
-        private VisualElement targetElement;
+        private RectTransform rootTransform;
         private float currentHeight = 0;
         private Coroutine enableCoroutine;
+        private Coroutine tweenCoroutine;
 
 #if UNITY_ANDROID
         private AndroidJavaObject androidView;
@@ -39,6 +40,7 @@ namespace GenerativeAI
                     return;
                 }
                 _isFocused = value;
+                Debug.Log($"IsFocused: {value}");
 
                 // Delay enable when focused==false while keyboard is running
                 if (enableCoroutine != null)
@@ -69,19 +71,11 @@ namespace GenerativeAI
                 return;
             }
 
-            if (!TryGetComponent<UIDocument>(out var document))
-            {
-                Debug.LogError("UIDocument not found");
-                return;
-            }
-            rootElement = document.rootVisualElement;
+            rootTransform = target.transform.GetComponentInParent<Canvas>().rootCanvas.transform as RectTransform;
 
-            var textField = rootElement.Q<TextField>(triggerTextField);
-            targetElement = rootElement.Q<VisualElement>(targetElementName);
-            targetElement ??= rootElement;
-
-            textField.RegisterCallback<FocusInEvent>(_ => IsFocused = true);
-            textField.RegisterCallback<FocusOutEvent>(_ => IsFocused = false);
+            targetInputField.shouldHideMobileInput = true;
+            targetInputField.onSelect.AddListener(_ => IsFocused = true);
+            targetInputField.onDeselect.AddListener(_ => IsFocused = false);
 
             enabled = false;
         }
@@ -155,17 +149,44 @@ namespace GenerativeAI
 #pragma warning restore CS0162 // Unreachable code detected
 
 
-        private void UpdateKeyboardHeight(float height)
+        private void UpdateKeyboardHeight(float relativeHeight)
         {
-            height *= rootElement.layout.height;
-            // Debug.Log($"Translate Y: {height}");
-            targetElement.style.translate = new(new Translate(0, -height));
+            float height = relativeHeight * rootTransform.sizeDelta.y;
+            Debug.Log($"Translate Y: {height}");
+
+            if (tweenCoroutine != null)
+            {
+                StopCoroutine(tweenCoroutine);
+                tweenCoroutine = null;
+            }
+            float from = target.transform.localPosition.y;
+            float to = height;
+            float duration = Application.platform switch
+            {
+                RuntimePlatform.Android => 0.2f,
+                RuntimePlatform.IPhonePlayer => 0.22f,
+                _ => 0.2f,
+            };
+            tweenCoroutine = StartCoroutine(AnimatePosition(from, to, duration));
         }
 
         private IEnumerator DelayedEnable(bool enabled, float delaySec)
         {
             yield return new WaitForSeconds(delaySec);
             this.enabled = enabled;
+        }
+
+        private IEnumerator AnimatePosition(float from, float to, float duration)
+        {
+            float elapsed = 0;
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTime;
+                float t = easing.Evaluate(elapsed / duration);
+                target.transform.localPosition = new Vector3(0, Mathf.Lerp(from, to, t), 0);
+                yield return new WaitForEndOfFrame();
+            }
+            target.transform.localPosition = new Vector3(0, to, 0);
         }
 
     }

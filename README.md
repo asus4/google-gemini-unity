@@ -16,3 +16,4 @@ API_KEY=abc123
 ### Assets
 
 - [Nunito Font](https://fonts.google.com/specimen/Nunito): OFL 1.1
+- [Sawarabi Gothic Font](https://fonts.google.com/specimen/Sawarabi+Gothic): OFL 1.1

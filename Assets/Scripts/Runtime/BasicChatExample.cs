@@ -1,13 +1,13 @@
 using System;
 using UnityEngine;
-using UnityEngine.UIElements;
+using UnityEngine.UI;
+using TMPro;
 
 namespace GenerativeAI
 {
     /// <summary>
     /// Basic Chat Examples
     /// </summary>
-    [RequireComponent(typeof(UIDocument))]
     public sealed class BasicChatExample : MonoBehaviour
     {
         [SerializeField]
@@ -25,13 +25,8 @@ namespace GenerativeAI
         private async void Start()
         {
             // Setup UIs
-            if (TryGetComponent<UIDocument>(out var document))
             {
-                SetupUI(document);
-            }
-            else
-            {
-                throw new Exception("UIDocument not found");
+
             }
 
             using var settings = GenerativeAISettings.Get();
@@ -47,11 +42,5 @@ namespace GenerativeAI
             // TODO: uninitialized client
         }
 
-        private void SetupUI(UIDocument document)
-        {
-            var root = document.rootVisualElement;
-            var promptTextField = root.Query<TextField>("promptTextField");
-            Debug.Log($"PromptTextField: {promptTextField}");
-        }
     }
 }
