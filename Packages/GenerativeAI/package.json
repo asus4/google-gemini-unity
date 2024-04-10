@@ -1,0 +1,19 @@
+{
+  "name": "com.github.asus4.google-generative-ai",
+  "version": "0.1.0",
+  "displayName": "Google Generative AI",
+  "description": "Google Generative AI client for Unity",
+  "keywords": [
+    "unity",
+    "google"
+  ],
+  "unity": "2022.3",
+  "unityRelease": "0f1",
+  "author": {
+    "name": "Koki Ibukuro",
+    "url": "https://github.com/asus4"
+  },
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "3.2.1"
+  }
+}
