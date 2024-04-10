@@ -1,5 +1,6 @@
 #nullable enable
 
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -16,22 +17,11 @@ namespace GenerativeAI
         /// 
         /// For single-turn queries, this is a single instance. For multi-turn queries, this is a repeated field that contains conversation history + latest request.
         /// </summary>
-        public Content[] contents;
+        public ICollection<Content>? contents;
         public Tool[]? tools;
 
-        public GenerateContentRequest(string text)
-        {
-            contents = new Content[]
-            {
-                new()
-                {
-                    parts = new Content.Part[]
-                    {
-                        new() { text = text, },
-                    },
-                },
-            };
-        }
+        public static implicit operator GenerateContentRequest(Content[] contents) => new() { contents = contents };
+        public static implicit operator GenerateContentRequest(List<Content> contents) => new() { contents = contents };
     }
 
     /// <summary>

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,12 +16,18 @@ namespace GenerativeAI
         private TMP_InputField inputField;
 
         [SerializeField]
+        private TextMeshProUGUI historyLabel;
+
+        [SerializeField]
         private Button sendButton;
 
         [SerializeField]
         private bool showAvailableModels;
 
         private GenerativeModel model;
+
+        private List<Content> messages = new();
+        private readonly StringBuilder sb = new();
 
         private void Awake()
         {
@@ -35,7 +43,7 @@ namespace GenerativeAI
             // List all available models
             if (showAvailableModels)
             {
-                var models = await client.ListModels(destroyCancellationToken);
+                var models = await client.ListModelsAsync(destroyCancellationToken);
                 Debug.Log($"Available models: {models}");
             }
 
@@ -58,9 +66,36 @@ namespace GenerativeAI
             }
             inputField.text = string.Empty;
 
-            // TODO: add chat history
-            var response = await model.GenerateContent(new(input), destroyCancellationToken);
+            Content content = new(Role.User, input);
+            AppendToView(content);
+            messages.Add(content);
+
+            var response = await model.GenerateContentAsync(messages, destroyCancellationToken);
             Debug.Log($"Response: {response}");
+
+            if (response.candidates.Length > 0)
+            {
+                var modelContent = response.candidates[0].content;
+                AppendToView(modelContent);
+                messages.Add(modelContent);
+            }
+        }
+
+        private void AppendToView(Content content)
+        {
+            sb.AppendLine($"<b>{content.role}:</b>");
+            foreach (var part in content.parts)
+            {
+                if (part.text != null)
+                {
+                    sb.AppendLine(part.text);
+                }
+                else
+                {
+                    sb.AppendLine($"<color=red>Unsupported part</color>");
+                }
+            }
+            historyLabel.SetText(sb);
         }
     }
 }

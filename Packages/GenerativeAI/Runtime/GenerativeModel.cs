@@ -30,7 +30,7 @@ namespace GenerativeAI
             uriGenerateContent = $"{GenerativeAIClient.BASE_URL}/{modelName}:generateContent?key={apiKey}";
         }
 
-        public async Task<GenerateContentResponse> GenerateContent(GenerateContentRequest requestBody, CancellationToken cancellationToken)
+        public async Task<GenerateContentResponse> GenerateContentAsync(GenerateContentRequest requestBody, CancellationToken cancellationToken)
         {
             string json = requestBody.SerializeToJson();
             Log($"request: {uriGenerateContent},\ndata: {json}");

@@ -28,7 +28,7 @@ namespace GenerativeAI
         /// <summary>
         /// Return a list of available models
         /// </summary>
-        public async Task<string> ListModels(CancellationToken cancellationToken)
+        public async Task<string> ListModelsAsync(CancellationToken cancellationToken)
         {
             using var request = UnityWebRequest.Get($"{BASE_URL}/models?key={apiKey}");
             await request.SendWebRequest();

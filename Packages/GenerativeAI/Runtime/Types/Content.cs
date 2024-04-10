@@ -1,10 +1,19 @@
 #nullable enable
 
+using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 namespace GenerativeAI
 {
+    public enum Role
+    {
+        [EnumMember(Value = "user")]
+        User,
+        [EnumMember(Value = "model")]
+        Model,
+    }
+
     /// <summary>
     /// The base structured datatype containing multi-part content of a message.
     /// A Content includes a role field designating the producer of the Content and a parts field containing multi-part data that contains the content of the message turn.
@@ -12,21 +21,28 @@ namespace GenerativeAI
     /// </summary>
     public partial record Content
     {
-        public Part[]? parts;
-
         [JsonConverter(typeof(StringEnumConverter))]
-        public Role? role;
+        public Role role;
+
+        public Part[] parts;
+
+        [JsonConstructor]
+        public Content(Role role, Part[] parts)
+        {
+            this.parts = parts;
+            this.role = role;
+        }
+
+        public Content(Role role, Part part)
+        {
+            parts = new Part[] { part };
+            this.role = role;
+        }
     }
 
     // Internal types of Content
     public partial record Content
     {
-        public enum Role
-        {
-            user,
-            model,
-        }
-
         /// <summary>
         /// A datatype containing media that is part of a multi-part Content message.
         /// A Part consists of data which has an associated datatype.A Part can only contain one of the accepted types in Part.data.
@@ -54,6 +70,12 @@ namespace GenerativeAI
             /// URI based data.
             /// </summary>
             public FileData? fileData;
+
+            public static implicit operator Part(string text) => new() { text = text };
+            public static implicit operator Part(Blob inlineData) => new() { inlineData = inlineData };
+            public static implicit operator Part(FunctionCall functionCall) => new() { functionCall = functionCall };
+            public static implicit operator Part(FunctionResponse functionResponse) => new() { functionResponse = functionResponse };
+            public static implicit operator Part(FileData fileData) => new() { fileData = fileData };
         }
 
         /// <summary>
