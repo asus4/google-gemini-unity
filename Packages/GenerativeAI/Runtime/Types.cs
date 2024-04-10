@@ -1,5 +1,6 @@
+#nullable enable
+
 using System;
-using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -13,6 +14,9 @@ namespace GenerativeAI
     {
         public const string GeminiPro = "models/gemini-pro";
         public const string GeminiProVision = "models/gemini-pro-vision";
+
+        public const string Gemini_1_5_Pro = "models/gemini-1.5-pro-latest";
+        public const string Gemini_1_5_ProVision = "models/gemini-1.5-pro-vision-latest";
     }
 
     public enum Role
@@ -31,23 +35,23 @@ namespace GenerativeAI
         /// <summary>
         /// Inline text.
         /// </summary>
-        public string text;
+        public string? text;
         /// <summary>
         /// Inline media bytes.
         /// </summary>
-        public Blob inlineData;
+        public Blob? inlineData;
         /// <summary>
         /// A predicted FunctionCall returned from the model that contains a string representing the FunctionDeclaration.name with the arguments and their values.
         /// </summary>
-        public FunctionCall functionCall;
+        public FunctionCall? functionCall;
         /// <summary>
         /// The result output of a FunctionCall that contains a string representing the FunctionDeclaration.name and a structured JSON object containing any output from the function is used as context to the model.
         /// </summary>
-        public FunctionResponse functionResponse;
+        public FunctionResponse? functionResponse;
         /// <summary>
         /// URI based data.
         /// </summary>
-        public FileData fileData;
+        public FileData? fileData;
     }
 
     /// <summary>
@@ -64,6 +68,12 @@ namespace GenerativeAI
         /// Raw bytes for media formats. A base64-encoded string.
         /// </summary>
         public string data;
+
+        public Blob(string mimeType, string data)
+        {
+            this.mimeType = mimeType;
+            this.data = data;
+        }
     }
 
     /// <summary>
@@ -80,6 +90,11 @@ namespace GenerativeAI
         /// Optional. The function parameters and values in JSON object format.
         /// </summary>
         // public string args;
+
+        public FunctionCall(string name)
+        {
+            this.name = name;
+        }
     }
 
     /// <summary>
@@ -95,7 +110,13 @@ namespace GenerativeAI
         /// <summary>
         /// Required. The function response in JSON object format.
         /// </summary>
-        public string response;
+        public object response;
+
+        public FunctionResponse(string name, object response)
+        {
+            this.name = name;
+            this.response = response;
+        }
     }
 
     /// <summary>
@@ -111,6 +132,12 @@ namespace GenerativeAI
         /// Required. URI.
         /// </summary>
         public string fileUri;
+
+        public FileData(string mimeType, string fileUri)
+        {
+            this.mimeType = mimeType;
+            this.fileUri = fileUri;
+        }
     }
 
     /// <summary>
@@ -120,7 +147,7 @@ namespace GenerativeAI
     /// </summary>
     public record Content
     {
-        public Part[] parts;
+        public Part[]? parts;
 
         [JsonConverter(typeof(StringEnumConverter))]
         public Role? role;
@@ -139,7 +166,14 @@ namespace GenerativeAI
         public string description;
 
         [JsonProperty(PropertyName = "object")]
-        public object Object { get; set; }
+        public object? Object { get; set; }
+
+        public FunctionDeclaration(string name, string description, object? Object = null)
+        {
+            this.name = name;
+            this.description = description;
+            this.Object = Object;
+        }
     }
 
     public record Tool
@@ -149,25 +183,25 @@ namespace GenerativeAI
         /// 
         /// The model or system does not execute the function. Instead the defined function may be returned as a [FunctionCall][content.part.function_call] with arguments to the client side for execution. The model may decide to call a subset of these functions by populating [FunctionCall][content.part.function_call] in the response. The next conversation turn may contain a [FunctionResponse][content.part.function_response] with the [content.role] "function" generation context for the next model turn.
         /// </summary>
-        public FunctionDeclaration[] functionDeclarations;
+        public FunctionDeclaration[]? functionDeclarations;
     }
 
-    public record RequestBody
+    /// <summary>
+    /// https://ai.google.dev/api/rest/v1beta/models/generateContent
+    /// </summary>
+    public record GenerateContentRequest
     {
         /// <summary>
         /// Required. The content of the current conversation with the model.
         /// 
         /// For single-turn queries, this is a single instance. For multi-turn queries, this is a repeated field that contains conversation history + latest request.
         /// </summary>
-        [JsonProperty(PropertyName = "contents")]
-        public Content[] Contents { get; set; }
+        public Content[] contents;
+        public Tool[]? tools;
 
-        [JsonProperty(PropertyName = "tools")]
-        public Tool[] Tools { get; set; }
-
-        public RequestBody(string text)
+        public GenerateContentRequest(string text)
         {
-            Contents = new Content[]
+            contents = new Content[]
             {
                 new()
                 {
@@ -180,6 +214,14 @@ namespace GenerativeAI
         }
     }
 
+    /// <summary>
+    /// https://ai.google.dev/api/rest/v1beta/GenerateContentResponse
+    /// </summary>
+    public record GenerateContentResponse
+    {
+        public Content[]? contents;
+    }
+
     internal static class JsonExtensions
     {
         private static readonly JsonSerializerSettings settings = new()
@@ -188,7 +230,7 @@ namespace GenerativeAI
             MissingMemberHandling = MissingMemberHandling.Ignore
         };
 
-        public static string ToJson(this RequestBody requestBody)
+        public static string ToJson(this GenerateContentRequest requestBody)
             => JsonConvert.SerializeObject(requestBody, settings);
     }
 }
