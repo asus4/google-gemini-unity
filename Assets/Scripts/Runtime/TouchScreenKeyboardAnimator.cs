@@ -104,7 +104,6 @@ namespace GenerativeAI
             }
         }
 
-#pragma warning disable CS0162 // Unreachable code detected
         /// <summary>
         /// Get keyboard area in normalized coordinates
         /// </summary>
@@ -124,7 +123,7 @@ namespace GenerativeAI
             float h = Screen.height;
 
 #if UNITY_ANDROID
-            // Returns zero-Rect on Android.
+            // TouchScreenKeyboard.area returns zero-Rect on Android.
             // https://forum.unity.com/threads/keyboard-height.291038/
             if (androidView == null)
             {
@@ -140,13 +139,14 @@ namespace GenerativeAI
             return new Rect(0, 1f - height, 1f, height);
 #endif // UNITY_ANDROID
 
+#pragma warning disable CS0162 // Unreachable code detected
             // Other supported environments
             {
                 var area = TouchScreenKeyboard.area;
                 return new Rect(area.x / w, area.y / h, area.width / w, area.height / h);
             }
-        }
 #pragma warning restore CS0162 // Unreachable code detected
+        }
 
 
         private void UpdateKeyboardHeight(float relativeHeight)
@@ -164,7 +164,7 @@ namespace GenerativeAI
             float duration = Application.platform switch
             {
                 RuntimePlatform.Android => 0.2f,
-                RuntimePlatform.IPhonePlayer => 0.22f,
+                RuntimePlatform.IPhonePlayer => 0.25f,
                 _ => 0.2f,
             };
             tweenCoroutine = StartCoroutine(AnimatePosition(from, to, duration));
@@ -188,6 +188,5 @@ namespace GenerativeAI
             }
             target.transform.localPosition = new Vector3(0, to, 0);
         }
-
     }
 }
