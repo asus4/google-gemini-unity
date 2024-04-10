@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace GenerativeAI
@@ -16,6 +17,7 @@ namespace GenerativeAI
         private const string H2_CLOSE = "</b></size>";
         private const string H3_OPEN = "<size=1.17em><b>";
         private const string H3_CLOSE = "</b></size>";
+
         private static readonly StringBuilder sb = new();
 
         /// <summary>
@@ -27,48 +29,51 @@ namespace GenerativeAI
         {
             sb.Clear();
 
+            // TODO: consider using MemoryExtensions.Split
             var lines = markdown.Split("\n\n");
             foreach (var line in lines)
             {
+                var lineSpan = line.AsSpan();
+
                 // H1
-                if (line.StartsWith("# "))
+                if (lineSpan.StartsWith("# "))
                 {
                     sb.Append(H1_OPEN.AsSpan());
-                    sb.Append(line[2..].AsSpan());
+                    sb.Append(lineSpan[2..]);
                     sb.Append(H1_CLOSE.AsSpan());
                     sb.AppendLine();
                     sb.AppendLine();
                 }
                 // H2
-                else if (line.StartsWith("## "))
+                else if (lineSpan.StartsWith("## "))
                 {
                     sb.Append(H2_OPEN.AsSpan());
-                    sb.Append(line[3..].AsSpan());
+                    sb.Append(lineSpan[3..]);
                     sb.Append(H2_CLOSE.AsSpan());
                     sb.AppendLine();
                     sb.AppendLine();
                 }
                 // H3
-                else if (line.StartsWith("### "))
+                else if (lineSpan.StartsWith("### "))
                 {
                     sb.Append(H3_OPEN.AsSpan());
-                    sb.Append(line[4..].AsSpan());
+                    sb.Append(lineSpan[4..]);
                     sb.Append(H3_CLOSE.AsSpan());
                     sb.AppendLine();
                     sb.AppendLine();
                 }
                 // Unordered List
-                else if (line.StartsWith("- "))
+                else if (lineSpan.StartsWith("- "))
                 {
                     ParseUnorderedList(sb, line, "- ");
                 }
-                else if (line.StartsWith("* "))
+                else if (lineSpan.StartsWith("* "))
                 {
                     ParseUnorderedList(sb, line, "* ");
                 }
                 else
                 {
-                    sb.Append(line);
+                    ParseInline(sb, line);
                     sb.AppendLine();
                     sb.AppendLine();
                 }
@@ -77,24 +82,86 @@ namespace GenerativeAI
             return sb.ToString();
         }
 
-        private static void ParseUnorderedList(StringBuilder sb, string markdown,
-            string markChar = "- ", string styleChar = "・")
+        private static void ParseUnorderedList(StringBuilder sb, in string markdown,
+            ReadOnlySpan<char> markChar, char styleChar = '・')
         {
-            var lines = markdown.Split("\n");
+            var lines = markdown.Split('\n');
             foreach (var line in lines)
             {
-                if (line.StartsWith(markChar))
+                if (line.AsSpan().StartsWith(markChar))
                 {
                     sb.Append(styleChar);
-                    sb.Append(line[2..]);
+                    ParseInline(sb, line[2..]);
                     sb.AppendLine();
                 }
                 else
                 {
-                    sb.AppendLine("  ");
+                    sb.Append(' ');
+                    sb.Append(' ');
+                    sb.AppendLine();
                 }
             }
             sb.AppendLine();
+        }
+
+        private static void ParseInline(StringBuilder sb, ReadOnlySpan<char> markdown)
+        {
+            bool isBold = false;
+            bool isItalic = false;
+            bool isCode = false;
+
+            for (int i = 0; i < markdown.Length; i++)
+            {
+                var current = markdown[i..];
+
+                switch (markdown[i])
+                {
+                    case '*':
+                        // Bold
+                        if (current.StartsWith("**"))
+                        {
+                            if (isBold)
+                            {
+                                sb.Append("</b>".AsSpan());
+                            }
+                            else
+                            {
+                                sb.Append("<b>".AsSpan());
+                            }
+                            isBold = !isBold;
+                            i++;
+                        }
+                        // Italic
+                        else if (isItalic)
+                        {
+                            sb.Append("</i>".AsSpan());
+                        }
+                        else
+                        {
+                            sb.Append("<i>".AsSpan());
+                        }
+                        isItalic = !isItalic;
+                        break;
+                    case '`':
+                        if (current.StartsWith("```"))
+                        {
+                            break;
+                        }
+                        if (isCode)
+                        {
+                            sb.Append("</mspace>".AsSpan());
+                        }
+                        else
+                        {
+                            sb.Append("<mspace>".AsSpan());
+                        }
+                        isCode = !isCode;
+                        break;
+                    default:
+                        sb.Append(markdown[i]);
+                        break;
+                }
+            }
         }
     }
 }
