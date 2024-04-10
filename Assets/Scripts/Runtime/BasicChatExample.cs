@@ -1,10 +1,7 @@
-using System;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using UnityEditor.Search;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GenerativeAI
 {
@@ -18,6 +15,9 @@ namespace GenerativeAI
 
         [SerializeField]
         private Button sendButton;
+
+        [SerializeField]
+        private bool showAvailableModels;
 
         private GenerativeModel model;
 
@@ -33,7 +33,7 @@ namespace GenerativeAI
             var client = new GenerativeAIClient(settings);
 
             // List all available models
-            if (Application.isEditor)
+            if (showAvailableModels)
             {
                 var models = await client.ListModels(destroyCancellationToken);
                 Debug.Log($"Available models: {models}");

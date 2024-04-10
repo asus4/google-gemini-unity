@@ -4,37 +4,22 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using UnityEngine.Networking;
 
 namespace GenerativeAI
 {
-
     /// <summary>
-    /// https://ai.google.dev/api/rest/v1beta/models/generateContent
+    /// Call API to know all available models for your API Key.
+    /// https://generativelanguage.googleapis.com/v1beta/models?key={YOUR_API_KEY}
     /// </summary>
-    public record GenerateContentRequest
+    public static class Models
     {
-        /// <summary>
-        /// Required. The content of the current conversation with the model.
-        /// 
-        /// For single-turn queries, this is a single instance. For multi-turn queries, this is a repeated field that contains conversation history + latest request.
-        /// </summary>
-        public Content[] contents;
-        public Tool[]? tools;
+        public const string GeminiPro = "models/gemini-pro";
+        public const string GeminiProVision = "models/gemini-pro-vision";
 
-        public GenerateContentRequest(string text)
-        {
-            contents = new Content[]
-            {
-                new()
-                {
-                    parts = new Content.Part[]
-                    {
-                        new() { text = text, },
-                    },
-                },
-            };
-        }
+        public const string Gemini_1_5_Pro = "models/gemini-1.5-pro-latest";
+        public const string Gemini_1_5_ProVision = "models/gemini-1.5-pro-vision-latest";
     }
 
     public sealed class GenerativeModel
@@ -46,9 +31,9 @@ namespace GenerativeAI
             uriGenerateContent = $"{GenerativeAIClient.BASE_URL}/{modelName}:generateContent?key={apiKey}";
         }
 
-        public async Task<string> GenerateContent(GenerateContentRequest requestBody, CancellationToken cancellationToken)
+        public async Task<GenerateContentResponse> GenerateContent(GenerateContentRequest requestBody, CancellationToken cancellationToken)
         {
-            string json = requestBody.ToJson();
+            string json = requestBody.SerializeToJson();
             Log($"request: {uriGenerateContent},\ndata: {json}");
 
             using var request = UnityWebRequest.Post(
@@ -67,7 +52,7 @@ namespace GenerativeAI
             }
             string response = request.downloadHandler.text;
             Log($"response: {response}");
-            return response;
+            return response.DeserializeFromJson<GenerateContentResponse>();
         }
 
         [Conditional("DEVELOPMENT_BUILD"), Conditional("UNITY_EDITOR")]

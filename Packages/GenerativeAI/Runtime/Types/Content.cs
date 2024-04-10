@@ -7,8 +7,8 @@ namespace GenerativeAI
 {
     /// <summary>
     /// The base structured datatype containing multi-part content of a message.
-    ///
     /// A Content includes a role field designating the producer of the Content and a parts field containing multi-part data that contains the content of the message turn.
+    /// https://ai.google.dev/api/rest/v1beta/Content
     /// </summary>
     public partial record Content
     {
