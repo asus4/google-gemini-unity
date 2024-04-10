@@ -2,7 +2,7 @@
   "name": "com.github.asus4.google-generative-ai",
   "version": "0.1.0",
   "displayName": "Google Generative AI",
-  "description": "Google Generative AI client for Unity",
+  "description": "Non Official Unity Client for Google Generative AI",
   "keywords": [
     "unity",
     "google"
