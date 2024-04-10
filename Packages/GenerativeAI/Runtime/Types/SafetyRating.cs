@@ -18,7 +18,7 @@ namespace GenerativeAI
         public HarmCategory category;
         [JsonConverter(typeof(StringEnumConverter))]
         public HarmProbability probability;
-        public bool blocked;
+        public bool? blocked;
     }
 
     partial record SafetyRating

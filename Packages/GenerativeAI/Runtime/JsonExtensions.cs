@@ -11,9 +11,12 @@ namespace GenerativeAI
             MissingMemberHandling = MissingMemberHandling.Ignore
         };
 
-        public static string SerializeToJson<T>(this T requestBody)
+        public static string SerializeToJson<T>(this T requestBody, bool prettyPrint = false)
         {
-            return JsonConvert.SerializeObject(requestBody, Settings);
+            Formatting formatting = prettyPrint
+                ? Formatting.Indented
+                : Formatting.None;
+            return JsonConvert.SerializeObject(requestBody, formatting, Settings);
         }
 
         public static T DeserializeFromJson<T>(this string json)

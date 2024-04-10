@@ -49,7 +49,7 @@ namespace GenerativeAI
         }
         public override string ToString()
         {
-            return this.SerializeToJson();
+            return this.SerializeToJson(true);
         }
     }
 

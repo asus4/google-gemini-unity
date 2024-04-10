@@ -4,7 +4,6 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using UnityEngine.Networking;
 
 namespace GenerativeAI

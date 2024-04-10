@@ -1,7 +1,8 @@
 #nullable enable
 
-using Newtonsoft.Json;
 using System.Runtime.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 // Other types
 namespace GenerativeAI
@@ -14,12 +15,13 @@ namespace GenerativeAI
     public partial record Candidate
     {
         public Content content;
+        [JsonConverter(typeof(StringEnumConverter))]
         public FinishReason finishReason;
+        public int index;
         public SafetyRating[]? safetyRatings;
         public CitationMetadata? citationMetadata;
         public int? tokenCount;
         public GroundingAttribution? groundingAttribution;
-        public int index;
 
         public Candidate(Content content)
         {
