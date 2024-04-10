@@ -49,12 +49,13 @@ namespace GenerativeAI
             {
                 throw new Exception(request.error);
             }
+
             string response = request.downloadHandler.text;
             Log($"response: {response}");
             return response.DeserializeFromJson<GenerateContentResponse>();
         }
 
-        [Conditional("DEVELOPMENT_BUILD"), Conditional("UNITY_EDITOR")]
+        [Conditional("UNITY_EDITOR")]
         private static void Log(string message)
         {
             UnityEngine.Debug.Log(message);
