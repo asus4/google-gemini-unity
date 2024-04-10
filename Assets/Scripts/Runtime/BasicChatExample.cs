@@ -39,7 +39,7 @@ namespace GenerativeAI
                 Debug.Log($"Available models: {models}");
             }
 
-            model = client.GetModel(Models.GeminiPro);
+            model = client.GetModel(Models.Gemini_1_5_Pro);
 
             // Setup UIs
             sendButton.onClick.AddListener(async () => await SendRequest());
@@ -59,8 +59,7 @@ namespace GenerativeAI
             inputField.text = string.Empty;
 
             // TODO: add chat history
-            var body = new RequestBody(input);
-            var response = await model.GenerateContent(body, destroyCancellationToken);
+            var response = await model.GenerateContent(new(input), destroyCancellationToken);
             Debug.Log($"Response: {response}");
         }
     }
