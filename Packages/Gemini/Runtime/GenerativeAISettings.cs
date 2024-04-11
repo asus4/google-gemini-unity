@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEditor;
 #endif // UNITY_EDITOR
 
-namespace GenerativeAI
+namespace Gemini
 {
     /// <summary>
     /// Settings for GenerativeAI

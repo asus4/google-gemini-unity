@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 // Other types
-namespace GenerativeAI
+namespace Gemini
 {
     /// <summary>
     /// https://ai.google.dev/api/rest/v1beta/models/generateContent

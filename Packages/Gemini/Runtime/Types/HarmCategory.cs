@@ -1,6 +1,6 @@
 using System.Runtime.Serialization;
 
-namespace GenerativeAI
+namespace Gemini
 {
     /// <summary>
     /// https://ai.google.dev/api/rest/v1beta/HarmCategory

@@ -1,7 +1,7 @@
 {
   "dependencies": {
-    "com.github.asus4.google-generative-ai": {
-      "version": "file:GenerativeAI",
+    "com.github.asus4.google-gemini-unity": {
+      "version": "file:Gemini",
       "depth": 0,
       "source": "embedded",
       "dependencies": {

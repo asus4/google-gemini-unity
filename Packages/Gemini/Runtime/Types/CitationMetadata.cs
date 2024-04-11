@@ -1,6 +1,6 @@
 #nullable enable
 
-namespace GenerativeAI
+namespace Gemini
 {
     /// <summary>
     /// A collection of source attributions for a piece of content.

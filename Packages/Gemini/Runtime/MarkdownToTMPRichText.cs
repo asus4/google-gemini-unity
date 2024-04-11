@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace GenerativeAI
+namespace Gemini
 {
     /// <summary>
     /// Convert Markdown to TextMesh Pro Style Rich Text

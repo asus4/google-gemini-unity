@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 // Other types
-namespace GenerativeAI
+namespace Gemini
 {
     /// <summary>
     /// Safety rating for a piece of content.

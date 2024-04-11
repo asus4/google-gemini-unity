@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine.Networking;
 
-namespace GenerativeAI
+namespace Gemini
 {
     /// <summary>
     /// Call API to know all available models for your API Key.

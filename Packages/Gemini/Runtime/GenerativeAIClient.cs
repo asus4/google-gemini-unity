@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine.Networking;
 
-namespace GenerativeAI
+namespace Gemini
 {
     /// <summary>
     /// (Non official) REST API client for Generative Language API 

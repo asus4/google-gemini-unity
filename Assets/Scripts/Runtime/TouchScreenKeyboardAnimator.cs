@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using TMPro;
 
-namespace GenerativeAI
+namespace Gemini
 {
     /// <summary>
     /// Move arbitrary element up while keyboard is shown on mobile

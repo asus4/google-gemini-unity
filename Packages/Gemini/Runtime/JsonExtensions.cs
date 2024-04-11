@@ -1,10 +1,11 @@
 using System;
 using Newtonsoft.Json;
 
-namespace GenerativeAI
+namespace Gemini
 {
     internal static class JsonExtensions
     {
+        // Remove null values from the JSON 
         private static readonly JsonSerializerSettings Settings = new()
         {
             NullValueHandling = NullValueHandling.Ignore,

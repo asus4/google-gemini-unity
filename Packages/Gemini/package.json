@@ -1,8 +1,8 @@
 {
-  "name": "com.github.asus4.google-generative-ai",
+  "name": "com.github.asus4.google-gemini-unity",
   "version": "0.1.0",
-  "displayName": "Google Generative AI",
-  "description": "Non Official Unity Client for Google Generative AI",
+  "displayName": "Google Gemini",
+  "description": "Non Official Unity Client for Google Gemini API",
   "keywords": [
     "unity",
     "google"
