@@ -89,9 +89,9 @@ namespace Gemini
             sb.AppendLine($"<b>{content.role}:</b>");
             foreach (var part in content.parts)
             {
-                if (part.text != null)
+                if (!string.IsNullOrWhiteSpace(part.text))
                 {
-                    sb.AppendLine(part.text);
+                    sb.AppendLine(part.text.MarkdownToRichText());
                 }
                 else
                 {

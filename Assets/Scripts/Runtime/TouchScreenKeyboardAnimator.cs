@@ -5,7 +5,7 @@ using TMPro;
 namespace Gemini
 {
     /// <summary>
-    /// Move arbitrary element up while keyboard is shown on mobile
+    /// Move input field up while keyboard is shown on mobile
     /// </summary>
     public sealed class TouchScreenKeyboardAnimator : MonoBehaviour
     {
