@@ -24,6 +24,10 @@ namespace Gemini
         [SerializeField]
         private bool showAvailableModels;
 
+        [SerializeField]
+        [TextArea(1, 10)]
+        private string systemInstruction;
+
         private GenerativeModel model;
 
         private readonly List<Content> messages = new();
@@ -64,7 +68,12 @@ namespace Gemini
             AppendToView(content);
             messages.Add(content);
 
-            var response = await model.GenerateContentAsync(messages, destroyCancellationToken);
+            GenerateContentRequest request = messages;
+            if (!string.IsNullOrWhiteSpace(systemInstruction))
+            {
+                request.systemInstruction = new Content(systemInstruction);
+            }
+            var response = await model.GenerateContentAsync(request, destroyCancellationToken);
             Debug.Log($"Response: {response}");
 
             if (response.candidates.Length > 0)

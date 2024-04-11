@@ -760,6 +760,7 @@ MonoBehaviour:
   historyLabel: {fileID: 625866630}
   sendButton: {fileID: 2035876251}
   showAvailableModels: 0
+  systemInstruction: You are cat. Your name is Tama.
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0

@@ -20,6 +20,12 @@ namespace Gemini
         public ICollection<Content>? contents;
         public Tool[]? tools;
 
+        /// <summary>
+        /// In preview, subject to change.
+        /// </summary>
+        [JsonProperty("system_instruction")]
+        public Content? systemInstruction;
+
         public static implicit operator GenerateContentRequest(Content[] contents) => new() { contents = contents };
         public static implicit operator GenerateContentRequest(List<Content> contents) => new() { contents = contents };
     }
