@@ -71,6 +71,8 @@ namespace GenerativeAI
                 {
                     ParseUnorderedList(sb, line, "* ");
                 }
+                // TODO: Implement: Ordered List
+                // TODO: Implement: Code Block
                 else
                 {
                     ParseInline(sb, line);
@@ -108,7 +110,7 @@ namespace GenerativeAI
         {
             bool isBold = false;
             bool isItalic = false;
-            bool isCode = false;
+            // bool isCode = false;
 
             for (int i = 0; i < markdown.Length; i++)
             {
@@ -130,9 +132,11 @@ namespace GenerativeAI
                             }
                             isBold = !isBold;
                             i++;
+                            break;
                         }
+
                         // Italic
-                        else if (isItalic)
+                        if (isItalic)
                         {
                             sb.Append("</i>".AsSpan());
                         }
@@ -142,21 +146,24 @@ namespace GenerativeAI
                         }
                         isItalic = !isItalic;
                         break;
-                    case '`':
-                        if (current.StartsWith("```"))
-                        {
-                            break;
-                        }
-                        if (isCode)
-                        {
-                            sb.Append("</mspace>".AsSpan());
-                        }
-                        else
-                        {
-                            sb.Append("<mspace>".AsSpan());
-                        }
-                        isCode = !isCode;
-                        break;
+                    // TODO: implement: Code 
+                    // case '`':
+                    //     if (current.StartsWith("```"))
+                    //     {
+                    //         // Excepts Code Block
+                    //         i += 2;
+                    //         break;
+                    //     }
+                    //     if (isCode)
+                    //     {
+                    //         sb.Append("</mspace>".AsSpan());
+                    //     }
+                    //     else
+                    //     {
+                    //         sb.Append("<mspace>".AsSpan());
+                    //     }
+                    //     isCode = !isCode;
+                    //     break;
                     default:
                         sb.Append(markdown[i]);
                         break;
