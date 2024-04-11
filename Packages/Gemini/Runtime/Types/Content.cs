@@ -1,5 +1,6 @@
 #nullable enable
 
+using System;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -93,10 +94,17 @@ namespace Gemini
             /// </summary>
             public string data;
 
+            [JsonConstructor]
             public Blob(string mimeType, string data)
             {
                 this.mimeType = mimeType;
                 this.data = data;
+            }
+
+            public Blob(string mimeType, ReadOnlySpan<byte> data)
+            {
+                this.mimeType = mimeType;
+                this.data = Convert.ToBase64String(data);
             }
         }
 
