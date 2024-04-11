@@ -8,6 +8,7 @@ namespace Gemini
     /// Minimum async/await support for Unity's AsyncOperation
     /// which is supported from Unity 2023.2
     /// </summary>
+#if !UNITY_2023_2_OR_NEWER
     public static class AsyncOperationExtensions
     {
         public static Awaitable GetAwaiter(this AsyncOperation asyncOperation)
@@ -34,4 +35,5 @@ namespace Gemini
             public void GetResult() { }
         }
     }
+#endif // !UNITY_2023_2_OR_NEWER
 }
