@@ -23,12 +23,12 @@ namespace Gemini
     public partial record Content
     {
         [JsonConverter(typeof(StringEnumConverter))]
-        public Role role;
+        public Role? role;
 
         public Part[] parts;
 
         [JsonConstructor]
-        public Content(Role role, Part[] parts)
+        public Content(Role role, params Part[] parts)
         {
             this.parts = parts;
             this.role = role;
@@ -38,6 +38,11 @@ namespace Gemini
         {
             parts = new Part[] { part };
             this.role = role;
+        }
+
+        public Content(params Part[] parts)
+        {
+            this.parts = parts;
         }
     }
 

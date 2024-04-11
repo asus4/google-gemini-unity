@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -7,6 +6,9 @@ using UnityEngine.UI;
 
 namespace Gemini
 {
+    /// <summary>
+    /// Send image example
+    /// </summary>
     public sealed class VisionExample : MonoBehaviour
     {
         [SerializeField]
@@ -22,6 +24,7 @@ namespace Gemini
         [SerializeField]
         private Button sendButton;
 
+        private readonly StringBuilder sb = new();
         private GenerativeModel model;
 
         private void Start()
@@ -36,9 +39,34 @@ namespace Gemini
 
         private async Task SendRequest()
         {
-            Debug.Log("SendRequest");
             var blob = await inputTexture.ToJpgBlobAsync();
-            Debug.Log($"Blob mime: {blob.mimeType}, data: {blob.data}");
+
+            var messages = new Content[] { new(Role.User, blob, inputText), };
+            var response = await model.GenerateContentAsync(messages, destroyCancellationToken);
+            Debug.Log($"Response: {response}");
+
+            if (response.candidates.Length > 0)
+            {
+                var modelContent = response.candidates[0].content;
+                AppendToView(modelContent);
+            }
+        }
+
+        private void AppendToView(Content content)
+        {
+            sb.AppendLine($"<b>{content.role}:</b>");
+            foreach (var part in content.parts)
+            {
+                if (part.text != null)
+                {
+                    sb.AppendLine(part.text);
+                }
+                else
+                {
+                    sb.AppendLine($"<color=red>Unsupported part</color>");
+                }
+            }
+            resultLabel.SetText(sb);
         }
     }
 }
