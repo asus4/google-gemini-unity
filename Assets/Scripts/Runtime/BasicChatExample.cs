@@ -29,12 +29,6 @@ namespace Gemini
         private readonly List<Content> messages = new();
         private readonly StringBuilder sb = new();
 
-        private void Awake()
-        {
-            Application.targetFrameRate = 60;
-            Application.runInBackground = true;
-        }
-
         private async void Start()
         {
             using var settings = GenerativeAISettings.Get();
