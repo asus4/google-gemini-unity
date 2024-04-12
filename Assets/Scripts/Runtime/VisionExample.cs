@@ -48,25 +48,9 @@ namespace Gemini
             if (response.candidates.Length > 0)
             {
                 var modelContent = response.candidates[0].content;
-                AppendToView(modelContent);
+                sb.AppendTMPRichText(modelContent);
+                resultLabel.SetText(sb);
             }
-        }
-
-        private void AppendToView(Content content)
-        {
-            sb.AppendLine($"<b>{content.role}:</b>");
-            foreach (var part in content.parts)
-            {
-                if (!string.IsNullOrWhiteSpace(part.text))
-                {
-                    sb.AppendLine(part.text.MarkdownToRichText());
-                }
-                else
-                {
-                    sb.AppendLine($"<color=red>Unsupported part</color>");
-                }
-            }
-            resultLabel.SetText(sb);
         }
     }
 }

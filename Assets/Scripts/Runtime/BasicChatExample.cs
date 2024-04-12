@@ -119,32 +119,10 @@ namespace Gemini
         private void RefreshView()
         {
             sb.Clear();
-            if (messages.Count == 0)
+            foreach (var message in messages)
             {
-                messageLabel.SetText(sb);
-                return;
+                sb.AppendTMPRichText(message);
             }
-
-            for (int i = 0; i < messages.Count; i++)
-            {
-                Content content = messages[i];
-                if (content.role.HasValue)
-                {
-                    sb.AppendLine($"<b>{content.role}:</b>");
-                }
-                foreach (var part in content.parts)
-                {
-                    if (!string.IsNullOrWhiteSpace(part.text))
-                    {
-                        sb.AppendLine(part.text.MarkdownToRichText());
-                    }
-                    else
-                    {
-                        sb.AppendLine($"<color=red>Unsupported part</color>");
-                    }
-                }
-            }
-            // Set to label
             messageLabel.SetText(sb);
         }
 

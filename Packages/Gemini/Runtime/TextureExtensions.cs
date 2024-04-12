@@ -40,7 +40,6 @@ namespace Gemini
                 bool isDone = false;
                 AsyncGPUReadbackRequest request = AsyncGPUReadback.RequestIntoNativeArray(ref imageBytes, texture, 0, format, (request) =>
                 {
-                    Debug.Log("AsyncGPUReadback.RequestIntoNativeArray");
                     isDone = true;
                     if (request.hasError)
                     {

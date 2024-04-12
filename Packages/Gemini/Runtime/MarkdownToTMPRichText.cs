@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Text;
 
 namespace Gemini
@@ -169,6 +168,58 @@ namespace Gemini
                         break;
                 }
             }
+        }
+
+        /// <summary>
+        /// Append Content to StringBuilder as TextMesh Pro Rich Text Style
+        /// </summary>
+        /// <param name="sb">A StringBuilder</param>
+        /// <param name="content">A Content</param>
+        public static void AppendTMPRichText(this StringBuilder sb, Content content)
+        {
+            if (content.role.HasValue)
+            {
+                sb.AppendLine($"<b>{content.role.Value}:</b>");
+            }
+            foreach (var part in content.parts)
+            {
+                sb.AppendTMPRichText(part);
+            }
+        }
+
+        /// <summary>
+        /// Append Part to StringBuilder as TextMesh Pro Rich Text Style
+        /// </summary>
+        /// <param name="sb">A StringBuilder</param>
+        /// <param name="part">A Content.Part</param>
+        public static void AppendTMPRichText(this StringBuilder sb, Content.Part part)
+        {
+            if (!string.IsNullOrWhiteSpace(part.text))
+            {
+                sb.AppendLine(part.text.MarkdownToRichText());
+                return;
+            }
+            if (part.inlineData != null)
+            {
+                sb.AppendLine($"<u>inlineData: {part.inlineData.mimeType}</u>");
+                return;
+            }
+            if (part.functionCall != null)
+            {
+                sb.AppendLine($"<u>functionCall: {part.functionCall.name}</u>");
+                return;
+            }
+            if (part.functionResponse != null)
+            {
+                sb.AppendLine($"<u>functionResponse: {part.functionResponse.name}</u>");
+                return;
+            }
+            if (part.fileData != null)
+            {
+                sb.AppendLine($"<u>fileData: mime={part.fileData.mimeType}, uri={part.fileData.fileUri}</u>");
+                return;
+            }
+            sb.AppendLine($"<u><color=red>Unsupported part</color></u>");
         }
     }
 }
