@@ -17,3 +17,4 @@ API_KEY=abc123
 
 - [Nunito Font](https://fonts.google.com/specimen/Nunito): OFL 1.1
 - [Sawarabi Gothic Font](https://fonts.google.com/specimen/Sawarabi+Gothic): OFL 1.1
+- [JFK library](https://www.jfklibrary.org/asset-viewer/archives/jfkwha-006): public domain

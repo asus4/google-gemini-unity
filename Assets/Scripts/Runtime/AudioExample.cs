@@ -7,22 +7,22 @@ using UnityEngine.UI;
 namespace Gemini
 {
     /// <summary>
-    /// Send image example
+    /// Audio understanding example introduced in Gemini 1.5 Pro
     /// </summary>
-    public sealed class VisionExample : MonoBehaviour
+    public sealed class AudioExample : MonoBehaviour
     {
         [SerializeField]
-        private Texture inputTexture;
-
-        [SerializeField]
-        [Multiline(10)]
-        private string inputText;
+        private AudioClip audioClip;
 
         [SerializeField]
         private TextMeshProUGUI resultLabel;
 
         [SerializeField]
         private Button sendButton;
+
+        [SerializeField]
+        [Multiline(10)]
+        private string inputText;
 
         private readonly StringBuilder sb = new();
         private GenerativeModel model;
@@ -31,6 +31,8 @@ namespace Gemini
         {
             using var settings = GenerativeAISettings.Get();
             var client = new GenerativeAIClient(settings);
+
+            // Only Gemini 1.5 Pro model supports audio
             model = client.GetModel(Models.Gemini_1_5_Pro);
 
             // Setup UIs
@@ -39,9 +41,11 @@ namespace Gemini
 
         private async Task SendRequest()
         {
-            var blob = await inputTexture.ToJpgBlobAsync();
+            // Add audio data to the message
+            byte[] audioData = audioClip.ConvertToWav();
+            var blob = new Content.Blob("audio/wav", audioData);
+            Content[] messages = { new(Role.User, inputText, blob), };
 
-            Content[] messages = { new(Role.User, blob, inputText) };
             sb.AppendTMPRichText(messages[0]);
             resultLabel.SetText(sb);
 
