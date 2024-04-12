@@ -8,14 +8,17 @@ namespace Gemini
 {
     /// <summary>
     /// Convert AudioClip to Wav
+    /// 
+    /// Wav format:
+    /// https://isip.piconepress.com/projects/speech/software/tutorials/production/fundamentals/v1.0/section_02/s02_01_p05.html
     /// </summary>
     public static class WavConverter
     {
         private const int HEADER_SIZE = 44;
-        private static readonly byte[] RIFF = Encoding.UTF8.GetBytes("RIFF");
-        private static readonly byte[] WAVE = Encoding.UTF8.GetBytes("WAVE");
-        private static readonly byte[] FMT_ = Encoding.UTF8.GetBytes("fmt ");
-        private static readonly byte[] DATA = Encoding.UTF8.GetBytes("data");
+        private static readonly byte[] RIFF = Encoding.ASCII.GetBytes("RIFF");
+        private static readonly byte[] WAVE = Encoding.ASCII.GetBytes("WAVE");
+        private static readonly byte[] FMT_ = Encoding.ASCII.GetBytes("fmt ");
+        private static readonly byte[] DATA = Encoding.ASCII.GetBytes("data");
 
         public static byte[] ConvertToWav(this AudioClip clip)
         {
