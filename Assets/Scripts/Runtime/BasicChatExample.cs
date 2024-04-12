@@ -80,16 +80,32 @@ namespace Gemini
             {
                 request.systemInstruction = new Content(systemInstruction);
             }
-            var response = await model.GenerateContentAsync(request, destroyCancellationToken);
-            Debug.Log($"Response: {response}");
 
-            if (response.candidates.Length > 0)
+
+            if (useStream)
             {
-                var modelContent = response.candidates[0].content;
-                messages.Add(modelContent);
-                RefreshView();
+                await model.StreamGenerateContentAsync(request, destroyCancellationToken, (response) =>
+                {
+                    Debug.Log($"Response: {response}");
+                    if (response.candidates.Length > 0)
+                    {
+                        var modelContent = response.candidates[0].content;
+                        messages.Add(modelContent);
+                        RefreshView();
+                    }
+                });
             }
-
+            else
+            {
+                var response = await model.GenerateContentAsync(request, destroyCancellationToken);
+                Debug.Log($"Response: {response}");
+                if (response.candidates.Length > 0)
+                {
+                    var modelContent = response.candidates[0].content;
+                    messages.Add(modelContent);
+                    RefreshView();
+                }
+            }
         }
 
         private void RefreshView()
