@@ -761,7 +761,7 @@ MonoBehaviour:
   sendButton: {fileID: 2035876251}
   systemInstruction: 
   showAvailableModels: 0
-  useStream: 0
+  useStream: 1
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0

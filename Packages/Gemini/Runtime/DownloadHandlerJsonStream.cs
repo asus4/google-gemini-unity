@@ -27,7 +27,7 @@ namespace Gemini
         protected override bool ReceiveData(byte[] data, int dataLength)
         {
             string text = Encoding.UTF8.GetString(data, 0, dataLength);
-            Log($"ReceiveData:\n{text}");
+            // Log($"ReceiveData:\n{text}");
 
             // Beginning of stream
             if (text.StartsWith('['))
@@ -44,7 +44,7 @@ namespace Gemini
             {
                 text = text.TrimEnd(']');
             }
-            Log($"Trimmed:\n{text}");
+            // Log($"Trimmed:\n{text}");
 
             // Deserialize JSON
             T obj = JsonExtensions.DeserializeFromJson<T>(text);

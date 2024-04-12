@@ -36,7 +36,7 @@ namespace Gemini
 
         private GenerativeModel model;
         private readonly List<Content> messages = new();
-        private readonly StringBuilder sb = new();
+        private static readonly StringBuilder sb = new();
 
         private async void Start()
         {
@@ -81,24 +81,32 @@ namespace Gemini
                 request.systemInstruction = new Content(systemInstruction);
             }
 
-
             if (useStream)
             {
                 await model.StreamGenerateContentAsync(request, destroyCancellationToken, (response) =>
                 {
-                    Debug.Log($"Response: {response}");
-                    if (response.candidates.Length > 0)
+                    if (response.candidates.Length == 0)
                     {
-                        var modelContent = response.candidates[0].content;
-                        messages.Add(modelContent);
-                        RefreshView();
+                        return;
                     }
+                    // Merge to last message if the role is the same
+                    Content streamContent = response.candidates[0].content;
+                    bool mergeToLast = messages.Count > 0
+                        && messages[^1].role == streamContent.role;
+                    if (mergeToLast)
+                    {
+                        messages[^1] = MergeContent(messages[^1], streamContent);
+                    }
+                    else
+                    {
+                        messages.Add(streamContent);
+                    }
+                    RefreshView();
                 });
             }
             else
             {
                 var response = await model.GenerateContentAsync(request, destroyCancellationToken);
-                Debug.Log($"Response: {response}");
                 if (response.candidates.Length > 0)
                 {
                     var modelContent = response.candidates[0].content;
@@ -117,20 +125,13 @@ namespace Gemini
                 return;
             }
 
-            Role role = Role.User;
             for (int i = 0; i < messages.Count; i++)
             {
                 Content content = messages[i];
-
-                // Display only role changed from previous
-                bool needDisplayRole = i == 0
-                    || (content.role.HasValue && content.role.Value != role);
-                if (needDisplayRole)
+                if (content.role.HasValue)
                 {
                     sb.AppendLine($"<b>{content.role}:</b>");
-                    role = content.role.Value;
                 }
-                // Display content
                 foreach (var part in content.parts)
                 {
                     if (!string.IsNullOrWhiteSpace(part.text))
@@ -145,6 +146,41 @@ namespace Gemini
             }
             // Set to label
             messageLabel.SetText(sb);
+        }
+
+        private static Content MergeContent(Content a, Content b)
+        {
+            if (a.role != b.role)
+            {
+                return null;
+            }
+
+            sb.Clear();
+            var parts = new List<Content.Part>();
+            foreach (var part in a.parts)
+            {
+                if (string.IsNullOrWhiteSpace(part.text))
+                {
+                    parts.Add(part);
+                }
+                else
+                {
+                    sb.Append(part.text);
+                }
+            }
+            foreach (var part in b.parts)
+            {
+                if (string.IsNullOrWhiteSpace(part.text))
+                {
+                    parts.Add(part);
+                }
+                else
+                {
+                    sb.Append(part.text);
+                }
+            }
+            parts.Insert(0, sb.ToString());
+            return new Content(a.role.Value, parts.ToArray());
         }
     }
 }

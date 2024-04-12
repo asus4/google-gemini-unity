@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -25,7 +26,7 @@ namespace Gemini
         [JsonConverter(typeof(StringEnumConverter))]
         public Role? role;
 
-        public Part[] parts;
+        public ICollection<Part> parts;
 
         [JsonConstructor]
         public Content(Role role, params Part[] parts)
