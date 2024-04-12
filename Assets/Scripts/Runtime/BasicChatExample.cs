@@ -12,24 +12,29 @@ namespace Gemini
     /// </summary>
     public sealed class BasicChatExample : MonoBehaviour
     {
+        [Header("UI references")]
         [SerializeField]
         private TMP_InputField inputField;
 
         [SerializeField]
-        private TextMeshProUGUI historyLabel;
+        private TextMeshProUGUI messageLabel;
 
         [SerializeField]
         private Button sendButton;
+
+        [Header("Options")]
+        [SerializeField]
+        [TextArea(1, 10)]
+        private string systemInstruction = string.Empty;
 
         [SerializeField]
         private bool showAvailableModels;
 
         [SerializeField]
-        [TextArea(1, 10)]
-        private string systemInstruction;
+        private bool useStream = false;
+
 
         private GenerativeModel model;
-
         private readonly List<Content> messages = new();
         private readonly StringBuilder sb = new();
 
@@ -52,7 +57,7 @@ namespace Gemini
             inputField.onSubmit.AddListener(async _ => await SendRequest());
 
             // for Debug
-            inputField.text = "Hello! what is your name?";
+            inputField.text = "Write a story about a cat and a dog.";
         }
 
         private async Task SendRequest()
@@ -65,10 +70,12 @@ namespace Gemini
             inputField.text = string.Empty;
 
             Content content = new(Role.User, input);
-            AppendToView(content);
             messages.Add(content);
+            RefreshView();
 
             GenerateContentRequest request = messages;
+
+            // Set System prompt if exists
             if (!string.IsNullOrWhiteSpace(systemInstruction))
             {
                 request.systemInstruction = new Content(systemInstruction);
@@ -79,26 +86,49 @@ namespace Gemini
             if (response.candidates.Length > 0)
             {
                 var modelContent = response.candidates[0].content;
-                AppendToView(modelContent);
                 messages.Add(modelContent);
+                RefreshView();
             }
+
         }
 
-        private void AppendToView(Content content)
+        private void RefreshView()
         {
-            sb.AppendLine($"<b>{content.role}:</b>");
-            foreach (var part in content.parts)
+            sb.Clear();
+            if (messages.Count == 0)
             {
-                if (!string.IsNullOrWhiteSpace(part.text))
+                messageLabel.SetText(sb);
+                return;
+            }
+
+            Role role = Role.User;
+            for (int i = 0; i < messages.Count; i++)
+            {
+                Content content = messages[i];
+
+                // Display only role changed from previous
+                bool needDisplayRole = i == 0
+                    || (content.role.HasValue && content.role.Value != role);
+                if (needDisplayRole)
                 {
-                    sb.AppendLine(part.text.MarkdownToRichText());
+                    sb.AppendLine($"<b>{content.role}:</b>");
+                    role = content.role.Value;
                 }
-                else
+                // Display content
+                foreach (var part in content.parts)
                 {
-                    sb.AppendLine($"<color=red>Unsupported part</color>");
+                    if (!string.IsNullOrWhiteSpace(part.text))
+                    {
+                        sb.AppendLine(part.text.MarkdownToRichText());
+                    }
+                    else
+                    {
+                        sb.AppendLine($"<color=red>Unsupported part</color>");
+                    }
                 }
             }
-            historyLabel.SetText(sb);
+            // Set to label
+            messageLabel.SetText(sb);
         }
     }
 }

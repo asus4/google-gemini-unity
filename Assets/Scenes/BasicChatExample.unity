@@ -757,10 +757,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inputField: {fileID: 48401126}
-  historyLabel: {fileID: 625866630}
+  messageLabel: {fileID: 625866630}
   sendButton: {fileID: 2035876251}
+  systemInstruction: 
   showAvailableModels: 0
-  systemInstruction: You are cat. Your name is Tama.
+  useStream: 0
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
