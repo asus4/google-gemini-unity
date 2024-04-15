@@ -53,35 +53,6 @@ namespace Gemini
             Debug.Log($"tools:{tools.First()}");
         }
 
-
-        [Preserve]
-        [FunctionCall("Return a + b.")]
-        public float Add([FunctionCall("A")] float a, [FunctionCall("B")] float b)
-        {
-            return a + b;
-        }
-
-        [Preserve]
-        [FunctionCall("Return a - b.")]
-        public float Subtract(float a, float b)
-        {
-            return a - b;
-        }
-
-        [Preserve]
-        [FunctionCall("Return a * b.")]
-        public float Multiply(float a, float b)
-        {
-            return a * b;
-        }
-
-        [Preserve]
-        [FunctionCall("Return a / b.")]
-        public float Divide(float a, float b)
-        {
-            return a / b;
-        }
-
         private async Task SendRequest()
         {
             var input = inputField.text;
@@ -133,5 +104,35 @@ namespace Gemini
             }
             messageLabel.SetText(sb);
         }
+
+        #region Function Calls
+        [Preserve]
+        [FunctionCall("Return a + b.")]
+        public float Add([FunctionCall("A")] float a, [FunctionCall("B")] float b)
+        {
+            return a + b;
+        }
+
+        [Preserve]
+        [FunctionCall("Return a - b.")]
+        public static float Subtract(float a, float b)
+        {
+            return a - b;
+        }
+
+        [Preserve]
+        [FunctionCall("Return a * b.")]
+        public float Multiply(float a, float b)
+        {
+            return a * b;
+        }
+
+        [Preserve]
+        [FunctionCall("Return a / b.")]
+        public float Divide(float a, float b)
+        {
+            return a / b;
+        }
+        #endregion Function Calls
     }
 }

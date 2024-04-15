@@ -13,9 +13,11 @@ namespace Gemini
     /// </summary>
     public static class FunctionCallingExtensions
     {
-        public static object? InvokeFunctionCall(this object obj, Content.FunctionCall functionCall)
+        private const BindingFlags DefaultBindings = BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static;
+
+        public static object? InvokeFunctionCall(this object obj, Content.FunctionCall functionCall, BindingFlags flags = DefaultBindings)
         {
-            MethodInfo method = obj.GetType().GetMethod(functionCall.name)
+            MethodInfo method = obj.GetType().GetMethod(functionCall.name, flags)
                 ?? throw new MissingMethodException(obj.GetType().Name, functionCall.name);
 
             // No arguments
@@ -55,7 +57,7 @@ namespace Gemini
         // TODO: Consider migrating to source generator
         public static Tool.FunctionDeclaration[] BuildFunctionsFromAttributes(
             this object obj,
-            BindingFlags flags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static)
+            BindingFlags flags = DefaultBindings)
         {
             var methods = obj.GetType().GetMethods(flags)
                 .Where(method => method.GetCustomAttribute<FunctionCallAttribute>() != null);
