@@ -1,6 +1,7 @@
 # Google Gemini API for Unity Example
 
-**🚧 Work in progress 🏗️**
+## **🚧 Work in progress 🏗️**  
+
 Non official Google Gemini API client for Unity
 
 ## How to Run the example
