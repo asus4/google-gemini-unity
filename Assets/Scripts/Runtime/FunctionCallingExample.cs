@@ -49,96 +49,34 @@ namespace Gemini
             // for Debug
             inputField.text = "I have 57 cats, each owns 44 mittens, how many mittens is that in total?";
 
-            tools = new Tool[]
-            {
-                new Tool.FunctionDeclaration[]
-                {
-                    new(
-                        name: "Add",
-                        description: "Return a + b.",
-                        parameters: new()
-                        {
-                            type = Tool.Type.NUMBER,
-                            format = "float",
-                            properties = new()
-                            {
-                                ["a"] = new(){ type = Tool.Type.NUMBER, },
-                                ["b"] = new(){ type = Tool.Type.NUMBER, },
-                            },
-                            required = new[] { "a", "b" },
-                        }
-                    ),
-                    new(
-                        name: "Subtract",
-                        description: "Return a - b.",
-                        parameters: new()
-                        {
-                            type = Tool.Type.NUMBER,
-                            format = "float",
-                            properties = new()
-                            {
-                                ["a"] = new(){ type = Tool.Type.NUMBER, },
-                                ["b"] = new(){ type = Tool.Type.NUMBER, },
-                            },
-                            required = new[] { "a", "b" },
-                        }
-                    ),
-                    new(
-                        name: "Multiply",
-                        description: "Return a * b.",
-                        parameters: new()
-                        {
-                            type = Tool.Type.NUMBER,
-                            format = "float",
-                            properties = new()
-                            {
-                                ["a"] = new(){ type = Tool.Type.NUMBER, },
-                                ["b"] = new(){ type = Tool.Type.NUMBER, },
-                            },
-                            required = new[] { "a", "b" },
-                        }
-                    ),
-                    new(
-                        name: "Divide",
-                        description: "Return a / b.",
-                        parameters: new()
-                        {
-                            type = Tool.Type.NUMBER,
-                            format = "float",
-                            properties = new()
-                            {
-                                ["a"] = new(){ type = Tool.Type.NUMBER, },
-                                ["b"] = new(){ type = Tool.Type.NUMBER, },
-                            },
-                            required = new[] { "a", "b" },
-                        }
-                    ),
-                }
-            };
+            tools = new Tool[] { this.BuildFunctionsFromAttributes() };
+            Debug.Log($"tools:{tools.First()}");
         }
 
-        /// <summary>
-        /// Return a + b.
-        /// </summary>
+
         [Preserve]
-        public float Add(float a, float b)
+        [FunctionCall("Return a + b.")]
+        public float Add([FunctionCall("A")] float a, [FunctionCall("B")] float b)
         {
             return a + b;
         }
 
         [Preserve]
+        [FunctionCall("Return a - b.")]
         public float Subtract(float a, float b)
         {
             return a - b;
         }
 
         [Preserve]
+        [FunctionCall("Return a * b.")]
         public float Multiply(float a, float b)
         {
             return a * b;
         }
 
         [Preserve]
+        [FunctionCall("Return a / b.")]
         public float Divide(float a, float b)
         {
             return a / b;
