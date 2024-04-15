@@ -78,7 +78,7 @@ namespace Gemini
             // Set System prompt if exists
             if (!string.IsNullOrWhiteSpace(systemInstruction))
             {
-                request.systemInstruction = new Content(systemInstruction);
+                request.systemInstruction = new Content(new Content.Part[] { systemInstruction });
             }
 
             if (useStream)

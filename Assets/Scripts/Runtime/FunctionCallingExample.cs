@@ -1,8 +1,11 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Assertions;
+using UnityEngine.Scripting;
 using UnityEngine.UI;
 
 namespace Gemini
@@ -55,7 +58,8 @@ namespace Gemini
                         description: "Return a + b.",
                         parameters: new()
                         {
-                            type = Tool.Type.OBJECT,
+                            type = Tool.Type.NUMBER,
+                            format = "float",
                             properties = new()
                             {
                                 ["a"] = new(){ type = Tool.Type.NUMBER, },
@@ -69,7 +73,8 @@ namespace Gemini
                         description: "Return a - b.",
                         parameters: new()
                         {
-                            type = Tool.Type.OBJECT,
+                            type = Tool.Type.NUMBER,
+                            format = "float",
                             properties = new()
                             {
                                 ["a"] = new(){ type = Tool.Type.NUMBER, },
@@ -83,7 +88,8 @@ namespace Gemini
                         description: "Return a * b.",
                         parameters: new()
                         {
-                            type = Tool.Type.OBJECT,
+                            type = Tool.Type.NUMBER,
+                            format = "float",
                             properties = new()
                             {
                                 ["a"] = new(){ type = Tool.Type.NUMBER, },
@@ -97,7 +103,8 @@ namespace Gemini
                         description: "Return a / b.",
                         parameters: new()
                         {
-                            type = Tool.Type.OBJECT,
+                            type = Tool.Type.NUMBER,
+                            format = "float",
                             properties = new()
                             {
                                 ["a"] = new(){ type = Tool.Type.NUMBER, },
@@ -113,25 +120,26 @@ namespace Gemini
         /// <summary>
         /// Return a + b.
         /// </summary>
-        /// <param name="a"></param>
-        /// <param name="b"></param>
-        /// <returns></returns>
-        private float Add(float a, float b)
+        [Preserve]
+        public float Add(float a, float b)
         {
             return a + b;
         }
 
-        private float Subtract(float a, float b)
+        [Preserve]
+        public float Subtract(float a, float b)
         {
             return a - b;
         }
 
-        private float Multiply(float a, float b)
+        [Preserve]
+        public float Multiply(float a, float b)
         {
             return a * b;
         }
 
-        private float Divide(float a, float b)
+        [Preserve]
+        public float Divide(float a, float b)
         {
             return a / b;
         }
@@ -149,16 +157,33 @@ namespace Gemini
             messages.Add(content);
             RefreshView();
 
-            GenerateContentRequest request = messages;
-            request.tools = tools;
-
-            var response = await model.GenerateContentAsync(request, destroyCancellationToken);
-            if (response.candidates.Length > 0)
+            // 1. Make request with Tools
+            GenerateContentRequest request = new()
             {
-                var modelContent = response.candidates[0].content;
-                messages.Add(modelContent);
-                RefreshView();
-            }
+                contents = messages,
+                tools = tools,
+            };
+            var response1 = await model.GenerateContentAsync(request, destroyCancellationToken);
+
+            // 2. Receive function call response
+            var modelContent = response1.candidates.First().content;
+            messages.Add(modelContent);
+            RefreshView();
+
+            // 3. Invoke function call in local client
+            var functionCall = modelContent.FindFunctionCall();
+            Assert.IsNotNull(functionCall);
+            var result = this.InvokeFunctionCall(functionCall);
+
+            // 4. Send function response to model
+            Content.FunctionResponse functionResponse = new(functionCall.name, result);
+            messages.Add(new(Role.Function, functionResponse));
+            RefreshView();
+
+            // 5. Generate content with function response
+            var response2 = await model.GenerateContentAsync(request, destroyCancellationToken);
+            messages.Add(response2.candidates.First().content);
+            RefreshView();
         }
 
         private void RefreshView()

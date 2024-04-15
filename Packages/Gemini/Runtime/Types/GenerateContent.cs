@@ -17,7 +17,7 @@ namespace Gemini
         /// For single-turn queries, this is a single instance. For multi-turn queries, this is a repeated field that contains conversation history + latest request.
         /// </summary>
         public ICollection<Content>? contents;
-        public Tool[]? tools;
+        public ICollection<Tool>? tools;
 
         /// <summary>
         /// In preview, subject to change.

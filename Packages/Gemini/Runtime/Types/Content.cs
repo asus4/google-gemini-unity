@@ -14,6 +14,8 @@ namespace Gemini
         User,
         [EnumMember(Value = "model")]
         Model,
+        [EnumMember(Value = "function")]
+        Function,
     }
 
     /// <summary>
@@ -41,7 +43,7 @@ namespace Gemini
             this.role = role;
         }
 
-        public Content(params Part[] parts)
+        public Content(Part[] parts)
         {
             this.parts = parts;
         }
@@ -127,7 +129,7 @@ namespace Gemini
             /// <summary>
             /// Optional. The function parameters and values in JSON object format.
             /// </summary>
-            // public string args;
+            public Dictionary<string, object>? args;
 
             public FunctionCall(string name)
             {
@@ -148,12 +150,32 @@ namespace Gemini
             /// <summary>
             /// Required. The function response in JSON object format.
             /// </summary>
-            public object response;
+            public FunctionResponseContent response;
 
-            public FunctionResponse(string name, object response)
+            [JsonConstructor]
+            public FunctionResponse(string name, FunctionResponseContent response)
             {
                 this.name = name;
                 this.response = response;
+            }
+
+            public FunctionResponse(string name, object content)
+            {
+                this.name = name;
+                response = new FunctionResponseContent(name, content);
+            }
+        }
+
+        // Undocumented redundant type used in FunctionResponse
+        public record FunctionResponseContent
+        {
+            public string name;
+            public object content;
+
+            public FunctionResponseContent(string name, object content)
+            {
+                this.name = name;
+                this.content = content;
             }
         }
 

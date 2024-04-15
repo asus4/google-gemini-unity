@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using UnityEngine;
 using UnityEngine.Networking;
 
 namespace Gemini
@@ -44,7 +45,7 @@ namespace Gemini
             GenerateContentRequest requestBody,
             CancellationToken cancellationToken)
         {
-            string json = requestBody.SerializeToJson();
+            string json = requestBody.SerializeToJson(UnityEngine.Debug.isDebugBuild);
             Log($"request: {uriGenerateContent},\ndata: {json}");
 
             using var request = UnityWebRequest.Post(
