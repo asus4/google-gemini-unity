@@ -6,6 +6,12 @@ using Newtonsoft.Json;
 
 namespace Gemini
 {
+    /// <summary>
+    /// Converting object <-> JSON
+    /// 
+    /// TODO: Consider using System.Text.Json in .NET 5
+    /// for better performance instead of Newtonsoft.Json
+    /// </summary>
     internal static class JsonExtensions
     {
         // Remove null values from the JSON 

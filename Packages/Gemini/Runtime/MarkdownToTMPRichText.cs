@@ -41,7 +41,6 @@ namespace Gemini
                     sb.Append(lineSpan[2..]);
                     sb.Append(H1_CLOSE.AsSpan());
                     sb.AppendLine();
-                    sb.AppendLine();
                 }
                 // H2
                 else if (lineSpan.StartsWith("## "))
@@ -50,7 +49,6 @@ namespace Gemini
                     sb.Append(lineSpan[3..]);
                     sb.Append(H2_CLOSE.AsSpan());
                     sb.AppendLine();
-                    sb.AppendLine();
                 }
                 // H3
                 else if (lineSpan.StartsWith("### "))
@@ -58,7 +56,6 @@ namespace Gemini
                     sb.Append(H3_OPEN.AsSpan());
                     sb.Append(lineSpan[4..]);
                     sb.Append(H3_CLOSE.AsSpan());
-                    sb.AppendLine();
                     sb.AppendLine();
                 }
                 // Unordered List
@@ -75,8 +72,7 @@ namespace Gemini
                 else
                 {
                     ParseInline(sb, line);
-                    sb.AppendLine();
-                    sb.AppendLine();
+                    // sb.AppendLine();
                 }
             }
 

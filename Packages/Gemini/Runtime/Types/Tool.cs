@@ -1,6 +1,8 @@
 #nullable enable
 
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -20,6 +22,12 @@ namespace Gemini
         /// The model or system does not execute the function. Instead the defined function may be returned as a [FunctionCall][content.part.function_call] with arguments to the client side for execution. The model may decide to call a subset of these functions by populating [FunctionCall][content.part.function_call] in the response. The next conversation turn may contain a [FunctionResponse][content.part.function_response] with the [content.role] "function" generation context for the next model turn.
         /// </summary>
         public FunctionDeclaration[]? functionDeclarations;
+
+        public override string ToString()
+            => this.SerializeToJson(true);
+
+        public static implicit operator Tool(FunctionDeclaration[] functionDeclarations)
+            => new() { functionDeclarations = functionDeclarations };
     }
 
     partial record Tool

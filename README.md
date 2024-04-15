@@ -1,6 +1,6 @@
-# Google Vertex AI Experiments
+# Google Gemini API for Unity Example
 
-Our team submission for [Google AI Hackathon](https://googleai.devpost.com/)
+Non official Google Gemini API client for Unity
 
 ## How to Run the project
 
@@ -11,7 +11,7 @@ Our team submission for [Google AI Hackathon](https://googleai.devpost.com/)
 API_KEY=abc123
 ```
 
-## Third-party Assets and Libraries
+## Third-party Assets and Libraries in examples
 
 ### Assets
 
