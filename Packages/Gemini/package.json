@@ -9,11 +9,17 @@
   ],
   "unity": "2022.3",
   "unityRelease": "0f1",
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "3.2.1"
+  },
+  "repository": {
+    "type": "git",
+    "repository": "https://github.com/asus4/google-gemini-unity.git"
+  },
+  "documentationUrl": "https://github.com/asus4/google-gemini-unity",
+  "changelogUrl": "https://github.com/asus4/onnxruntime-unity/releases",
   "author": {
     "name": "Koki Ibukuro",
     "url": "https://github.com/asus4"
-  },
-  "dependencies": {
-    "com.unity.nuget.newtonsoft-json": "3.2.1"
   }
 }
