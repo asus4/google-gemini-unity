@@ -2,7 +2,7 @@ using System;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
-namespace Gemini
+namespace GoogleApis
 {
     /// <summary>
     /// Minimum async/await support for Unity's AsyncOperation

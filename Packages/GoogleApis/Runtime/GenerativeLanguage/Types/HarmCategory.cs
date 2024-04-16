@@ -1,6 +1,6 @@
 using System.Runtime.Serialization;
 
-namespace Gemini
+namespace GoogleApis.GenerativeLanguage
 {
     /// <summary>
     /// https://ai.google.dev/api/rest/v1beta/HarmCategory

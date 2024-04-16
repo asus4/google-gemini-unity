@@ -5,7 +5,7 @@ using UnityEngine.Assertions;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.Rendering;
 
-namespace Gemini
+namespace GoogleApis.GenerativeLanguage
 {
     /// <summary>
     /// Converting Texture to Base64 Blob

@@ -1,6 +1,6 @@
 using System;
 
-namespace Gemini
+namespace GoogleApis.GenerativeLanguage
 {
     [AttributeUsage(
         AttributeTargets.Method | AttributeTargets.Parameter,

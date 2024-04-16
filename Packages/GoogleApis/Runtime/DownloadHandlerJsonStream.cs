@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.Text;
 using UnityEngine.Networking;
 
-namespace Gemini
+namespace GoogleApis.GenerativeLanguage
 {
     /// <summary>
     /// Pass streaming JSON data to delegate

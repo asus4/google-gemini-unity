@@ -1,6 +1,6 @@
 #nullable enable
 
-namespace Gemini
+namespace GoogleApis.GenerativeLanguage
 {
     /// <summary>
     /// A collection of source attributions for a piece of content.

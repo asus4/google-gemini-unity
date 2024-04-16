@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using TMPro;
 
-namespace Gemini
+namespace GoogleApis.Example
 {
     /// <summary>
     /// Move input field up while keyboard is shown on mobile

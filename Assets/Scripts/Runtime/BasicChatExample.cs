@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using GoogleApis.GenerativeLanguage;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Gemini
+namespace GoogleApis.Example
 {
     /// <summary>
     /// Basic Chat Example

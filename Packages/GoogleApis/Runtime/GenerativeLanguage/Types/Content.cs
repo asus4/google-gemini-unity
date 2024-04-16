@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace Gemini
+namespace GoogleApis.GenerativeLanguage
 {
     public enum Role
     {

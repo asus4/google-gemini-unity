@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 // Other types
-namespace Gemini
+namespace GoogleApis.GenerativeLanguage
 {
     /// <summary>
     /// A response candidate generated from the model.

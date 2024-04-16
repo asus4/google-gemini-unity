@@ -1,7 +1,7 @@
 {
   "dependencies": {
-    "com.github.asus4.google-gemini-unity": {
-      "version": "file:Gemini",
+    "com.github.asus4.googleapis-unity": {
+      "version": "file:GoogleApis",
       "depth": 0,
       "source": "embedded",
       "dependencies": {

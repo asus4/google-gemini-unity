@@ -1,7 +1,7 @@
 using System;
 using System.Text;
 
-namespace Gemini
+namespace GoogleApis.GenerativeLanguage
 {
     /// <summary>
     /// Convert Markdown to TextMesh Pro Style Rich Text

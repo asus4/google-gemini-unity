@@ -2,13 +2,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GoogleApis.GenerativeLanguage;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Scripting;
 using UnityEngine.UI;
 
-namespace Gemini
+namespace GoogleApis.Example
 {
     /// <summary>
     /// Function Calling Example
