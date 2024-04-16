@@ -23,7 +23,13 @@ namespace Gemini
             Resources.UnloadAsset(this);
         }
 
-        public static GenerativeAISettings Get()
+        public static GenerativeAISettings Get(string key = "API_KEY")
+        {
+            EnsureSettingExist(key);
+            return Resources.Load<GenerativeAISettings>("GenerativeAISettings");
+        }
+
+        public static void EnsureSettingExist(string key = "API_KEY")
         {
 #if UNITY_EDITOR
             var settings = AssetDatabase.LoadAssetAtPath<GenerativeAISettings>("Assets/Resources/GenerativeAISettings.asset");
@@ -34,25 +40,25 @@ namespace Gemini
                 // Load from env
                 var envPath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
                 var envFile = File.ReadAllText(envPath);
-                settings.apiKey = FromEnvText(envFile);
+                settings.apiKey = FromEnvText(envFile, key);
 
                 AssetDatabase.CreateAsset(settings, "Assets/Resources/GenerativeAISettings.asset");
                 AssetDatabase.SaveAssets();
                 Debug.Log("Created GenerativeAISettings.asset");
             }
 #endif // UNITY_EDITOR
-            return Resources.Load<GenerativeAISettings>("GenerativeAISettings");
         }
 
-        private static string FromEnvText(string text)
+        private static string FromEnvText(string text, string key)
         {
             var dict = text
                 .Split('\n', StringSplitOptions.RemoveEmptyEntries)
                 .Select(line => line.Split('='))
+                .Where(parts => parts.Length == 2)
                 .ToDictionary(parts => parts[0], parts => parts[1]);
-            if (!dict.TryGetValue("API_KEY", out string apiKey))
+            if (!dict.TryGetValue(key, out string apiKey))
             {
-                throw new Exception("API_KEY not found in .env file");
+                throw new Exception($"{key}=YOUR_API_KEY not found in .env file");
             }
             return apiKey;
         }
