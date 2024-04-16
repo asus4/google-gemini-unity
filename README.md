@@ -13,7 +13,7 @@ Non official Google API client for Unity
 API_KEY=abc123
 ```
 
-## How to install the Gemini for Unity library
+## How to install
 
 Add the following line to `Packages/manifest.json` to install the Gemini for Unity package via UPM:
 

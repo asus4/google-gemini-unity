@@ -40,7 +40,7 @@ namespace GoogleApis.Example
                     return;
                 }
                 _isFocused = value;
-                Debug.Log($"IsFocused: {value}");
+                // Debug.Log($"IsFocused: {value}");
 
                 // Delay enable when focused==false while keyboard is running
                 if (enableCoroutine != null)
@@ -152,7 +152,7 @@ namespace GoogleApis.Example
         private void UpdateKeyboardHeight(float relativeHeight)
         {
             float height = relativeHeight * rootTransform.sizeDelta.y;
-            Debug.Log($"Translate Y: {height}");
+            // Debug.Log($"Translate Y: {height}");
 
             if (tweenCoroutine != null)
             {
