@@ -71,6 +71,10 @@ namespace GoogleApis.Example
             Debug.Log($"response: {response}");
 
             // Play audio
+            if (audioSource.clip != null)
+            {
+                Destroy(audioSource.clip);
+            }
             var audioClip = await response.ToAudioClipAsync(destroyCancellationToken);
             audioSource.clip = audioClip;
             audioSource.Play();

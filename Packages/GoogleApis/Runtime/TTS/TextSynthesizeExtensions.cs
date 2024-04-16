@@ -7,6 +7,9 @@ using UnityEngine.Networking;
 
 namespace GoogleApis.TTS
 {
+    /// <summary>
+    /// Utility methods for <see cref="TextSynthesizeResponse"/>.
+    /// </summary>
     public static class TextSynthesizeExtensions
     {
         public static async Task<AudioClip> ToAudioClipAsync(
@@ -14,8 +17,7 @@ namespace GoogleApis.TTS
         {
             // Save base64 audio to a tmp file
             AudioEncoding encoding = response.audioConfig.audioEncoding;
-            string fileName = $"{Guid.NewGuid()}{encoding.ToExtension()}";
-            string tempPath = Path.Combine(Application.temporaryCachePath, fileName);
+            string tempPath = Path.Combine(Application.temporaryCachePath, $"{Guid.NewGuid()}{encoding.ToExtension()}");
             byte[] bytes = Convert.FromBase64String(response.audioContent);
             await File.WriteAllBytesAsync(tempPath, bytes, cancellationToken);
             // Debug.Log($"Saved to {tempPath}");
