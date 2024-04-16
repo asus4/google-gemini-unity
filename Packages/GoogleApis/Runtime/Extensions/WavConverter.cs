@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using UnityEngine;
 
-namespace GoogleApis.GenerativeLanguage
+namespace GoogleApis
 {
     /// <summary>
     /// Convert AudioClip to Wav

@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 
-namespace GoogleApis.GenerativeLanguage
+namespace GoogleApis
 {
     /// <summary>
     /// Converting object <-> JSON
