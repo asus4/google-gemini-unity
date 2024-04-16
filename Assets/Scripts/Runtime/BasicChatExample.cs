@@ -40,7 +40,7 @@ namespace Gemini
 
         private async void Start()
         {
-            using var settings = GenerativeAISettings.Get();
+            using var settings = GoogleApiSettings.Get();
             var client = new GenerativeAIClient(settings);
 
             // List all available models

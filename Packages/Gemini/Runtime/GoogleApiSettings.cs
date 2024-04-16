@@ -13,7 +13,7 @@ namespace Gemini
     /// Settings for GenerativeAI
     /// </summary>
     [Serializable]
-    public sealed class GenerativeAISettings : ScriptableObject, IDisposable
+    public sealed class GoogleApiSettings : ScriptableObject, IDisposable
     {
         [SerializeField]
         internal string apiKey;
@@ -23,28 +23,29 @@ namespace Gemini
             Resources.UnloadAsset(this);
         }
 
-        public static GenerativeAISettings Get(string key = "API_KEY")
+        public static GoogleApiSettings Get(string key = "API_KEY")
         {
             EnsureSettingExist(key);
-            return Resources.Load<GenerativeAISettings>("GenerativeAISettings");
+            return Resources.Load<GoogleApiSettings>("GoogleApiSettings");
         }
 
         public static void EnsureSettingExist(string key = "API_KEY")
         {
 #if UNITY_EDITOR
-            var settings = AssetDatabase.LoadAssetAtPath<GenerativeAISettings>("Assets/Resources/GenerativeAISettings.asset");
+            const string PATH = "Assets/Resources/GoogleApiSettings.asset";
+            var settings = AssetDatabase.LoadAssetAtPath<GoogleApiSettings>(PATH);
             if (settings == null)
             {
-                settings = CreateInstance<GenerativeAISettings>();
+                settings = CreateInstance<GoogleApiSettings>();
 
                 // Load from env
                 var envPath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
                 var envFile = File.ReadAllText(envPath);
                 settings.apiKey = FromEnvText(envFile, key);
 
-                AssetDatabase.CreateAsset(settings, "Assets/Resources/GenerativeAISettings.asset");
+                AssetDatabase.CreateAsset(settings, PATH);
                 AssetDatabase.SaveAssets();
-                Debug.Log("Created GenerativeAISettings.asset");
+                Debug.Log($"Created {PATH}");
             }
 #endif // UNITY_EDITOR
         }

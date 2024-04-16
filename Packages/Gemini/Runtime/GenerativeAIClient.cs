@@ -21,7 +21,7 @@ namespace Gemini
             this.apiKey = apiKey;
         }
 
-        public GenerativeAIClient(GenerativeAISettings settings) : this(settings.apiKey)
+        public GenerativeAIClient(GoogleApiSettings settings) : this(settings.apiKey)
         {
         }
 

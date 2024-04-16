@@ -29,7 +29,7 @@ namespace Gemini
 
         private void Start()
         {
-            using var settings = GenerativeAISettings.Get();
+            using var settings = GoogleApiSettings.Get();
             var client = new GenerativeAIClient(settings);
             model = client.GetModel(Models.Gemini_1_5_Pro);
 
