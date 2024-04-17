@@ -14,7 +14,7 @@ namespace GoogleApis.GenerativeLanguage
     public sealed class GenerativeAIClient
     {
         internal const string BASE_URL = "https://generativelanguage.googleapis.com/v1beta";
-        internal readonly string apiKey;
+        private readonly string apiKey;
 
         public GenerativeAIClient(string apiKey)
         {
