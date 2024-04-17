@@ -1,7 +1,6 @@
 #nullable enable
 
 using System;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine.Networking;
@@ -43,27 +42,8 @@ namespace GoogleApis.GenerativeLanguage
             GenerateContentRequest requestBody,
             CancellationToken cancellationToken)
         {
-            string json = requestBody.SerializeToJson(UnityEngine.Debug.isDebugBuild);
-            Log($"request: {uriGenerateContent},\ndata: {json}");
-
-            using var request = UnityWebRequest.Post(
-                uri: uriGenerateContent,
-                postData: json,
-                contentType: "application/json"
-            );
-            await request.SendWebRequest();
-            if (cancellationToken.IsCancellationRequested)
-            {
-                throw new TaskCanceledException();
-            }
-            if (request.result != UnityWebRequest.Result.Success)
-            {
-                throw new Exception(request.error);
-            }
-
-            string response = request.downloadHandler.text;
-            Log($"response: {response}");
-            return response.DeserializeFromJson<GenerateContentResponse>();
+            return await Api.PostJsonAsync<GenerateContentRequest, GenerateContentResponse>(
+                uriGenerateContent, requestBody, cancellationToken);
         }
 
         /// <summary>
@@ -80,7 +60,7 @@ namespace GoogleApis.GenerativeLanguage
             Action<GenerateContentResponse> onReceive)
         {
             string json = requestBody.SerializeToJson();
-            Log($"request: {uriStreamGenerateContent},\ndata: {json}");
+            Api.Log($"request: {uriStreamGenerateContent},\ndata: {json}");
 
             using var request = UnityWebRequest.Post(
                 uri: uriStreamGenerateContent,
@@ -100,13 +80,7 @@ namespace GoogleApis.GenerativeLanguage
             {
                 throw new Exception($"code={request.responseCode}, result={request.result}, error={request.error}");
             }
-            Log($"Finished streaming");
-        }
-
-        [Conditional("UNITY_EDITOR")]
-        private static void Log(string message)
-        {
-            UnityEngine.Debug.Log(message);
+            Api.Log($"Finished streaming");
         }
     }
 }

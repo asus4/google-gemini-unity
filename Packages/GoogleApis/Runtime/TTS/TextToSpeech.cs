@@ -1,8 +1,5 @@
-using System;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using UnityEngine.Networking;
 
 namespace GoogleApis.TTS
 {
@@ -36,22 +33,7 @@ namespace GoogleApis.TTS
             string url = string.IsNullOrWhiteSpace(languageCode)
                 ? uriVoicesList
                 : $"{uriVoicesList}&languageCode={languageCode}";
-            Log($"request: {url}");
-
-            using var request = UnityWebRequest.Get(url);
-            await request.SendWebRequest();
-            if (cancellationToken.IsCancellationRequested)
-            {
-                throw new TaskCanceledException();
-            }
-            if (request.result != UnityWebRequest.Result.Success)
-            {
-                throw new Exception(request.error);
-            }
-
-            string json = request.downloadHandler.text;
-            Log($"response: {json}");
-            return json.DeserializeFromJson<VoicesResponse>();
+            return await Api.GetJsonAsync<VoicesResponse>(url, cancellationToken);
         }
 
         /// <summary>
@@ -61,32 +43,8 @@ namespace GoogleApis.TTS
         public async Task<TextSynthesizeResponse> SynthesizeAsync(
             TextSynthesizeRequest requestBody, CancellationToken cancellationToken)
         {
-            string json = requestBody.SerializeToJson(UnityEngine.Debug.isDebugBuild);
-            Log($"request: {uriTextSynthesize},\ndata: {json}");
-            using var request = UnityWebRequest.Post(
-                uri: uriTextSynthesize,
-                postData: json,
-                contentType: "application/json"
-            );
-            await request.SendWebRequest();
-            if (cancellationToken.IsCancellationRequested)
-            {
-                throw new TaskCanceledException();
-            }
-            if (request.result != UnityWebRequest.Result.Success)
-            {
-                throw new Exception(request.error);
-            }
-
-            string response = request.downloadHandler.text;
-            Log($"response: {response}");
-            return response.DeserializeFromJson<TextSynthesizeResponse>();
-        }
-
-        [Conditional("UNITY_EDITOR")]
-        private static void Log(string message)
-        {
-            UnityEngine.Debug.Log(message);
+            return await Api.PostJsonAsync<TextSynthesizeRequest, TextSynthesizeResponse>(
+                uriTextSynthesize, requestBody, cancellationToken);
         }
     }
 }
