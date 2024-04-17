@@ -1,8 +1,21 @@
-# Google APIs for Unity
+# Google Gemini for Unity
 
 ## **🚧 Work in progress 🏗️**  
 
-Non official Google API client for Unity
+Non official Google Gemini API client for Unity
+
+## How to use
+
+**🚧 TBD 🏗️**  
+Open examples scenes at `Assets/Scenes/*.scene
+
+Following examples are available:
+
+- BasicChatExample: Generate text content and streaming
+- VisionExample: Image content understanding
+- AudioExample: Audio content understanding
+- FunctionCallingExample: Call C# function from Gemini
+- TextToSpeechExample: Text to speech
 
 ## How to Run the example
 
@@ -19,7 +32,7 @@ Add the following line to `Packages/manifest.json` to install the Gemini for Uni
 
 ```json
 "dependencies": {
-    "com.github.asus4.googleapis-unity": "https://github.com/asus4/googleapis-unity.git?path=Packages/GoogleApis",
+    "com.github.asus4.googleapis-unity": "https://github.com/asus4/google-gemini-unity.git?path=Packages/GoogleApis",
     ... other dependencies
 }
 ```
