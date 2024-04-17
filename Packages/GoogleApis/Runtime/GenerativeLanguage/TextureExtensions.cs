@@ -46,12 +46,13 @@ namespace GoogleApis.GenerativeLanguage
                         throw new System.Exception($"AsyncGPUReadback.RequestIntoNativeArray failed: {request}");
                     }
                 });
-                await Task.Run(() =>
+
+                while (!isDone)
                 {
-                    while (!isDone) { }
-                    using NativeArray<byte> jpgBytes = ImageConversion.EncodeNativeArrayToJPG(imageBytes, format, (uint)width, (uint)height, 0, quality);
-                    blob = new Content.Blob(MIME_JPEG, jpgBytes.AsReadOnlySpan());
-                });
+                    await Task.Yield();
+                }
+                using NativeArray<byte> jpgBytes = ImageConversion.EncodeNativeArrayToJPG(imageBytes, format, (uint)width, (uint)height, 0, quality);
+                blob = new Content.Blob(MIME_JPEG, jpgBytes.AsReadOnlySpan());
             }
             finally
             {
