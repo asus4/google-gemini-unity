@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using GoogleApis.GenerativeLanguage;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Assertions;
 using UnityEngine.Scripting;
 using UnityEngine.UI;
 
@@ -19,7 +18,10 @@ namespace GoogleApis.Example
     /// </summary>
     public sealed class FunctionCallingExample : MonoBehaviour
     {
-        [Header("UI references")]
+        [Header("Scene references")]
+        [SerializeField]
+        private Camera mainCamera;
+
         [SerializeField]
         private TMP_InputField inputField;
 
@@ -29,11 +31,18 @@ namespace GoogleApis.Example
         [SerializeField]
         private Button sendButton;
 
+        [SerializeField]
+        [TextArea(1, 10)]
+        private string systemInstruction = "You are a helpful assistant in Unity GameEngine. You can help users to create objects in the scene.";
+
 
         private GenerativeModel model;
         private readonly List<Content> messages = new();
         private static readonly StringBuilder sb = new();
 
+        private Dictionary<int, GameObject> worldObjects = new();
+
+        private Content systemInstructionContent;
         private Tool[] tools;
 
         private void Start()
@@ -48,10 +57,17 @@ namespace GoogleApis.Example
             inputField.onSubmit.AddListener(async _ => await SendRequest());
 
             // for Debug
-            inputField.text = "I have 57 cats, each owns 44 mittens, how many mittens is that in total?";
+            inputField.text = "Make a floor";
 
+            if (!string.IsNullOrWhiteSpace(systemInstruction))
+            {
+                systemInstructionContent = new Content(new Content.Part[] { systemInstruction });
+            }
+            // Build Tools from all [FunctionCall("description")] attributes in the script.
             tools = new Tool[] { this.BuildFunctionsFromAttributes() };
-            Debug.Log($"tools:{tools.First()}");
+            Debug.Log($"tools:\n{tools.First()}");
+
+
         }
 
         private async Task SendRequest()
@@ -73,6 +89,10 @@ namespace GoogleApis.Example
                 contents = messages,
                 tools = tools,
             };
+            if (systemInstructionContent != null)
+            {
+                request.systemInstruction = systemInstructionContent;
+            }
             var response1 = await model.GenerateContentAsync(request, destroyCancellationToken);
 
             // 2. Receive function call response
@@ -82,10 +102,13 @@ namespace GoogleApis.Example
 
             // 3. Invoke function call in local client
             var functionCall = modelContent.FindFunctionCall();
-            Assert.IsNotNull(functionCall);
+            if (functionCall == null)
+            {
+                return;
+            }
             var result = this.InvokeFunctionCall(functionCall);
 
-            // 4. Send function response to model
+            // 4. Send function response back to model
             Content.FunctionResponse functionResponse = new(functionCall.name, result);
             messages.Add(new(Role.Function, functionResponse));
             RefreshView();
@@ -107,32 +130,27 @@ namespace GoogleApis.Example
         }
 
         #region Function Calls
-        [Preserve]
-        [FunctionCall("Return a + b.")]
-        public float Add([FunctionCall("A")] float a, [FunctionCall("B")] float b)
-        {
-            return a + b;
-        }
 
         [Preserve]
-        [FunctionCall("Return a - b.")]
-        public static float Subtract(float a, float b)
+        [FunctionCall("Make a primitive at the given position, rotation, and size then return the instance ID.")]
+        public int MakePrimitive(
+            [FunctionCall("Primitive type")] PrimitiveType type,
+            [FunctionCall("Center position in the world space")] Vector3 position,
+            [FunctionCall("Euler angles")] Vector3 rotation,
+            [FunctionCall("Size")] Vector3 size)
         {
-            return a - b;
+            var go = GameObject.CreatePrimitive(type);
+            go.transform.position = position;
+            go.transform.eulerAngles = rotation;
+            go.transform.localScale = size;
+            return AddToWorld(go);
         }
 
-        [Preserve]
-        [FunctionCall("Return a * b.")]
-        public float Multiply(float a, float b)
+        private int AddToWorld(GameObject go)
         {
-            return a * b;
-        }
-
-        [Preserve]
-        [FunctionCall("Return a / b.")]
-        public float Divide(float a, float b)
-        {
-            return a / b;
+            int id = go.GetInstanceID();
+            worldObjects.Add(id, go);
+            return id;
         }
         #endregion Function Calls
     }
