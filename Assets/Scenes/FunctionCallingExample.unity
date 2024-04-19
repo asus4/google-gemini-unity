@@ -760,6 +760,8 @@ MonoBehaviour:
   inputField: {fileID: 48401126}
   messageLabel: {fileID: 625866630}
   sendButton: {fileID: 2035876251}
+  modelType: 1
+  toolType: 0
   systemInstruction: You are a helpful assistant in Unity GameEngine. You can help
     users to create objects in the scene.
 --- !u!1 &410087039
