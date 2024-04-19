@@ -1,46 +1,43 @@
 using System.Collections.Generic;
-using GoogleApis.GenerativeLanguage;
+using System.ComponentModel;
 using UnityEngine;
 using UnityEngine.Scripting;
 
 namespace GoogleApis.Example
 {
+    [Preserve]
     public sealed class FunctionCallWorldBuilder : MonoBehaviour
     {
         private readonly Dictionary<int, GameObject> worldObjects = new();
 
-        [Preserve]
-        [FunctionCall("Make a floor at the given scale then returns the instance ID.")]
+        [Description("Make a floor at the given scale then returns the instance ID.")]
         public int MakeFloor(
-            [FunctionCall("Scale of the floor")] float scale)
+            [Description("Scale of the floor")] float scale)
         {
             return MakePrimitive(PrimitiveType.Plane, Vector3.zero, Vector3.zero, Vector3.one * scale);
         }
 
-        [Preserve]
-        [FunctionCall("Make a cube at the given position, rotation, and scale then returns the instance ID.")]
+        [Description("Make a cube at the given position, rotation, and scale then returns the instance ID.")]
         public int MakeCube(
-            [FunctionCall("Center position in the world space")] Vector3 position,
-            [FunctionCall("Euler angles")] Vector3 rotation,
-            [FunctionCall("Size")] Vector3 scale)
+            [Description("Center position in the world space")] Vector3 position,
+            [Description("Euler angles")] Vector3 rotation,
+            [Description("Size")] Vector3 scale)
         {
             return MakePrimitive(PrimitiveType.Cube, position, rotation, scale);
         }
 
-        [Preserve]
-        [FunctionCall("Make a sphere at the given position and size then returns the instance ID.")]
+        [Description("Make a sphere at the given position and size then returns the instance ID.")]
         public int MakeSphere(
-            [FunctionCall("Center position in the world space")] Vector3 position,
-            [FunctionCall("Scale of the sphere")] Vector3 scale)
+            [Description("Center position in the world space")] Vector3 position,
+            [Description("Scale of the sphere")] Vector3 scale)
         {
             return MakePrimitive(PrimitiveType.Sphere, position, Vector3.zero, scale);
         }
 
-        [Preserve]
-        [FunctionCall("Move the object to the given position.")]
+        [Description("Move the object to the given position.")]
         public void MoveObject(
-            [FunctionCall("Instance ID of the object")] int id,
-            [FunctionCall("New position in the world space")] Vector3 position)
+            [Description("Instance ID of the object")] int id,
+            [Description("New position in the world space")] Vector3 position)
         {
             if (worldObjects.TryGetValue(id, out GameObject go))
             {
@@ -48,11 +45,10 @@ namespace GoogleApis.Example
             }
         }
 
-        [Preserve]
-        [FunctionCall("Rotate the object to the given euler angles.")]
+        [Description("Rotate the object to the given euler angles.")]
         public void RotateObject(
-            [FunctionCall("Instance ID of the object")] int id,
-            [FunctionCall("New euler angles")] Vector3 rotation)
+            [Description("Instance ID of the object")] int id,
+            [Description("New euler angles")] Vector3 rotation)
         {
             if (worldObjects.TryGetValue(id, out GameObject go))
             {
@@ -60,11 +56,10 @@ namespace GoogleApis.Example
             }
         }
 
-        [Preserve]
-        [FunctionCall("Scale the object to the given size.")]
+        [Description("Scale the object to the given size.")]
         public void ScaleObject(
-            [FunctionCall("Instance ID of the object")] int id,
-            [FunctionCall("New size")] Vector3 scale)
+            [Description("Instance ID of the object")] int id,
+            [Description("New size")] Vector3 scale)
         {
             if (worldObjects.TryGetValue(id, out GameObject go))
             {

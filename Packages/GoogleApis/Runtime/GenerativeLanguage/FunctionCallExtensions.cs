@@ -3,6 +3,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -16,6 +17,7 @@ namespace GoogleApis.GenerativeLanguage
     /// </summary>
     public static class FunctionCallingExtensions
     {
+        private const string NO_DESCRIPTION_ATTRIBUTE = "Add [System.ComponentModel.Description(description)] to use function calling";
         private const BindingFlags DefaultBindings = BindingFlags.Public | BindingFlags.Instance;
 
         public static async Task<object?> InvokeFunctionCallAsync(
@@ -152,10 +154,10 @@ namespace GoogleApis.GenerativeLanguage
             BindingFlags flags = DefaultBindings)
         {
             var methods = obj.GetType().GetMethods(flags)
-                .Where(method => method.GetCustomAttribute<FunctionCallAttribute>() != null);
+                .Where(method => method.GetCustomAttribute<DescriptionAttribute>() != null);
             if (methods.Count() == 0)
             {
-                throw new ArgumentException($"No methods with [FunctionCall] attribute found in {obj.GetType().Name}");
+                throw new ArgumentException(NO_DESCRIPTION_ATTRIBUTE);
             }
 
             var list = new List<Tool.FunctionDeclaration>(methods.Count());
@@ -166,10 +168,11 @@ namespace GoogleApis.GenerativeLanguage
             return list.ToArray();
         }
 
+
         public static Tool.FunctionDeclaration MakeFunctionDeclaration(MethodInfo method)
         {
-            string description = method.GetCustomAttribute<FunctionCallAttribute>()?.description
-                ?? throw new ArgumentException($"Missing [FunctionCall(description)] on {method.Name}");
+            string description = method.GetCustomAttribute<DescriptionAttribute>()?.Description
+                ?? throw new ArgumentException(NO_DESCRIPTION_ATTRIBUTE);
 
             Type returnType = method.ReturnType;
             if (returnType.IsGenericTask())
@@ -206,7 +209,7 @@ namespace GoogleApis.GenerativeLanguage
         private static Tool.Schema ToSchema(this ParameterInfo parameter)
         {
             var schema = parameter.ParameterType.ToSchema(0);
-            schema.description = parameter.GetCustomAttribute<FunctionCallAttribute>()?.description;
+            schema.description = parameter.GetCustomAttribute<DescriptionAttribute>()?.Description;
             schema.nullable = parameter.IsOptional;
             return schema;
         }
