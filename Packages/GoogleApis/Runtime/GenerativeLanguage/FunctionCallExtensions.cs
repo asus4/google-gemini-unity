@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Debug = UnityEngine.Debug;
 
 namespace GoogleApis.GenerativeLanguage
 {
@@ -13,51 +14,92 @@ namespace GoogleApis.GenerativeLanguage
     /// </summary>
     public static class FunctionCallingExtensions
     {
-        private const BindingFlags DefaultBindings = BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static;
+        private const BindingFlags BindingsForCall = BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static;
+        private const BindingFlags BindingsForTool = BindingFlags.Public | BindingFlags.Instance;
 
-        public static object? InvokeFunctionCall(this object obj, Content.FunctionCall functionCall, BindingFlags flags = DefaultBindings)
+        public static object? InvokeFunctionCall(this object instance, Content.FunctionCall functionCall, BindingFlags flags = BindingsForCall)
         {
-            MethodInfo method = obj.GetType().GetMethod(functionCall.name, flags)
-                ?? throw new MissingMethodException(obj.GetType().Name, functionCall.name);
+            MethodInfo method = instance.GetType().GetMethod(functionCall.name, flags)
+                ?? throw new MissingMethodException(instance.GetType().Name, functionCall.name);
 
             // No arguments
             if (functionCall.args == null)
             {
-                return method.Invoke(obj, null);
+                return method.Invoke(instance, null);
             }
 
             // With arguments
-            object[] parameters = new object[functionCall.args.Count];
             ParameterInfo[] methodParameters = method.GetParameters();
+            object?[] parameters = new object[methodParameters.Length];
             for (int i = 0; i < methodParameters.Length; i++)
             {
                 ParameterInfo parameter = methodParameters[i];
-                if (!functionCall.args.TryGetValue(parameter.Name, out object value))
+                Type type = parameter.ParameterType;
+
+                if (functionCall.args.TryGetValue(parameter.Name, out object value))
                 {
-                    throw new ArgumentException($"Missing argument: {parameter.Name}");
+                    parameters[i] = value.JsonCastTo(type);
+                    Debug.Log($"Parameter: {parameter.Name}, Type: {type}, Value: {parameters[i]}");
                 }
-                parameters[i] = value;
+                else if (parameter.HasDefaultValue)
+                {
+                    parameters[i] = parameter.DefaultValue;
+                }
+                else
+                {
+                    parameters[i] = type.IsValueType ? Activator.CreateInstance(type) : null;
+                }
             }
-            return method.Invoke(obj, parameters);
+            return method.Invoke(instance, parameters);
         }
 
-        public static Content.FunctionCall? FindFunctionCall(this Content content)
+        public static Content InvokeFunctionCalls(this object instance, Content functionCallContent)
+        {
+            if (!functionCallContent.ContainsFunctionCall())
+            {
+                throw new ArgumentException("No function calls found in content");
+            }
+
+            List<Content.Part> parts = new();
+            foreach (var part in functionCallContent.parts)
+            {
+                if (part.functionCall is Content.FunctionCall functionCall)
+                {
+                    try
+                    {
+                        object? result = instance.InvokeFunctionCall(functionCall);
+                        parts.Add(new Content.FunctionResponse(functionCall.name, result));
+                    }
+                    catch (Exception e)
+                    {
+                        parts.Add(new Content.FunctionResponse(functionCall.name, new(e.ToString(), e.Message)));
+                        Debug.LogError($"Error invoking function {functionCall.name}: {e.Message}");
+                    }
+                }
+            }
+            return new Content(Role.Function, parts);
+        }
+
+        public static bool ContainsFunctionCall(this Content content)
         {
             if (content.parts == null || content.parts.Count == 0)
             {
-                return null;
+                return false;
             }
-            if (content.parts.First().functionCall is Content.FunctionCall call)
+            foreach (var part in content.parts)
             {
-                return call;
+                if (part.functionCall != null)
+                {
+                    return true;
+                }
             }
-            return null;
+            return false;
         }
 
         // TODO: Consider migrating to source generator
         public static Tool.FunctionDeclaration[] BuildFunctionsFromAttributes(
             this object obj,
-            BindingFlags flags = DefaultBindings)
+            BindingFlags flags = BindingsForTool)
         {
             var methods = obj.GetType().GetMethods(flags)
                 .Where(method => method.GetCustomAttribute<FunctionCallAttribute>() != null);
@@ -98,40 +140,32 @@ namespace GoogleApis.GenerativeLanguage
 
         private static Tool.Schema ToSchema(this ParameterInfo parameter)
         {
-            Type type = parameter.ParameterType;
-            Tool.Type toolType = type.AsToolType();
-
-            return new Tool.Schema()
-            {
-                type = toolType,
-                format = type.GetTypeFormat(),
-                description = parameter.GetCustomAttribute<FunctionCallAttribute>()?.description,
-                nullable = parameter.IsOptional ? true : null,
-                enums = type.IsEnum ? Enum.GetNames(type) : null,
-                // TODO: implement nested object properties
-                properties = toolType == Tool.Type.OBJECT ? type.GetProperties(BindingFlags.Public).ToDictionary(
-                    property => property.Name,
-                    property => property.PropertyType.ToSchema()
-                ) : null,
-                // required = new string[]{},
-                items = toolType == Tool.Type.ARRAY ? type.GetElementType().ToSchema() : null
-            };
+            var schema = parameter.ParameterType.ToSchema(0);
+            schema.description = parameter.GetCustomAttribute<FunctionCallAttribute>()?.description;
+            schema.nullable = parameter.IsOptional;
+            return schema;
         }
 
-        private static Tool.Schema ToSchema(this Type type)
+        private static Tool.Schema ToSchema(this Type type, int depth)
         {
+            if (depth > 10)
+            {
+                throw new ArgumentException("Depth limit reached");
+            }
             Tool.Type toolType = type.AsToolType();
+            // Debug.Log($"Type: {type}, toolType: {toolType}, depth: {depth}");
 
             return new Tool.Schema()
             {
                 type = toolType,
                 format = type.GetTypeFormat(),
+                nullable = false,
                 enums = type.IsEnum ? Enum.GetNames(type) : null,
-                properties = toolType == Tool.Type.OBJECT ? type.GetProperties(BindingFlags.Public).ToDictionary(
-                    property => property.Name,
-                    property => property.PropertyType.ToSchema()
+                properties = toolType == Tool.Type.OBJECT ? type.GetFields(BindingsForTool).ToDictionary(
+                    field => field.Name,
+                    field => field.FieldType.ToSchema(depth + 1)
                 ) : null,
-                items = toolType == Tool.Type.ARRAY ? type.GetElementType().ToSchema() : null
+                items = toolType == Tool.Type.ARRAY ? type.GetElementType().ToSchema(depth + 1) : null
             };
         }
 
@@ -139,17 +173,25 @@ namespace GoogleApis.GenerativeLanguage
         {
             return type switch
             {
+                // String
                 Type when type == typeof(string) => Tool.Type.STRING,
                 Type when type == typeof(Enum) => Tool.Type.STRING,
+                Type when type.IsEnum => Tool.Type.STRING,
+                // Number
                 Type when type == typeof(float) => Tool.Type.NUMBER,
                 Type when type == typeof(double) => Tool.Type.NUMBER,
+                // Integer
                 Type when type == typeof(int) => Tool.Type.INTEGER,
                 Type when type == typeof(long) => Tool.Type.INTEGER,
+                // Boolean
                 Type when type == typeof(bool) => Tool.Type.BOOLEAN,
-                Type when type == typeof(object) => Tool.Type.OBJECT,
+                // Array
+                Type when type.IsArray => Tool.Type.ARRAY,
                 Type when type == typeof(Array) => Tool.Type.ARRAY,
                 Type when type == typeof(ICollection) => Tool.Type.ARRAY,
-                _ => Tool.Type.OBJECT,
+                // Object
+                Type when type == typeof(object) => Tool.Type.OBJECT,
+                _ => Tool.Type.OBJECT, // and all other types
             };
         }
 

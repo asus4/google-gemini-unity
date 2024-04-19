@@ -190,32 +190,16 @@ namespace GoogleApis.GenerativeLanguage
         /// <param name="part">A Content.Part</param>
         public static void AppendTMPRichText(this StringBuilder sb, Content.Part part)
         {
-            if (!string.IsNullOrWhiteSpace(part.text))
+            string text = part switch
             {
-                sb.AppendLine(part.text.MarkdownToRichText());
-                return;
-            }
-            if (part.inlineData != null)
-            {
-                sb.AppendLine($"<u>inlineData: {part.inlineData.mimeType}</u>");
-                return;
-            }
-            if (part.functionCall != null)
-            {
-                sb.AppendLine($"<u>functionCall: {part.functionCall.name}</u>");
-                return;
-            }
-            if (part.functionResponse != null)
-            {
-                sb.AppendLine($"<u>functionResponse: {part.functionResponse.name}</u>");
-                return;
-            }
-            if (part.fileData != null)
-            {
-                sb.AppendLine($"<u>fileData: mime={part.fileData.mimeType}, uri={part.fileData.fileUri}</u>");
-                return;
-            }
-            sb.AppendLine($"<u><color=red>Unsupported part</color></u>");
+                _ when !string.IsNullOrEmpty(part.text) => part.text.MarkdownToRichText(),
+                { inlineData: not null } => $"inlineData: {part.inlineData.mimeType}",
+                { functionCall: not null } => $"functionCall: {part.functionCall.name}",
+                { functionResponse: not null } => $"functionResponse: {part.functionResponse.name}",
+                { fileData: not null } => $"fileData: mime={part.fileData.mimeType}, uri={part.fileData.fileUri}",
+                _ => $"<u><color=red>Unsupported part</color></u>",
+            };
+            sb.AppendLine(text);
         }
     }
 }

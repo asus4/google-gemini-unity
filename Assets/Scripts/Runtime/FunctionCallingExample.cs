@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using GoogleApis.GenerativeLanguage;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Assertions;
 using UnityEngine.Scripting;
 using UnityEngine.UI;
 
@@ -19,7 +18,10 @@ namespace GoogleApis.Example
     /// </summary>
     public sealed class FunctionCallingExample : MonoBehaviour
     {
-        [Header("UI references")]
+        [Header("Scene references")]
+        [SerializeField]
+        private Camera mainCamera;
+
         [SerializeField]
         private TMP_InputField inputField;
 
@@ -29,11 +31,18 @@ namespace GoogleApis.Example
         [SerializeField]
         private Button sendButton;
 
+        [SerializeField]
+        [TextArea(1, 10)]
+        private string systemInstruction = "You are a helpful assistant in Unity GameEngine. You can help users to create objects in the scene.";
+
 
         private GenerativeModel model;
         private readonly List<Content> messages = new();
         private static readonly StringBuilder sb = new();
 
+        private readonly Dictionary<int, GameObject> worldObjects = new();
+
+        private Content systemInstructionContent;
         private Tool[] tools;
 
         private void Start()
@@ -41,17 +50,32 @@ namespace GoogleApis.Example
             using var settings = GoogleApiSettings.Get();
             var client = new GenerativeAIClient(settings);
 
-            model = client.GetModel(Models.Gemini_1_5_Pro);
+            // Use 1.0 as 1.5 is rate limited in 5/minute, or increase the rate limit of 1.5
+            // model = client.GetModel(Models.Gemini_1_5_Pro);
+            model = client.GetModel(Models.GeminiPro);
 
             // Setup UIs
             sendButton.onClick.AddListener(async () => await SendRequest());
             inputField.onSubmit.AddListener(async _ => await SendRequest());
 
             // for Debug
-            inputField.text = "I have 57 cats, each owns 44 mittens, how many mittens is that in total?";
+            inputField.text = "Make a big floor then make a cube on it.";
 
+            if (!string.IsNullOrWhiteSpace(systemInstruction))
+            {
+                if (model.SupportsSystemInstruction)
+                {
+                    systemInstructionContent = new Content(new Content.Part[] { systemInstruction });
+                }
+                else
+                {
+                    // Add to user text if system instruction is not supported
+                    inputField.text = $"{systemInstruction}\n---\n{inputField.text}";
+                }
+            }
+            // Build Tools from all [FunctionCall("description")] attributes in the script.
             tools = new Tool[] { this.BuildFunctionsFromAttributes() };
-            Debug.Log($"tools:{tools.First()}");
+            Debug.Log($"tools:\n{tools.First()}");
         }
 
         private async Task SendRequest()
@@ -67,33 +91,38 @@ namespace GoogleApis.Example
             messages.Add(content);
             RefreshView();
 
-            // 1. Make request with Tools
-            GenerateContentRequest request = new()
+            while (true)
             {
-                contents = messages,
-                tools = tools,
-            };
-            var response1 = await model.GenerateContentAsync(request, destroyCancellationToken);
+                // 1. Make request with Tools
+                GenerateContentRequest request = new()
+                {
+                    contents = messages,
+                    tools = tools,
+                };
+                if (systemInstructionContent != null)
+                {
+                    request.systemInstruction = systemInstructionContent;
+                }
 
-            // 2. Receive function call response
-            var modelContent = response1.candidates.First().content;
-            messages.Add(modelContent);
-            RefreshView();
+                // 2. Receive response
+                var response = await model.GenerateContentAsync(request, destroyCancellationToken);
+                var modelContent = response.candidates.First().content;
+                messages.Add(modelContent);
+                RefreshView();
 
-            // 3. Invoke function call in local client
-            var functionCall = modelContent.FindFunctionCall();
-            Assert.IsNotNull(functionCall);
-            var result = this.InvokeFunctionCall(functionCall);
+                // Stop if no function call in the response
+                if (!modelContent.ContainsFunctionCall())
+                {
+                    return;
+                }
 
-            // 4. Send function response to model
-            Content.FunctionResponse functionResponse = new(functionCall.name, result);
-            messages.Add(new(Role.Function, functionResponse));
-            RefreshView();
+                // 3. Invoke function call in local client
+                Content functionResponseContent = this.InvokeFunctionCalls(modelContent);
 
-            // 5. Generate content with function response
-            var response2 = await model.GenerateContentAsync(request, destroyCancellationToken);
-            messages.Add(response2.candidates.First().content);
-            RefreshView();
+                // 4. Send function response back to model
+                messages.Add(functionResponseContent);
+                RefreshView();
+            }
         }
 
         private void RefreshView()
@@ -107,33 +136,88 @@ namespace GoogleApis.Example
         }
 
         #region Function Calls
+
         [Preserve]
-        [FunctionCall("Return a + b.")]
-        public float Add([FunctionCall("A")] float a, [FunctionCall("B")] float b)
+        [FunctionCall("Make a floor at the given scale then returns the instance ID.")]
+        public int MakeFloor(
+            [FunctionCall("Scale of the floor")] float scale)
         {
-            return a + b;
+            return MakePrimitive(PrimitiveType.Plane, Vector3.zero, Vector3.zero, Vector3.one * scale);
         }
 
         [Preserve]
-        [FunctionCall("Return a - b.")]
-        public static float Subtract(float a, float b)
+        [FunctionCall("Make a cube at the given position, rotation, and scale then returns the instance ID.")]
+        public int MakeCube(
+            [FunctionCall("Center position in the world space")] Vector3 position,
+            [FunctionCall("Euler angles")] Vector3 rotation,
+            [FunctionCall("Size")] Vector3 scale)
         {
-            return a - b;
+            return MakePrimitive(PrimitiveType.Cube, position, rotation, scale);
         }
 
         [Preserve]
-        [FunctionCall("Return a * b.")]
-        public float Multiply(float a, float b)
+        [FunctionCall("Make a sphere at the given position and size then returns the instance ID.")]
+        public int MakeSphere(
+            [FunctionCall("Center position in the world space")] Vector3 position,
+            [FunctionCall("Scale of the sphere")] Vector3 scale)
         {
-            return a * b;
+            return MakePrimitive(PrimitiveType.Sphere, position, Vector3.zero, scale);
         }
 
         [Preserve]
-        [FunctionCall("Return a / b.")]
-        public float Divide(float a, float b)
+        [FunctionCall("Move the object to the given position.")]
+        public void MoveObject(
+            [FunctionCall("Instance ID of the object")] int id,
+            [FunctionCall("New position in the world space")] Vector3 position)
         {
-            return a / b;
+            if (worldObjects.TryGetValue(id, out GameObject go))
+            {
+                go.transform.position = position;
+            }
         }
+
+        [Preserve]
+        [FunctionCall("Rotate the object to the given euler angles.")]
+        public void RotateObject(
+            [FunctionCall("Instance ID of the object")] int id,
+            [FunctionCall("New euler angles")] Vector3 rotation)
+        {
+            if (worldObjects.TryGetValue(id, out GameObject go))
+            {
+                go.transform.rotation = Quaternion.Euler(rotation);
+            }
+        }
+
+        [Preserve]
+        [FunctionCall("Scale the object to the given size.")]
+        public void ScaleObject(
+            [FunctionCall("Instance ID of the object")] int id,
+            [FunctionCall("New size")] Vector3 scale)
+        {
+            if (worldObjects.TryGetValue(id, out GameObject go))
+            {
+                go.transform.localScale = scale;
+            }
+        }
+
+        private int MakePrimitive(PrimitiveType type, Vector3 position, Vector3 rotation, Vector3 scale)
+        {
+            // Gemini forgets setting scale sometimes
+            if (scale == Vector3.zero)
+            {
+                scale = Vector3.one;
+            }
+
+            var go = GameObject.CreatePrimitive(type);
+            go.transform.SetPositionAndRotation(position, Quaternion.Euler(rotation));
+            go.transform.localScale = scale;
+
+            // Add to the worldObjects
+            int id = go.GetInstanceID();
+            worldObjects.Add(id, go);
+            return id;
+        }
+
         #endregion Function Calls
     }
 }
