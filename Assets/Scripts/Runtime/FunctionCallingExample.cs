@@ -57,7 +57,7 @@ namespace GoogleApis.Example
             inputField.onSubmit.AddListener(async _ => await SendRequest());
 
             // for Debug
-            inputField.text = "Make a floor";
+            inputField.text = "Make a big floor then make a cube on it.";
 
             if (!string.IsNullOrWhiteSpace(systemInstruction))
             {
@@ -100,17 +100,16 @@ namespace GoogleApis.Example
             messages.Add(modelContent);
             RefreshView();
 
-            // 3. Invoke function call in local client
-            var functionCall = modelContent.FindFunctionCall();
-            if (functionCall == null)
+            if (!modelContent.ContainsFunctionCall())
             {
                 return;
             }
-            var result = this.InvokeFunctionCall(functionCall);
+
+            // 3. Invoke function call in local client
+            Content functionResponseContent = this.InvokeFunctionCalls(modelContent);
 
             // 4. Send function response back to model
-            Content.FunctionResponse functionResponse = new(functionCall.name, result);
-            messages.Add(new(Role.Function, functionResponse));
+            messages.Add(functionResponseContent);
             RefreshView();
 
             // 5. Generate content with function response
@@ -132,26 +131,48 @@ namespace GoogleApis.Example
         #region Function Calls
 
         [Preserve]
-        [FunctionCall("Make a primitive at the given position, rotation, and size then return the instance ID.")]
-        public int MakePrimitive(
-            [FunctionCall("Primitive type")] PrimitiveType type,
-            [FunctionCall("Center position in the world space")] Vector3 position,
-            [FunctionCall("Euler angles")] Vector3 rotation,
-            [FunctionCall("Size")] Vector3 size)
+        [FunctionCall("Make a floor at the given scale then return the instance ID.")]
+        public int MakeFloor(
+            [FunctionCall("Scale of the floor")] Vector3 scale)
         {
-            var go = GameObject.CreatePrimitive(type);
-            go.transform.position = position;
-            go.transform.eulerAngles = rotation;
-            go.transform.localScale = size;
-            return AddToWorld(go);
+            if (scale == Vector3.zero)
+            {
+                scale = Vector3.one;
+            }
+            return MakePrimitive(PrimitiveType.Plane, Vector3.zero, Vector3.zero, scale);
         }
 
-        private int AddToWorld(GameObject go)
+        [Preserve]
+        [FunctionCall("Make a cube at the given position, rotation, and scale then return the instance ID.")]
+        public int MakeCube(
+            [FunctionCall("Center position in the world space")] Vector3 position,
+            [FunctionCall("Euler angles")] Vector3 rotation,
+            [FunctionCall("Size")] Vector3 scale)
         {
+            return MakePrimitive(PrimitiveType.Cube, position, rotation, scale);
+        }
+
+        [Preserve]
+        [FunctionCall("Make a sphere at the given position and size then return the instance ID.")]
+        public int MakeSphere(
+            [FunctionCall("Center position in the world space")] Vector3 position,
+            [FunctionCall("Size")] Vector3 size)
+        {
+            return MakePrimitive(PrimitiveType.Sphere, position, Vector3.zero, size);
+        }
+
+        private int MakePrimitive(PrimitiveType type, Vector3 position, Vector3 rotation, Vector3 scale)
+        {
+            var go = GameObject.CreatePrimitive(type);
+            go.transform.SetPositionAndRotation(position, Quaternion.Euler(rotation));
+            go.transform.localScale = scale;
+
+            // Add to the worldObjects
             int id = go.GetInstanceID();
             worldObjects.Add(id, go);
             return id;
         }
+
         #endregion Function Calls
     }
 }
