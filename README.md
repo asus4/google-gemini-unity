@@ -1,21 +1,21 @@
 # Google Gemini for Unity
 
-## **🚧 Work in progress 🏗️**  
+**🚧 Work in progress 🏗️**
 
-Non official Google Gemini API client for Unity
+Non-official Google Gemini API client for Unity. Limited use cases are currently supported.
 
 ## How to use
 
-**🚧 TBD 🏗️**  
+**(🚧 TBD:)**  
 Open examples scenes at `Assets/Scenes/*.scene
 
-Following examples are available:
+The following examples are available:
 
-- BasicChatExample: Generate text content and streaming
+- BasicChatExample: Generates text content and streaming
 - VisionExample: Image content understanding
 - AudioExample: Audio content understanding
-- FunctionCallingExample: Call C# function from Gemini
-- TextToSpeechExample: Text to speech
+- FunctionCallingExample: Calling C# functions from Gemini
+- TextToSpeechExample: Text-to-speech
 
 ## How to Run the example
 
@@ -26,7 +26,7 @@ Following examples are available:
 API_KEY=abc123
 ```
 
-## How to install
+## How to install via UPM
 
 Add the following line to `Packages/manifest.json` to install the Gemini for Unity package via UPM:
 
@@ -37,7 +37,7 @@ Add the following line to `Packages/manifest.json` to install the Gemini for Uni
 }
 ```
 
-## Third-party assets and libraries licenses in examples
+## Third-party assets and library licenses used in examples
 
 - [Nunito Font](https://fonts.google.com/specimen/Nunito): OFL 1.1
 - [Sawarabi Gothic Font](https://fonts.google.com/specimen/Sawarabi+Gothic): OFL 1.1
