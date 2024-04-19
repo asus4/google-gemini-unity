@@ -40,7 +40,7 @@ namespace GoogleApis.Example
         private readonly List<Content> messages = new();
         private static readonly StringBuilder sb = new();
 
-        private Dictionary<int, GameObject> worldObjects = new();
+        private readonly Dictionary<int, GameObject> worldObjects = new();
 
         private Content systemInstructionContent;
         private Tool[] tools;
@@ -50,7 +50,9 @@ namespace GoogleApis.Example
             using var settings = GoogleApiSettings.Get();
             var client = new GenerativeAIClient(settings);
 
-            model = client.GetModel(Models.Gemini_1_5_Pro);
+            // Use 1.0 as 1.5 is rate limited in 5/minute, or increase the rate limit of 1.5
+            // model = client.GetModel(Models.Gemini_1_5_Pro);
+            model = client.GetModel(Models.GeminiPro);
 
             // Setup UIs
             sendButton.onClick.AddListener(async () => await SendRequest());
@@ -61,13 +63,19 @@ namespace GoogleApis.Example
 
             if (!string.IsNullOrWhiteSpace(systemInstruction))
             {
-                systemInstructionContent = new Content(new Content.Part[] { systemInstruction });
+                if (model.SupportsSystemInstruction)
+                {
+                    systemInstructionContent = new Content(new Content.Part[] { systemInstruction });
+                }
+                else
+                {
+                    // Add to user text if system instruction is not supported
+                    inputField.text = $"{systemInstruction}\n---\n{inputField.text}";
+                }
             }
             // Build Tools from all [FunctionCall("description")] attributes in the script.
             tools = new Tool[] { this.BuildFunctionsFromAttributes() };
             Debug.Log($"tools:\n{tools.First()}");
-
-
         }
 
         private async Task SendRequest()
@@ -83,39 +91,38 @@ namespace GoogleApis.Example
             messages.Add(content);
             RefreshView();
 
-            // 1. Make request with Tools
-            GenerateContentRequest request = new()
+            while (true)
             {
-                contents = messages,
-                tools = tools,
-            };
-            if (systemInstructionContent != null)
-            {
-                request.systemInstruction = systemInstructionContent;
+                // 1. Make request with Tools
+                GenerateContentRequest request = new()
+                {
+                    contents = messages,
+                    tools = tools,
+                };
+                if (systemInstructionContent != null)
+                {
+                    request.systemInstruction = systemInstructionContent;
+                }
+
+                // 2. Receive response
+                var response = await model.GenerateContentAsync(request, destroyCancellationToken);
+                var modelContent = response.candidates.First().content;
+                messages.Add(modelContent);
+                RefreshView();
+
+                // Stop if no function call in the response
+                if (!modelContent.ContainsFunctionCall())
+                {
+                    return;
+                }
+
+                // 3. Invoke function call in local client
+                Content functionResponseContent = this.InvokeFunctionCalls(modelContent);
+
+                // 4. Send function response back to model
+                messages.Add(functionResponseContent);
+                RefreshView();
             }
-            var response1 = await model.GenerateContentAsync(request, destroyCancellationToken);
-
-            // 2. Receive function call response
-            var modelContent = response1.candidates.First().content;
-            messages.Add(modelContent);
-            RefreshView();
-
-            if (!modelContent.ContainsFunctionCall())
-            {
-                return;
-            }
-
-            // 3. Invoke function call in local client
-            Content functionResponseContent = this.InvokeFunctionCalls(modelContent);
-
-            // 4. Send function response back to model
-            messages.Add(functionResponseContent);
-            RefreshView();
-
-            // 5. Generate content with function response
-            var response2 = await model.GenerateContentAsync(request, destroyCancellationToken);
-            messages.Add(response2.candidates.First().content);
-            RefreshView();
         }
 
         private void RefreshView()
@@ -131,19 +138,15 @@ namespace GoogleApis.Example
         #region Function Calls
 
         [Preserve]
-        [FunctionCall("Make a floor at the given scale then return the instance ID.")]
+        [FunctionCall("Make a floor at the given scale then returns the instance ID.")]
         public int MakeFloor(
-            [FunctionCall("Scale of the floor")] Vector3 scale)
+            [FunctionCall("Scale of the floor")] float scale)
         {
-            if (scale == Vector3.zero)
-            {
-                scale = Vector3.one;
-            }
-            return MakePrimitive(PrimitiveType.Plane, Vector3.zero, Vector3.zero, scale);
+            return MakePrimitive(PrimitiveType.Plane, Vector3.zero, Vector3.zero, Vector3.one * scale);
         }
 
         [Preserve]
-        [FunctionCall("Make a cube at the given position, rotation, and scale then return the instance ID.")]
+        [FunctionCall("Make a cube at the given position, rotation, and scale then returns the instance ID.")]
         public int MakeCube(
             [FunctionCall("Center position in the world space")] Vector3 position,
             [FunctionCall("Euler angles")] Vector3 rotation,
@@ -153,16 +156,58 @@ namespace GoogleApis.Example
         }
 
         [Preserve]
-        [FunctionCall("Make a sphere at the given position and size then return the instance ID.")]
+        [FunctionCall("Make a sphere at the given position and size then returns the instance ID.")]
         public int MakeSphere(
             [FunctionCall("Center position in the world space")] Vector3 position,
-            [FunctionCall("Size")] Vector3 size)
+            [FunctionCall("Scale of the sphere")] Vector3 scale)
         {
-            return MakePrimitive(PrimitiveType.Sphere, position, Vector3.zero, size);
+            return MakePrimitive(PrimitiveType.Sphere, position, Vector3.zero, scale);
+        }
+
+        [Preserve]
+        [FunctionCall("Move the object to the given position.")]
+        public void MoveObject(
+            [FunctionCall("Instance ID of the object")] int id,
+            [FunctionCall("New position in the world space")] Vector3 position)
+        {
+            if (worldObjects.TryGetValue(id, out GameObject go))
+            {
+                go.transform.position = position;
+            }
+        }
+
+        [Preserve]
+        [FunctionCall("Rotate the object to the given euler angles.")]
+        public void RotateObject(
+            [FunctionCall("Instance ID of the object")] int id,
+            [FunctionCall("New euler angles")] Vector3 rotation)
+        {
+            if (worldObjects.TryGetValue(id, out GameObject go))
+            {
+                go.transform.rotation = Quaternion.Euler(rotation);
+            }
+        }
+
+        [Preserve]
+        [FunctionCall("Scale the object to the given size.")]
+        public void ScaleObject(
+            [FunctionCall("Instance ID of the object")] int id,
+            [FunctionCall("New size")] Vector3 scale)
+        {
+            if (worldObjects.TryGetValue(id, out GameObject go))
+            {
+                go.transform.localScale = scale;
+            }
         }
 
         private int MakePrimitive(PrimitiveType type, Vector3 position, Vector3 rotation, Vector3 scale)
         {
+            // Gemini forgets setting scale sometimes
+            if (scale == Vector3.zero)
+            {
+                scale = Vector3.one;
+            }
+
             var go = GameObject.CreatePrimitive(type);
             go.transform.SetPositionAndRotation(position, Quaternion.Euler(rotation));
             go.transform.localScale = scale;

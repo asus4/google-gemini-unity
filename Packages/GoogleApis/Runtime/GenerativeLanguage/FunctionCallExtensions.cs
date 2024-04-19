@@ -5,7 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Newtonsoft.Json.Linq;
 using Debug = UnityEngine.Debug;
 
 namespace GoogleApis.GenerativeLanguage
@@ -66,8 +65,16 @@ namespace GoogleApis.GenerativeLanguage
             {
                 if (part.functionCall is Content.FunctionCall functionCall)
                 {
-                    object? result = instance.InvokeFunctionCall(functionCall);
-                    parts.Add(new Content.FunctionResponse(functionCall.name, result));
+                    try
+                    {
+                        object? result = instance.InvokeFunctionCall(functionCall);
+                        parts.Add(new Content.FunctionResponse(functionCall.name, result));
+                    }
+                    catch (Exception e)
+                    {
+                        parts.Add(new Content.FunctionResponse(functionCall.name, new(e.ToString(), e.Message)));
+                        Debug.LogError($"Error invoking function {functionCall.name}: {e.Message}");
+                    }
                 }
             }
             return new Content(Role.Function, parts);

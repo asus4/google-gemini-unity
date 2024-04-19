@@ -24,9 +24,20 @@ namespace GoogleApis.GenerativeLanguage
     {
         private readonly string uriGenerateContent;
         private readonly string uriStreamGenerateContent;
+        public readonly string ModelName;
+
+        public bool SupportsSystemInstruction => ModelName switch
+        {
+            Models.GeminiPro => false,
+            Models.GeminiProVision => false,
+            Models.Gemini_1_5_Pro => true,
+            Models.Gemini_1_5_ProVision => true,
+            _ => false,
+        };
 
         internal GenerativeModel(string modelName, string apiKey)
         {
+            ModelName = modelName;
             uriGenerateContent = $"{GenerativeAIClient.BASE_URL}/{modelName}:generateContent?key={apiKey}";
             uriStreamGenerateContent = $"{GenerativeAIClient.BASE_URL}/{modelName}:streamGenerateContent?key={apiKey}";
         }
