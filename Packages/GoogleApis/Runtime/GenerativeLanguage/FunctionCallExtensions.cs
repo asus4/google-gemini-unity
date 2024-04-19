@@ -18,15 +18,15 @@ namespace GoogleApis.GenerativeLanguage
         private const BindingFlags BindingsForCall = BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static;
         private const BindingFlags BindingsForTool = BindingFlags.Public | BindingFlags.Instance;
 
-        public static object? InvokeFunctionCall(this object obj, Content.FunctionCall functionCall, BindingFlags flags = BindingsForCall)
+        public static object? InvokeFunctionCall(this object instance, Content.FunctionCall functionCall, BindingFlags flags = BindingsForCall)
         {
-            MethodInfo method = obj.GetType().GetMethod(functionCall.name, flags)
-                ?? throw new MissingMethodException(obj.GetType().Name, functionCall.name);
+            MethodInfo method = instance.GetType().GetMethod(functionCall.name, flags)
+                ?? throw new MissingMethodException(instance.GetType().Name, functionCall.name);
 
             // No arguments
             if (functionCall.args == null)
             {
-                return method.Invoke(obj, null);
+                return method.Invoke(instance, null);
             }
 
             // With arguments
@@ -51,20 +51,42 @@ namespace GoogleApis.GenerativeLanguage
                     parameters[i] = type.IsValueType ? Activator.CreateInstance(type) : null;
                 }
             }
-            return method.Invoke(obj, parameters);
+            return method.Invoke(instance, parameters);
         }
 
-        public static Content.FunctionCall? FindFunctionCall(this Content content)
+        public static Content InvokeFunctionCalls(this object instance, Content functionCallContent)
+        {
+            if (!functionCallContent.ContainsFunctionCall())
+            {
+                throw new ArgumentException("No function calls found in content");
+            }
+
+            List<Content.Part> parts = new();
+            foreach (var part in functionCallContent.parts)
+            {
+                if (part.functionCall is Content.FunctionCall functionCall)
+                {
+                    object? result = instance.InvokeFunctionCall(functionCall);
+                    parts.Add(new Content.FunctionResponse(functionCall.name, result));
+                }
+            }
+            return new Content(Role.Function, parts);
+        }
+
+        public static bool ContainsFunctionCall(this Content content)
         {
             if (content.parts == null || content.parts.Count == 0)
             {
-                return null;
+                return false;
             }
-            if (content.parts.First().functionCall is Content.FunctionCall call)
+            foreach (var part in content.parts)
             {
-                return call;
+                if (part.functionCall != null)
+                {
+                    return true;
+                }
             }
-            return null;
+            return false;
         }
 
         // TODO: Consider migrating to source generator

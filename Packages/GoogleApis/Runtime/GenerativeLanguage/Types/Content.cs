@@ -43,6 +43,12 @@ namespace GoogleApis.GenerativeLanguage
             this.role = role;
         }
 
+        public Content(Role role, ICollection<Part> parts)
+        {
+            this.parts = parts;
+            this.role = role;
+        }
+
         public Content(Part[] parts)
         {
             this.parts = parts;
@@ -131,9 +137,10 @@ namespace GoogleApis.GenerativeLanguage
             /// </summary>
             public Dictionary<string, object>? args;
 
-            public FunctionCall(string name)
+            public FunctionCall(string name, Dictionary<string, object>? args)
             {
                 this.name = name;
+                this.args = args;
             }
         }
 
@@ -159,7 +166,7 @@ namespace GoogleApis.GenerativeLanguage
                 this.response = response;
             }
 
-            public FunctionResponse(string name, object content)
+            public FunctionResponse(string name, object? content)
             {
                 this.name = name;
                 response = new FunctionResponseContent(name, content);
@@ -170,9 +177,9 @@ namespace GoogleApis.GenerativeLanguage
         public record FunctionResponseContent
         {
             public string name;
-            public object content;
+            public object? content;
 
-            public FunctionResponseContent(string name, object content)
+            public FunctionResponseContent(string name, object? content)
             {
                 this.name = name;
                 this.content = content;
