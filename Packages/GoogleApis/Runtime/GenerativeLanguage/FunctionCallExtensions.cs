@@ -183,6 +183,11 @@ namespace GoogleApis.GenerativeLanguage
                 // Integer
                 Type when type == typeof(int) => Tool.Type.INTEGER,
                 Type when type == typeof(long) => Tool.Type.INTEGER,
+                Type when type == typeof(byte) => Tool.Type.INTEGER,
+                Type when type == typeof(short) => Tool.Type.INTEGER,
+                Type when type == typeof(sbyte) => Tool.Type.INTEGER,
+                Type when type == typeof(uint) => Tool.Type.INTEGER,
+                Type when type == typeof(ulong) => Tool.Type.INTEGER,
                 // Boolean
                 Type when type == typeof(bool) => Tool.Type.BOOLEAN,
                 // Array
