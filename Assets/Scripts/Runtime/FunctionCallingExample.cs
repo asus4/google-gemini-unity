@@ -18,6 +18,12 @@ namespace GoogleApis.Example
     /// </summary>
     public sealed class FunctionCallingExample : MonoBehaviour
     {
+        public enum Model
+        {
+            Gemini_1_0_Pro,
+            Gemini_1_5_Pro,
+        }
+
         [Header("Scene references")]
         [SerializeField]
         private Camera mainCamera;
@@ -30,6 +36,9 @@ namespace GoogleApis.Example
 
         [SerializeField]
         private Button sendButton;
+
+        [SerializeField]
+        private Model modelType = Model.Gemini_1_0_Pro;
 
         [SerializeField]
         [TextArea(1, 10)]
@@ -51,8 +60,13 @@ namespace GoogleApis.Example
             var client = new GenerativeAIClient(settings);
 
             // Use 1.0 as 1.5 is rate limited in 5/minute, or increase the rate limit of 1.5
-            // model = client.GetModel(Models.Gemini_1_5_Pro);
-            model = client.GetModel(Models.GeminiPro);
+            string modelName = modelType switch
+            {
+                Model.Gemini_1_0_Pro => Models.GeminiPro,
+                Model.Gemini_1_5_Pro => Models.Gemini_1_5_Pro,
+                _ => throw new System.NotImplementedException(),
+            };
+            model = client.GetModel(modelName);
 
             // Setup UIs
             sendButton.onClick.AddListener(async () => await SendRequest());
