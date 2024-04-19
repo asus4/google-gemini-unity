@@ -5,6 +5,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using Debug = UnityEngine.Debug;
 
 namespace GoogleApis.GenerativeLanguage
@@ -14,10 +16,13 @@ namespace GoogleApis.GenerativeLanguage
     /// </summary>
     public static class FunctionCallingExtensions
     {
-        private const BindingFlags BindingsForCall = BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static;
-        private const BindingFlags BindingsForTool = BindingFlags.Public | BindingFlags.Instance;
+        private const BindingFlags DefaultBindings = BindingFlags.Public | BindingFlags.Instance;
 
-        public static object? InvokeFunctionCall(this object instance, Content.FunctionCall functionCall, BindingFlags flags = BindingsForCall)
+        public static async Task<object?> InvokeFunctionCallAsync(
+            this object instance,
+            Content.FunctionCall functionCall,
+            CancellationToken cancellationToken = default,
+            BindingFlags flags = DefaultBindings)
         {
             MethodInfo method = instance.GetType().GetMethod(functionCall.name, flags)
                 ?? throw new MissingMethodException(instance.GetType().Name, functionCall.name);
@@ -28,7 +33,7 @@ namespace GoogleApis.GenerativeLanguage
                 return method.Invoke(instance, null);
             }
 
-            // With arguments
+            // Build method parameter arguments
             ParameterInfo[] methodParameters = method.GetParameters();
             object?[] parameters = new object[methodParameters.Length];
             for (int i = 0; i < methodParameters.Length; i++)
@@ -36,24 +41,52 @@ namespace GoogleApis.GenerativeLanguage
                 ParameterInfo parameter = methodParameters[i];
                 Type type = parameter.ParameterType;
 
+                if (type == typeof(CancellationToken))
+                {
+                    parameters[i] = cancellationToken;
+                    continue;
+                }
                 if (functionCall.args.TryGetValue(parameter.Name, out object value))
                 {
                     parameters[i] = value.JsonCastTo(type);
-                    Debug.Log($"Parameter: {parameter.Name}, Type: {type}, Value: {parameters[i]}");
+                    // Debug.Log($"Parameter: {parameter.Name}, Type: {type}, Value: {parameters[i]}");
+                    continue;
                 }
-                else if (parameter.HasDefaultValue)
+                if (parameter.HasDefaultValue)
                 {
                     parameters[i] = parameter.DefaultValue;
+                    continue;
                 }
-                else
-                {
-                    parameters[i] = type.IsValueType ? Activator.CreateInstance(type) : null;
-                }
+                // else 
+                parameters[i] = type.IsValueType ? Activator.CreateInstance(type) : null;
             }
-            return method.Invoke(instance, parameters);
+
+            // Return inside type(T) of Task<T> in case of async method
+            Type returnType = method.ReturnType;
+            bool isGenericTask = returnType.IsGenericTask();
+            bool isTask = returnType == typeof(Task);
+            if (isTask || isGenericTask)
+            {
+                Task task = (Task)method.Invoke(instance, parameters);
+                await task;
+                cancellationToken.ThrowIfCancellationRequested();
+                if (isTask)
+                {
+                    return null;
+                }
+                return task.GetType().GetProperty("Result").GetValue(task, null);
+            }
+            else
+            {
+                return method.Invoke(instance, parameters);
+            }
         }
 
-        public static Content InvokeFunctionCalls(this object instance, Content functionCallContent)
+        public static async Task<Content> InvokeFunctionCallsAsync(
+            this object instance,
+            Content functionCallContent,
+            CancellationToken cancellationToken = default,
+            BindingFlags flags = DefaultBindings)
         {
             if (!functionCallContent.ContainsFunctionCall())
             {
@@ -63,23 +96,34 @@ namespace GoogleApis.GenerativeLanguage
             List<Content.Part> parts = new();
             foreach (var part in functionCallContent.parts)
             {
-                if (part.functionCall is Content.FunctionCall functionCall)
+                if (part.functionCall == null)
                 {
-                    try
-                    {
-                        object? result = instance.InvokeFunctionCall(functionCall);
-                        parts.Add(new Content.FunctionResponse(functionCall.name, result));
-                    }
-                    catch (Exception e)
-                    {
-                        parts.Add(new Content.FunctionResponse(functionCall.name, new(e.ToString(), e.Message)));
-                        Debug.LogError($"Error invoking function {functionCall.name}: {e.Message}");
-                    }
+                    continue;
                 }
+                string name = part.functionCall.name;
+                try
+                {
+                    object? result = await instance.InvokeFunctionCallAsync(
+                        part.functionCall,
+                        cancellationToken,
+                        flags);
+                    parts.Add(new Content.FunctionResponse(name, result));
+                }
+                catch (Exception e)
+                {
+                    parts.Add(new Content.FunctionResponse(name, new(e.ToString(), e.Message)));
+                    Debug.LogError($"Error invoking function {name}: {e.Message}");
+                }
+                cancellationToken.ThrowIfCancellationRequested();
             }
             return new Content(Role.Function, parts);
         }
 
+        /// <summary>
+        /// Check if the content contains a function call.
+        /// </summary>
+        /// <param name="content">A content</param>
+        /// <returns>Returns true if the content contains a function call.</returns>
         public static bool ContainsFunctionCall(this Content content)
         {
             if (content.parts == null || content.parts.Count == 0)
@@ -96,10 +140,16 @@ namespace GoogleApis.GenerativeLanguage
             return false;
         }
 
+        /// <summary>
+        /// Build all FunctionDeclaration from [FunctionCall] in the script
+        /// </summary>
+        /// <param name="obj">Ayn type of object</param>
+        /// <param name="flags">A binding flag.</param>
+        /// <returns>Built FunctionDeclarations</returns>
         // TODO: Consider migrating to source generator
         public static Tool.FunctionDeclaration[] BuildFunctionsFromAttributes(
             this object obj,
-            BindingFlags flags = BindingsForTool)
+            BindingFlags flags = DefaultBindings)
         {
             var methods = obj.GetType().GetMethods(flags)
                 .Where(method => method.GetCustomAttribute<FunctionCallAttribute>() != null);
@@ -120,8 +170,18 @@ namespace GoogleApis.GenerativeLanguage
         {
             string description = method.GetCustomAttribute<FunctionCallAttribute>()?.description
                 ?? throw new ArgumentException($"Missing [FunctionCall(description)] on {method.Name}");
+
             Type returnType = method.ReturnType;
-            ParameterInfo[]? parameters = method.GetParameters();
+            if (returnType.IsGenericTask())
+            {
+                returnType = returnType.GetGenericArguments()[0];
+            }
+            // Debug.Log($"Method: {method.Name}, ReturnType: {returnType}");
+
+            ParameterInfo[]? parameters = method.GetParameters()
+                // Ignore CancellationToken
+                .Where(p => p.ParameterType != typeof(CancellationToken))
+                .ToArray();
 
             return new Tool.FunctionDeclaration(
                 name: method.Name,
@@ -136,6 +196,11 @@ namespace GoogleApis.GenerativeLanguage
                     ),
                 }
             );
+        }
+
+        private static bool IsGenericTask(this Type type)
+        {
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Task<>);
         }
 
         private static Tool.Schema ToSchema(this ParameterInfo parameter)
@@ -161,7 +226,7 @@ namespace GoogleApis.GenerativeLanguage
                 format = type.GetTypeFormat(),
                 nullable = false,
                 enums = type.IsEnum ? Enum.GetNames(type) : null,
-                properties = toolType == Tool.Type.OBJECT ? type.GetFields(BindingsForTool).ToDictionary(
+                properties = toolType == Tool.Type.OBJECT ? type.GetFields(DefaultBindings).ToDictionary(
                     field => field.Name,
                     field => field.FieldType.ToSchema(depth + 1)
                 ) : null,

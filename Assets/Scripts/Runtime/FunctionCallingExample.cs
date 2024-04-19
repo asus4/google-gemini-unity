@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using GoogleApis.GenerativeLanguage;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Scripting;
 using UnityEngine.UI;
 
 namespace GoogleApis.Example
@@ -27,6 +26,7 @@ namespace GoogleApis.Example
         public enum ToolMode
         {
             WorldBuilder,
+            WebContent
         }
 
         [Header("Scene references")]
@@ -50,7 +50,7 @@ namespace GoogleApis.Example
 
         [SerializeField]
         [TextArea(1, 10)]
-        private string systemInstruction = "You are a helpful assistant in Unity GameEngine. You can help users to create objects in the scene.";
+        private string systemInstruction = "You are a helpful assistant in Unity GameEngine.";
 
         private GenerativeModel model;
         private readonly List<Content> messages = new();
@@ -62,6 +62,7 @@ namespace GoogleApis.Example
 
         private void Start()
         {
+            // Make Gemini model
             using var settings = GoogleApiSettings.Get();
             var client = new GenerativeAIClient(settings);
 
@@ -78,9 +79,7 @@ namespace GoogleApis.Example
             sendButton.onClick.AddListener(async () => await SendRequest());
             inputField.onSubmit.AddListener(async _ => await SendRequest());
 
-            // for Debug
-            inputField.text = "Make a big floor then make a cube on it.";
-
+            // Set system instruction
             if (!string.IsNullOrWhiteSpace(systemInstruction))
             {
                 if (model.SupportsSystemInstruction)
@@ -94,15 +93,23 @@ namespace GoogleApis.Example
                 }
             }
 
-
             // Build Tools from all [FunctionCall("description")] attributes in the script.
             toolInstance = toolType switch
             {
                 ToolMode.WorldBuilder => gameObject.AddComponent<FunctionCallWorldBuilder>(),
+                ToolMode.WebContent => gameObject.AddComponent<FunctionCallWebContent>(),
                 _ => throw new System.NotImplementedException(),
             };
             tools = new Tool[] { toolInstance.BuildFunctionsFromAttributes() };
             Debug.Log($"tools:\n{tools.First()}");
+
+            // for Debug
+            inputField.text = toolType switch
+            {
+                ToolMode.WorldBuilder => "Make a big floor then make a cube on it.",
+                ToolMode.WebContent => "Summarize the following webpage in three sentence: https://en.wikipedia.org/wiki/Unity_(game_engine)",
+                _ => throw new System.NotImplementedException(),
+            };
         }
 
         private async Task SendRequest()
@@ -144,7 +151,8 @@ namespace GoogleApis.Example
                 }
 
                 // 3. Invoke function call in local client
-                Content functionResponseContent = toolInstance.InvokeFunctionCalls(modelContent);
+                Content functionResponseContent = await toolInstance.InvokeFunctionCallsAsync(
+                    modelContent, destroyCancellationToken);
 
                 // 4. Send function response back to model
                 messages.Add(functionResponseContent);
