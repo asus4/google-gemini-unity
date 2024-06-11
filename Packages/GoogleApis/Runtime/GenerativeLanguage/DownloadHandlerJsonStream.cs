@@ -47,9 +47,11 @@ namespace GoogleApis.GenerativeLanguage
             // Log($"Trimmed:\n{text}");
 
             // Deserialize JSON
-            T obj = JsonExtensions.DeserializeFromJson<T>(text);
-            onReceive(obj);
-
+            if (!string.IsNullOrWhiteSpace(text))
+            {
+                T obj = JsonExtensions.DeserializeFromJson<T>(text);
+                onReceive(obj);
+            }
             return true;
         }
 
