@@ -18,38 +18,52 @@ namespace GoogleApis.GenerativeLanguage
     public sealed class DownloadHandlerJsonStream<T> : DownloadHandlerScript
     {
         private readonly Action<T> onReceive;
+        private char[] textBuffer;
 
         public DownloadHandlerJsonStream(Action<T> receiveDataDelegate)
         {
             onReceive = receiveDataDelegate;
+            textBuffer = new char[2048];
         }
 
         protected override bool ReceiveData(byte[] data, int dataLength)
         {
-            string text = Encoding.UTF8.GetString(data, 0, dataLength);
-            // Log($"ReceiveData:\n{text}");
+            if (dataLength > textBuffer.Length)
+            {
+                textBuffer = new char[dataLength];
+            }
+
+            // string text = Encoding.UTF8.GetString(data, 0, dataLength);
+            int readLength = Encoding.UTF8.GetChars(data.AsSpan(0, dataLength), textBuffer);
+            Span<char> textSpan = textBuffer.AsSpan(0, readLength);
+            // Log($"ReceiveData: {text.Length} chars,\n{text}");
+
+            if (readLength == 0)
+            {
+                return true;
+            }
 
             // Beginning of stream
-            if (text.StartsWith('['))
+            if (textSpan[0] == '[')
             {
-                text = text.TrimStart('[');
+                textSpan = textSpan[1..];
             }
             // Middle of stream
-            else if (text.StartsWith(','))
+            else if (textSpan[0] == ',')
             {
-                text = text.TrimStart(',');
+                textSpan = textSpan[1..];
             }
             // End of stream
-            else if (text.EndsWith(']'))
+            else if (textSpan[^1] == ']')
             {
-                text = text.TrimEnd(']');
+                textSpan = textSpan[..^1];
             }
             // Log($"Trimmed:\n{text}");
 
             // Deserialize JSON
-            if (!string.IsNullOrWhiteSpace(text))
+            if (!IsNullOrWhitespace(textSpan))
             {
-                T obj = JsonExtensions.DeserializeFromJson<T>(text);
+                T obj = JsonExtensions.DeserializeFromJson<T>(new string(textSpan));
                 onReceive(obj);
             }
             return true;
@@ -59,6 +73,23 @@ namespace GoogleApis.GenerativeLanguage
         private static void Log(string message)
         {
             UnityEngine.Debug.Log(message);
+        }
+
+        private static bool IsNullOrWhitespace(ReadOnlySpan<char> span)
+        {
+            if (span.Length == 0)
+            {
+                return true;
+            }
+
+            foreach (var c in span)
+            {
+                if (!char.IsWhiteSpace(c))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }
