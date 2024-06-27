@@ -1,5 +1,6 @@
 #nullable enable
 
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,6 +13,9 @@ namespace GoogleApis.GenerativeLanguage
     /// </summary>
     public record GenerationConfig
     {
+        public const string DefaultResponseMimeType = "text/plain";
+        public const string JSONResponseMimeType = "application/json";
+
         public ICollection<string>? stopSequences;
         public string? responseMimeType;
         public Tool.Schema? responseSchema;
@@ -21,5 +25,11 @@ namespace GoogleApis.GenerativeLanguage
         public double? temperature;
         public double? topP;
         public int? topK;
+
+        public void SetJsonMode(Type responseType)
+        {
+            responseMimeType = JSONResponseMimeType;
+            responseSchema = responseType.ToSchema();
+        }
     }
 }

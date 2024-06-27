@@ -206,7 +206,7 @@ namespace GoogleApis.GenerativeLanguage
             return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Task<>);
         }
 
-        private static Tool.Schema ToSchema(this ParameterInfo parameter)
+        public static Tool.Schema ToSchema(this ParameterInfo parameter)
         {
             var schema = parameter.ParameterType.ToSchema(0);
             schema.description = parameter.GetCustomAttribute<DescriptionAttribute>()?.Description;
@@ -214,7 +214,7 @@ namespace GoogleApis.GenerativeLanguage
             return schema;
         }
 
-        private static Tool.Schema ToSchema(this Type type, int depth)
+        public static Tool.Schema ToSchema(this Type type, int depth = 0)
         {
             if (depth > 10)
             {

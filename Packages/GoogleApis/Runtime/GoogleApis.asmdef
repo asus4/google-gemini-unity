@@ -1,6 +1,6 @@
 {
     "name": "GoogleApis",
-    "rootNamespace": "",
+    "rootNamespace": "GoogleApis",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
