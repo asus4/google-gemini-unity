@@ -17,14 +17,33 @@ namespace GoogleApis.GenerativeLanguage
         /// For single-turn queries, this is a single instance. For multi-turn queries, this is a repeated field that contains conversation history + latest request.
         /// </summary>
         public ICollection<Content>? contents;
+
+        /// <summary>
+        /// Optional. A list of Tools the model may use to generate the next response.
+        /// </summary>
         public ICollection<Tool>? tools;
 
         /// <summary>
-        /// In preview, subject to change.
+        /// Optional. Tool configuration for any Tool specified in the request.
         /// </summary>
-        [JsonProperty("system_instruction")]
+        public Tool.ToolConfig? toolConfig;
+
+        /// <summary>
+        /// Optional. Developer set system instruction. Currently, text only.
+        /// </summary>
         public Content? systemInstruction;
 
+        /// <summary>
+        /// Optional. Configuration options for model generation and outputs.
+        /// </summary>
+        public GenerationConfig? generationConfig;
+
+        /// <summary>
+        /// Optional. The name of the cached content used as context to serve the prediction. Note: only used in explicit caching, where users can have control over caching (e.g. what content to cache) and enjoy guaranteed cost savings. Format: cachedContents/{cachedContent}
+        /// </summary>
+        public string? cachedContent;
+
+        // Constructor syntax sugars
         public static implicit operator GenerateContentRequest(Content[] contents) => new() { contents = contents };
         public static implicit operator GenerateContentRequest(List<Content> contents) => new() { contents = contents };
     }

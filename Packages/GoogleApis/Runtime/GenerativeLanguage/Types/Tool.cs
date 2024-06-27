@@ -1,8 +1,6 @@
 #nullable enable
 
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -120,6 +118,49 @@ namespace GoogleApis.GenerativeLanguage
             BOOLEAN,
             ARRAY,
             OBJECT,
+        }
+
+        /// <summary>
+        /// The Tool configuration containing parameters for specifying Tool use in the request.
+        /// https://ai.google.dev/api/rest/v1beta/cachedContents#toolconfig
+        /// </summary>
+        public record ToolConfig
+        {
+            public FunctionCallingConfig? functionCallingConfig;
+        }
+
+        /// <summary>
+        /// Configuration for specifying function calling behavior.
+        /// https://ai.google.dev/api/rest/v1beta/cachedContents#toolconfig
+        /// </summary>
+        public record FunctionCallingConfig
+        {
+            /*
+            JSON representation
+
+            {
+            "mode": enum (Mode),
+            "allowedFunctionNames": [
+                string
+            ]
+            }
+            */
+
+            [JsonConverter(typeof(StringEnumConverter))]
+            public Mode? mode;
+            public string[]? allowedFunctionNames;
+        }
+
+        public enum Mode
+        {
+            // Unspecified function calling mode. This value should not be used.
+            MODE_UNSPECIFIED,
+            // Default model behavior, model decides to predict either a function call or a natural language response.
+            AUTO,
+            // Model is constrained to always predicting a function call only. If "allowedFunctionNames" are set, the predicted function call will be limited to any one of "allowedFunctionNames", else the predicted function call will be any one of the provided "functionDeclarations".
+            ANY,
+            // Model will not predict any function call. Model behavior is same as when not passing any function declarations.
+            NONE,
         }
     }
 }
