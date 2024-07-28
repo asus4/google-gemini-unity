@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine.Networking;
 
 namespace GoogleApis
@@ -11,7 +12,7 @@ namespace GoogleApis
     /// </summary>
     internal static class Api
     {
-        internal static async Task<TResponse> GetJsonAsync<TResponse>(
+        internal static async UniTask<TResponse> GetJsonAsync<TResponse>(
             string uri, CancellationToken cancellationToken)
         {
             Log($"request: {uri}");
@@ -32,7 +33,7 @@ namespace GoogleApis
             return response.DeserializeFromJson<TResponse>();
         }
 
-        internal static async Task<TResponse> PostJsonAsync<TRequest, TResponse>(
+        internal static async UniTask<TResponse> PostJsonAsync<TRequest, TResponse>(
             string uri, TRequest requestBody, CancellationToken cancellationToken)
         {
             string json = requestBody.SerializeToJson(UnityEngine.Debug.isDebugBuild);

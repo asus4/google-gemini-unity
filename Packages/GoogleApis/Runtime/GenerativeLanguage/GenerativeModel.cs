@@ -3,6 +3,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine.Networking;
 
 namespace GoogleApis.GenerativeLanguage
@@ -52,7 +53,7 @@ namespace GoogleApis.GenerativeLanguage
         /// <param name="requestBody">Request data</param>
         /// <param name="cancellationToken">A cancellation token</param>
         /// <returns>A generate response</returns>
-        public async Task<GenerateContentResponse> GenerateContentAsync(
+        public async UniTask<GenerateContentResponse> GenerateContentAsync(
             GenerateContentRequest requestBody,
             CancellationToken cancellationToken)
         {
@@ -68,7 +69,7 @@ namespace GoogleApis.GenerativeLanguage
         /// <param name="cancellationToken"></param>
         /// <param name="onReceive"></param>
         /// <returns></returns>
-        public async Task StreamGenerateContentAsync(
+        public async UniTask StreamGenerateContentAsync(
             GenerateContentRequest requestBody,
             CancellationToken cancellationToken,
             Action<GenerateContentResponse> onReceive)
