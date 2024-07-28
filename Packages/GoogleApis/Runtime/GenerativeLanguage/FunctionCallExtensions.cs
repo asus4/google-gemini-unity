@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Debug = UnityEngine.Debug;
 
 namespace GoogleApis.GenerativeLanguage
@@ -20,7 +21,7 @@ namespace GoogleApis.GenerativeLanguage
         private const string NO_DESCRIPTION_ATTRIBUTE = "Add [System.ComponentModel.Description(description)] to use function calling";
         private const BindingFlags DefaultBindings = BindingFlags.Public | BindingFlags.Instance;
 
-        public static async Task<object?> InvokeFunctionCallAsync(
+        public static async UniTask<object?> InvokeFunctionCallAsync(
             this object instance,
             Content.FunctionCall functionCall,
             CancellationToken cancellationToken = default,
@@ -66,10 +67,11 @@ namespace GoogleApis.GenerativeLanguage
             // Return inside type(T) of Task<T> in case of async method
             Type returnType = method.ReturnType;
             bool isGenericTask = returnType.IsGenericTask();
-            bool isTask = returnType == typeof(Task);
+            bool isTask = returnType == typeof(Task) || returnType == typeof(UniTask);
             if (isTask || isGenericTask)
             {
-                Task task = (Task)method.Invoke(instance, parameters);
+                Task task = method.Invoke(instance, parameters) as Task
+                    ?? throw new ArgumentException("Method does not return a Task");
                 await task;
                 cancellationToken.ThrowIfCancellationRequested();
                 if (isTask)
@@ -191,7 +193,7 @@ namespace GoogleApis.GenerativeLanguage
                 description: description,
                 parameters: new Tool.Schema()
                 {
-                    type = returnType.AsToolType(),
+                    type = Tool.Type.OBJECT,
                     format = returnType.GetTypeFormat(),
                     properties = parameters?.ToDictionary(
                         parameter => parameter.Name,
@@ -203,7 +205,8 @@ namespace GoogleApis.GenerativeLanguage
 
         private static bool IsGenericTask(this Type type)
         {
-            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Task<>);
+            bool isTask = type.GetGenericTypeDefinition() == typeof(Task<>) || type == typeof(UniTask<>);
+            return type.IsGenericType && isTask;
         }
 
         public static Tool.Schema ToSchema(this ParameterInfo parameter)
@@ -214,7 +217,12 @@ namespace GoogleApis.GenerativeLanguage
             return schema;
         }
 
-        public static Tool.Schema ToSchema(this Type type, int depth = 0)
+        public static Tool.Schema ToSchema(this Type type)
+        {
+            return type.ToSchema(0);
+        }
+
+        private static Tool.Schema ToSchema(this Type type, int depth)
         {
             if (depth > 10)
             {
