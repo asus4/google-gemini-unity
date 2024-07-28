@@ -10,6 +10,7 @@
   "unity": "2022.3",
   "unityRelease": "0f1",
   "dependencies": {
+    "com.cysharp.unitask": "2.2.5",
     "com.unity.nuget.newtonsoft-json": "3.2.1"
   },
   "repository": {
