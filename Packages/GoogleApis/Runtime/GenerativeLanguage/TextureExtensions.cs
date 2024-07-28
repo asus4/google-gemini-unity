@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -37,20 +38,13 @@ namespace GoogleApis.GenerativeLanguage
             Content.Blob blob = null;
             try
             {
-                bool isDone = false;
-                AsyncGPUReadbackRequest request = AsyncGPUReadback.RequestIntoNativeArray(ref imageBytes, texture, 0, format, (request) =>
+                var request = await AsyncGPUReadback.RequestIntoNativeArray(ref imageBytes, texture, 0, format, (request) =>
                 {
-                    isDone = true;
                     if (request.hasError)
                     {
                         throw new System.Exception($"AsyncGPUReadback.RequestIntoNativeArray failed: {request}");
                     }
                 });
-
-                while (!isDone)
-                {
-                    await Task.Yield();
-                }
                 using NativeArray<byte> jpgBytes = ImageConversion.EncodeNativeArrayToJPG(imageBytes, format, (uint)width, (uint)height, 0, quality);
                 blob = new Content.Blob(MIME_JPEG, jpgBytes.AsReadOnlySpan());
             }

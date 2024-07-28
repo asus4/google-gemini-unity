@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine.Networking;
 
 namespace GoogleApis.GenerativeLanguage
@@ -28,7 +29,7 @@ namespace GoogleApis.GenerativeLanguage
         /// <summary>
         /// Return a list of available models
         /// </summary>
-        public async Task<string> ListModelsAsync(CancellationToken cancellationToken)
+        public async UniTask<string> ListModelsAsync(CancellationToken cancellationToken)
         {
             using var request = UnityWebRequest.Get($"{BASE_URL}/models?key={apiKey}");
             await request.SendWebRequest();

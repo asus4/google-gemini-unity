@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -12,7 +13,7 @@ namespace GoogleApis.TTS
     /// </summary>
     public static class TextSynthesizeExtensions
     {
-        public static async Task<AudioClip> ToAudioClipAsync(
+        public static async UniTask<AudioClip> ToAudioClipAsync(
             this TextSynthesizeResponse response, CancellationToken cancellationToken)
         {
             // Save base64 audio to a tmp file
