@@ -11,10 +11,17 @@ namespace GoogleApis.Example
     [Preserve]
     public sealed class FunctionCallWebContent : MonoBehaviour
     {
-        [Description("Get the web page content HTML from the given URL.")]
-        public async Task<string> GetWebPage(string url, CancellationToken cancellationToken)
+        [Description("Options for GetWebPage method.")]
+        public class GetWebPageOptions
         {
-            using var request = UnityWebRequest.Get(url);
+            [Description("The URL of the web page.")]
+            public string url;
+        }
+
+        [Description("Get the web page content HTML from the given URL.")]
+        public async Task<string> GetWebPage(GetWebPageOptions options, CancellationToken cancellationToken)
+        {
+            using var request = UnityWebRequest.Get(options.url);
             await request.SendWebRequest();
             cancellationToken.ThrowIfCancellationRequested();
             return request.downloadHandler.text;
