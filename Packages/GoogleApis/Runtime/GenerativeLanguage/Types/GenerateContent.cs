@@ -13,7 +13,7 @@ namespace GoogleApis.GenerativeLanguage
     {
         /// <summary>
         /// Required. The content of the current conversation with the model.
-        /// 
+        ///
         /// For single-turn queries, this is a single instance. For multi-turn queries, this is a repeated field that contains conversation history + latest request.
         /// </summary>
         public ICollection<Content>? contents;
@@ -27,6 +27,11 @@ namespace GoogleApis.GenerativeLanguage
         /// Optional. Tool configuration for any Tool specified in the request.
         /// </summary>
         public Tool.ToolConfig? toolConfig;
+
+        /// <summary>
+        /// Optional. A list of unique SafetySetting instances for blocking unsafe content.
+        /// </summary>
+        public ICollection<SafetySetting>? safetySettings;
 
         /// <summary>
         /// Optional. Developer set system instruction. Currently, text only.
