@@ -75,6 +75,14 @@ namespace GoogleApis.Example
             RefreshView();
 
             GenerateContentRequest request = messages;
+            request.safetySettings = new List<SafetySetting>()
+            {
+                new ()
+                {
+                    category = HarmCategory.Harassment,
+                    threshold = HarmBlockThreshold.Low,
+                }
+            };
 
             // Set System prompt if exists
             if (!string.IsNullOrWhiteSpace(systemInstruction))
