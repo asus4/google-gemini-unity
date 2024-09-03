@@ -29,7 +29,7 @@ namespace GoogleApis.GenerativeLanguage
         /// <summary>
         /// Return a list of available models
         /// </summary>
-        public async UniTask<string> ListModelsAsync(CancellationToken cancellationToken)
+        public async UniTask<ModelList> ListModelsAsync(CancellationToken cancellationToken)
         {
             using var request = UnityWebRequest.Get($"{BASE_URL}/models?key={apiKey}");
             await request.SendWebRequest();
@@ -41,7 +41,9 @@ namespace GoogleApis.GenerativeLanguage
             {
                 throw new Exception(request.error);
             }
-            return request.downloadHandler.text;
+
+            string response = request.downloadHandler.text;
+            return response.DeserializeFromJson<ModelList>();
         }
 
         public GenerativeModel GetModel(string modelName)
