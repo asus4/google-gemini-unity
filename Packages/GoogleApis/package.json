@@ -1,6 +1,6 @@
 {
   "name": "com.github.asus4.googleapis-unity",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "displayName": "Google APIs",
   "description": "Non Official Unity Client for Google Gemini API",
   "keywords": [
