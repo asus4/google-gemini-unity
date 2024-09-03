@@ -104,6 +104,11 @@ namespace GoogleApis.GenerativeLanguage
             /// Optional. Schema of the elements of Type.ARRAY.
             /// </summary>
             public Schema? items;
+
+            public override string ToString()
+            {
+                return this.SerializeToJson(true);
+            }
         }
 
         /// <summary>
