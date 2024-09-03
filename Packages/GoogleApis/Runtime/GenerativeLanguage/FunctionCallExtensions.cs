@@ -206,11 +206,18 @@ namespace GoogleApis.GenerativeLanguage
             return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Task<>);
         }
 
-        public static Tool.Schema ToSchema(this ParameterInfo parameter)
+        public static Tool.Schema ToSchema(this ParameterInfo parameter, int depth = 0)
         {
-            var schema = parameter.ParameterType.ToSchema(0);
+            var schema = parameter.ParameterType.ToSchema(depth);
             schema.description = parameter.GetCustomAttribute<DescriptionAttribute>()?.Description;
             schema.nullable = parameter.IsOptional;
+            return schema;
+        }
+
+        public static Tool.Schema ToSchema(this FieldInfo field, int depth = 0)
+        {
+            var schema = field.FieldType.ToSchema(depth);
+            schema.description = field.GetCustomAttribute<DescriptionAttribute>()?.Description;
             return schema;
         }
 
@@ -231,9 +238,9 @@ namespace GoogleApis.GenerativeLanguage
                 enums = type.IsEnum ? Enum.GetNames(type) : null,
                 properties = toolType == Tool.Type.OBJECT ? type.GetFields(DefaultBindings).ToDictionary(
                     field => field.Name,
-                    field => field.FieldType.ToSchema(depth + 1)
+                    field => field.ToSchema(depth + 1)
                 ) : null,
-                items = toolType == Tool.Type.ARRAY ? type.GetElementType().ToSchema(depth + 1) : null
+                items = toolType == Tool.Type.ARRAY ? type.GetElementType().ToSchema(depth + 1) : null,
             };
         }
 
