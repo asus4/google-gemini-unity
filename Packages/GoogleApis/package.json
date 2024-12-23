@@ -5,7 +5,7 @@
   "description": "Non Official Unity Client for Google Gemini API",
   "keywords": [
     "unity",
-    "google"
+    "gemini"
   ],
   "unity": "2022.3",
   "unityRelease": "0f1",

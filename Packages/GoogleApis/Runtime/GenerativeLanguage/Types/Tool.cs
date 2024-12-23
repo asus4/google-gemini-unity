@@ -10,7 +10,7 @@ namespace GoogleApis.GenerativeLanguage
     /// Tool details that the model may use to generate response.
     /// 
     /// A Tool is a piece of code that enables the system to interact with external systems to perform an action, or set of actions, outside of knowledge and scope of the model.
-    /// https://ai.google.dev/api/rest/v1beta/Tool#functiondeclaration
+    /// https://ai.google.dev/api/caching#Tool
     /// </summary>
     public partial record Tool
     {
@@ -21,11 +21,19 @@ namespace GoogleApis.GenerativeLanguage
         /// </summary>
         public FunctionDeclaration[]? functionDeclarations;
 
+        /// <summary>
+        /// Optional. Retrieval tool that is powered by Google search.
+        /// NOTE: The online document is `googleSearchRetrieval`. But it was 400 error.
+        /// </summary>
+        public GoogleSearchRetrieval? googleSearch;
+
         public override string ToString()
             => this.SerializeToJson(true);
 
         public static implicit operator Tool(FunctionDeclaration[] functionDeclarations)
             => new() { functionDeclarations = functionDeclarations };
+        public static implicit operator Tool(GoogleSearchRetrieval googleSearchRetrieval)
+            => new() { googleSearch = googleSearchRetrieval };
     }
 
     partial record Tool
@@ -140,6 +148,18 @@ namespace GoogleApis.GenerativeLanguage
         /// </summary>
         public record FunctionCallingConfig
         {
+            public enum Mode
+            {
+                // Unspecified function calling mode. This value should not be used.
+                MODE_UNSPECIFIED,
+                // Default model behavior, model decides to predict either a function call or a natural language response.
+                AUTO,
+                // Model is constrained to always predicting a function call only. If "allowedFunctionNames" are set, the predicted function call will be limited to any one of "allowedFunctionNames", else the predicted function call will be any one of the provided "functionDeclarations".
+                ANY,
+                // Model will not predict any function call. Model behavior is same as when not passing any function declarations.
+                NONE,
+            }
+
             /*
             JSON representation
 
@@ -156,16 +176,24 @@ namespace GoogleApis.GenerativeLanguage
             public string[]? allowedFunctionNames;
         }
 
-        public enum Mode
+        // https://ai.google.dev/api/caching#GoogleSearchRetrieval
+        public record GoogleSearchRetrieval
         {
-            // Unspecified function calling mode. This value should not be used.
-            MODE_UNSPECIFIED,
-            // Default model behavior, model decides to predict either a function call or a natural language response.
-            AUTO,
-            // Model is constrained to always predicting a function call only. If "allowedFunctionNames" are set, the predicted function call will be limited to any one of "allowedFunctionNames", else the predicted function call will be any one of the provided "functionDeclarations".
-            ANY,
-            // Model will not predict any function call. Model behavior is same as when not passing any function declarations.
-            NONE,
+            public DynamicRetrievalConfig? dynamicRetrievalConfig;
+        }
+
+        public record DynamicRetrievalConfig
+        {
+            public enum Mode
+            {
+                // Always trigger retrieval.
+                MODE_UNSPECIFIED,
+                // Run retrieval only when system decides it is necessary.
+                MODE_DYNAMIC,
+            }
+
+            public Mode? mode;
+            public double? dynamicThreshold;
         }
     }
 }

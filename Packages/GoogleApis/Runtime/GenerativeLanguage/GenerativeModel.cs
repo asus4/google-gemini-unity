@@ -18,10 +18,10 @@ namespace GoogleApis.GenerativeLanguage
         public const string GeminiProVision = "models/gemini-pro-vision";
 
         public const string Gemini_1_5_Pro = "models/gemini-1.5-pro-latest";
-        public const string Gemini_1_5_ProVision = "models/gemini-1.5-pro-vision-latest";
 
         public const string Gemini_1_5_Flash = "models/gemini-1.5-flash-latest";
         public const string Gemini_2_0_Flash_Exp = "models/gemini-2.0-flash-exp";
+        public const string Gemini_2_0_Flash_Thinking_Exp = "models/gemini-2.0-flash-thinking-exp";
     }
 
     public sealed class GenerativeModel
@@ -35,7 +35,6 @@ namespace GoogleApis.GenerativeLanguage
             Models.GeminiPro => false,
             Models.GeminiProVision => false,
             Models.Gemini_1_5_Pro => true,
-            Models.Gemini_1_5_ProVision => true,
             Models.Gemini_1_5_Flash => true,
             Models.Gemini_2_0_Flash_Exp => true,
             _ => false,

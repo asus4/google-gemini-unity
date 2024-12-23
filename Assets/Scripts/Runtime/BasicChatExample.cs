@@ -34,6 +34,9 @@ namespace GoogleApis.Example
         [SerializeField]
         private bool useStream = false;
 
+        [SerializeField]
+        private bool enableSearch = true;
+
 
         private GenerativeModel model;
         private readonly List<Content> messages = new();
@@ -58,7 +61,7 @@ namespace GoogleApis.Example
             inputField.onSubmit.AddListener(async _ => await SendRequest());
 
             // for Debug
-            inputField.text = "Write a story about a cat and a dog.";
+            inputField.text = "What is the weather like in Berlin tomorrow?";
         }
 
         private async Task SendRequest()
@@ -75,6 +78,13 @@ namespace GoogleApis.Example
             RefreshView();
 
             GenerateContentRequest request = messages;
+            if(enableSearch)
+            {
+                request.tools = new Tool[]
+                {
+                    new Tool.GoogleSearchRetrieval(),
+                };
+            }
             request.safetySettings = new List<SafetySetting>()
             {
                 new ()

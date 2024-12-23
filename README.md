@@ -1,6 +1,6 @@
 # Google Gemini for Unity
 
-**🚧 Work in progress 🏗️**
+**🚧 Work in progress 🏗️**  
 
 Non-official Google Gemini API client for Unity. Limited use cases are currently supported.
 
