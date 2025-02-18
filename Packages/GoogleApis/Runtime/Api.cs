@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
+using UnityEngine;
 using UnityEngine.Networking;
 
 namespace GoogleApis
@@ -60,6 +61,7 @@ namespace GoogleApis
         }
 
         [Conditional("UNITY_EDITOR")]
+        [HideInCallstack]
         internal static void Log(string message)
         {
             UnityEngine.Debug.Log(message);
