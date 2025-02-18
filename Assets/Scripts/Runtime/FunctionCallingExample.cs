@@ -20,8 +20,8 @@ namespace GoogleApis.Example
     {
         public enum ModelType
         {
-            Gemini_1_0_Pro,
-            Gemini_1_5_Pro,
+            Gemini_2_0_Flash,
+            Gemini_2_0_Pro,
         }
 
         public enum ToolMode
@@ -44,7 +44,7 @@ namespace GoogleApis.Example
         private Button sendButton;
 
         [SerializeField]
-        private ModelType modelType = ModelType.Gemini_1_0_Pro;
+        private ModelType modelType = ModelType.Gemini_2_0_Flash;
 
         [SerializeField]
         private ToolMode toolType = ToolMode.WorldBuilder;
@@ -70,8 +70,8 @@ namespace GoogleApis.Example
             // Use 1.0 as 1.5 is rate limited in 5/minute, or increase the rate limit of 1.5
             string modelName = modelType switch
             {
-                ModelType.Gemini_1_0_Pro => Models.GeminiPro,
-                ModelType.Gemini_1_5_Pro => Models.Gemini_1_5_Pro,
+                ModelType.Gemini_2_0_Flash => Models.Gemini_2_0_Flash,
+                ModelType.Gemini_2_0_Pro => Models.Gemini_2_0_Pro_Exp,
                 _ => throw new System.NotImplementedException(),
             };
             model = client.GetModel(modelName);
@@ -83,15 +83,7 @@ namespace GoogleApis.Example
             // Set system instruction
             if (!string.IsNullOrWhiteSpace(systemInstruction))
             {
-                if (model.SupportsSystemInstruction)
-                {
-                    systemInstructionContent = new Content(new Content.Part[] { systemInstruction });
-                }
-                else
-                {
-                    // Add to user text if system instruction is not supported
-                    inputField.text = $"{systemInstruction}\n---\n{inputField.text}";
-                }
+                systemInstructionContent = new Content(new Content.Part[] { systemInstruction });
             }
 
             // Build Tools from all [FunctionCall("description")] attributes in the script.

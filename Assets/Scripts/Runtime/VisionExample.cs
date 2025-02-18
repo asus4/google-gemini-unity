@@ -32,7 +32,7 @@ namespace GoogleApis.Example
         {
             using var settings = GoogleApiSettings.Get();
             var client = new GenerativeAIClient(settings);
-            model = client.GetModel(Models.Gemini_1_5_Pro);
+            model = client.GetModel(Models.Gemini_2_0_Flash);
 
             // Setup UIs
             sendButton.onClick.AddListener(async () => await SendRequest());

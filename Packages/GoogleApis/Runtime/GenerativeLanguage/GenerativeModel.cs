@@ -35,16 +35,6 @@ namespace GoogleApis.GenerativeLanguage
         private readonly string uriStreamGenerateContent;
         public readonly string ModelName;
 
-        public bool SupportsSystemInstruction => ModelName switch
-        {
-            Models.GeminiPro => false,
-            Models.GeminiProVision => false,
-            Models.Gemini_1_5_Pro => true,
-            Models.Gemini_1_5_Flash => true,
-            Models.Gemini_2_0_Flash_Exp => true,
-            _ => false,
-        };
-
         internal GenerativeModel(string modelName, string apiKey)
         {
             ModelName = modelName;

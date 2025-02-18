@@ -70,7 +70,7 @@ namespace GoogleApis.Example
             using var settings = GoogleApiSettings.Get();
             var client = new GenerativeAIClient(settings);
 
-            model = client.GetModel(Models.Gemini_1_5_Flash);
+            model = client.GetModel(Models.Gemini_2_0_Flash);
 
             // Send request
             var config = new GenerationConfig();
