@@ -14,14 +14,19 @@ namespace GoogleApis.GenerativeLanguage
     /// </summary>
     public static class Models
     {
+        [Obsolete("Use Gemini 2.0 Pro instead")]
         public const string GeminiPro = "models/gemini-pro";
+        [Obsolete("Use Gemini 2.0 Pro instead")]
         public const string GeminiProVision = "models/gemini-pro-vision";
-
+        [Obsolete("Use Gemini 2.0 Pro instead")]
         public const string Gemini_1_5_Pro = "models/gemini-1.5-pro-latest";
-
+        [Obsolete("Use Gemini 2.0 Flash instead")]
         public const string Gemini_1_5_Flash = "models/gemini-1.5-flash-latest";
-        public const string Gemini_2_0_Flash_Exp = "models/gemini-2.0-flash-exp";
+
+        public const string Gemini_2_0_Flash = "models/gemini-2.0-flash";
+        public const string Gemini_2_0_Flash_Lite_Preview = "models/gemini-2.0-flash-lite-preview";
         public const string Gemini_2_0_Flash_Thinking_Exp = "models/gemini-2.0-flash-thinking-exp";
+        public const string Gemini_2_0_Pro_Exp = "models/gemini-2.0-pro-exp";
     }
 
     public sealed class GenerativeModel
@@ -53,7 +58,7 @@ namespace GoogleApis.GenerativeLanguage
         /// </summary>
         /// <param name="requestBody">Request data</param>
         /// <param name="cancellationToken">A cancellation token</param>
-        /// <returns>A generate response</returns>
+        /// <returns>A GenerateContentResponse</returns>
         public async UniTask<GenerateContentResponse> GenerateContentAsync(
             GenerateContentRequest requestBody,
             CancellationToken cancellationToken)

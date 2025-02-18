@@ -28,6 +28,7 @@ namespace GoogleApis.GenerativeLanguage
 
         /// <summary>
         /// Return a list of available models
+        /// https://ai.google.dev/api/models#method:-models.list 
         /// </summary>
         public async UniTask<ModelList> ListModelsAsync(CancellationToken cancellationToken)
         {
