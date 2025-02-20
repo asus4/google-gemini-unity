@@ -1,12 +1,11 @@
 # Google Gemini for Unity
 
-**🚧 Work in progress 🏗️**  
+![imagen-example](https://github.com/user-attachments/assets/4c4dae15-c9a3-4fdb-a77a-0b31697d7c3f)
 
 Non-official Google Gemini API client for Unity. Limited use cases are currently supported.
 
 ## How to use
 
-**(🚧 TBD:)**  
 Open examples scenes at `Assets/Scenes/*.scene
 
 The following examples are available:
