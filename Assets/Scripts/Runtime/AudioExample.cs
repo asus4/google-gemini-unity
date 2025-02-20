@@ -52,7 +52,7 @@ namespace GoogleApis.Example
             var response = await model.GenerateContentAsync(messages, destroyCancellationToken);
             Debug.Log($"Response: {response}");
 
-            if (response.candidates.Length > 0)
+            if (response.candidates.Count > 0)
             {
                 var modelContent = response.candidates[0].content;
                 sb.AppendTMPRichText(modelContent);

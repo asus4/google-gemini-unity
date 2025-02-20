@@ -14,32 +14,31 @@ namespace GoogleApis.GenerativeLanguage
     /// </summary>
     public static class Models
     {
-        [Obsolete("Use Gemini 2.0 Pro instead")]
-        public const string GeminiPro = "models/gemini-pro";
-        [Obsolete("Use Gemini 2.0 Pro instead")]
-        public const string GeminiProVision = "models/gemini-pro-vision";
+        // Gemini 1.5
         [Obsolete("Use Gemini 2.0 Pro instead")]
         public const string Gemini_1_5_Pro = "models/gemini-1.5-pro-latest";
         [Obsolete("Use Gemini 2.0 Flash instead")]
         public const string Gemini_1_5_Flash = "models/gemini-1.5-flash-latest";
 
+        // Gemini 2.0
         public const string Gemini_2_0_Flash = "models/gemini-2.0-flash";
         public const string Gemini_2_0_Flash_Lite_Preview = "models/gemini-2.0-flash-lite-preview";
         public const string Gemini_2_0_Flash_Thinking_Exp = "models/gemini-2.0-flash-thinking-exp";
         public const string Gemini_2_0_Pro_Exp = "models/gemini-2.0-pro-exp";
+
+        // Imagen
+        public const string Imagen_3_0 = "models/imagen-3.0-generate-002";
     }
 
     public sealed class GenerativeModel
     {
-        private readonly string uriGenerateContent;
-        private readonly string uriStreamGenerateContent;
         public readonly string ModelName;
+        private readonly string apiKey;
 
         internal GenerativeModel(string modelName, string apiKey)
         {
             ModelName = modelName;
-            uriGenerateContent = $"{GenerativeAIClient.BASE_URL}/{modelName}:generateContent?key={apiKey}";
-            uriStreamGenerateContent = $"{GenerativeAIClient.BASE_URL}/{modelName}:streamGenerateContent?key={apiKey}";
+            this.apiKey = apiKey;
         }
 
         /// <summary>
@@ -53,16 +52,17 @@ namespace GoogleApis.GenerativeLanguage
             GenerateContentRequest requestBody,
             CancellationToken cancellationToken)
         {
+            string uri = $"{GenerativeAIClient.BASE_URL}/{ModelName}:generateContent?key={apiKey}";
             return await Api.PostJsonAsync<GenerateContentRequest, GenerateContentResponse>(
-                uriGenerateContent, requestBody, cancellationToken);
+                uri, requestBody, cancellationToken);
         }
 
         /// <summary>
         /// Call generate content API with streaming
         /// https://ai.google.dev/api/rest/v1beta/models/streamGenerateContent
         /// </summary>
-        /// <param name="requestBody"></param>
-        /// <param name="cancellationToken"></param>
+        /// <param name="requestBody">A request data</param>
+        /// <param name="cancellationToken">A cancellation token</param>
         /// <param name="onReceive"></param>
         /// <returns></returns>
         public async UniTask StreamGenerateContentAsync(
@@ -70,11 +70,11 @@ namespace GoogleApis.GenerativeLanguage
             CancellationToken cancellationToken,
             Action<GenerateContentResponse> onReceive)
         {
+            string uri = $"{GenerativeAIClient.BASE_URL}/{ModelName}:streamGenerateContent?key={apiKey}";
             string json = requestBody.SerializeToJson();
-            Api.Log($"request: {uriStreamGenerateContent},\ndata: {json}");
-
+            Api.Log($"request: {uri},\ndata: {json}");
             using var request = UnityWebRequest.Post(
-                uri: uriStreamGenerateContent,
+                uri: uri,
                 postData: json,
                 contentType: "application/json"
             );
@@ -92,6 +92,22 @@ namespace GoogleApis.GenerativeLanguage
                 throw new Exception($"code={request.responseCode}, result={request.result}, error={request.error}");
             }
             Api.Log($"Finished streaming");
+        }
+
+        /// <summary>
+        /// Call generate image API. Only "imagen-3.0-generate-002" model is supported for now.
+        /// https://github.com/google-gemini/cookbook/blob/main/quickstarts/Get_started_imagen_rest.ipynb
+        /// </summary>
+        /// <param name="requestBody">A request data</param>
+        /// <param name="cancellationToken">A cancellation token</param>
+        /// <returns>A GenerateImageResponse</returns>
+        public async UniTask<GenerateImageResponse> GenerateImageAsync(
+            GenerateImageRequest requestBody,
+            CancellationToken cancellationToken)
+        {
+            string uri = $"{GenerativeAIClient.BASE_URL}/{ModelName}:predict?key={apiKey}";
+            return await Api.PostJsonAsync<GenerateImageRequest, GenerateImageResponse>(
+                uri, requestBody, cancellationToken);
         }
     }
 }

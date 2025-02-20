@@ -86,7 +86,7 @@ namespace GoogleApis.Example
             };
 
             var response = await model.GenerateContentAsync(request, destroyCancellationToken);
-            if (response.candidates.Length > 0)
+            if (response.candidates.Count > 0)
             {
                 var modelContent = response.candidates[0].content;
                 sb.AppendTMPRichText(modelContent);

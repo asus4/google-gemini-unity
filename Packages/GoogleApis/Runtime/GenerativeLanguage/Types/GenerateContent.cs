@@ -1,6 +1,7 @@
 #nullable enable
 
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -58,12 +59,12 @@ namespace GoogleApis.GenerativeLanguage
     /// </summary>
     public partial record GenerateContentResponse
     {
-        public Candidate[] candidates;
+        public ReadOnlyCollection<Candidate> candidates;
         public PromptFeedback? promptFeedback;
 
         public GenerateContentResponse(Candidate[] candidates, PromptFeedback? promptFeedback)
         {
-            this.candidates = candidates;
+            this.candidates = new(candidates);
             this.promptFeedback = promptFeedback;
         }
         public override string ToString()

@@ -104,7 +104,7 @@ namespace GoogleApis.Example
             {
                 await model.StreamGenerateContentAsync(request, destroyCancellationToken, (response) =>
                 {
-                    if (response.candidates.Length == 0)
+                    if (response.candidates.Count == 0)
                     {
                         return;
                     }
@@ -126,7 +126,7 @@ namespace GoogleApis.Example
             else
             {
                 var response = await model.GenerateContentAsync(request, destroyCancellationToken);
-                if (response.candidates.Length > 0)
+                if (response.candidates.Count > 0)
                 {
                     var modelContent = response.candidates[0].content;
                     messages.Add(modelContent);
