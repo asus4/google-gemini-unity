@@ -16,7 +16,7 @@ namespace GoogleApis.GenerativeLanguage
     ///    { stream object },
     /// ] // end of stream
     /// </summary>
-    public sealed class DownloadHandlerJsonStream<T> : DownloadHandlerScript
+    internal sealed class DownloadHandlerJsonStream<T> : DownloadHandlerScript
     {
         private readonly Action<T> onReceive;
         private char[] textBuffer;
@@ -44,16 +44,6 @@ namespace GoogleApis.GenerativeLanguage
 
             // Debug Log
             // Log(Encoding.UTF8.GetString(data, 0, dataLength));
-
-            // Streaming format is like this:
-            /*
-            [{ a:1, b:2}
-            ,
-            { a:3, b:4}
-            ,
-            { a:5, b:6}
-            ]
-            */
 
             int jsonStart = -1;
             int depth = 0;
