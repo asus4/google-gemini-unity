@@ -23,7 +23,7 @@ namespace GoogleApis.Example
         private RawImage resultImage;
 
         [SerializeField]
-        private GenerateImageRequest.AspectRatio aspectRatio;
+        private GenerateImageRequest.AspectRatioEnum aspectRatio;
 
         private GenerativeModel model;
 
@@ -50,11 +50,11 @@ namespace GoogleApis.Example
                 return;
             }
 
-            GenerateImageRequest request = new(input, new GenerateImageRequest.Parameters
+            GenerateImageRequest request = new(input, new GenerateImageRequest.ImageGenerationParameters()
             {
-                sampleCount = 1,
-                aspectRatio = aspectRatio,
-                personGeneration = GenerateImageRequest.PersonGeneration.AllowAdult,
+                SampleCount = 1,
+                AspectRatioEnum = aspectRatio,
+                PersonGeneration = GenerateImageRequest.PersonGeneration.allow_adult,
             });
 
             var response = await model.GenerateImageAsync(request, destroyCancellationToken);
@@ -63,7 +63,7 @@ namespace GoogleApis.Example
             {
                 Destroy(resultImage.texture);
             }
-            var texture = response.predictions[0].ToTexture();
+            var texture = response.Predictions[0].ToTexture();
             resultImage.texture = texture;
             if (resultImage.TryGetComponent(out AspectRatioFitter aspectRatioFitter))
             {

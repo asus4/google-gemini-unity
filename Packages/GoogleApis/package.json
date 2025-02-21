@@ -1,6 +1,6 @@
 {
   "name": "com.github.asus4.googleapis-unity",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "displayName": "Google APIs",
   "description": "Non Official Unity Client for Google Gemini API",
   "keywords": [
@@ -11,7 +11,7 @@
   "unityRelease": "0f1",
   "dependencies": {
     "com.cysharp.unitask": "2.5.10",
-    "com.unity.nuget.newtonsoft-json": "3.2.1"
+    "com.github-glitchenzo.nugetforunity": "4.3.0"
   },
   "repository": {
     "type": "git",

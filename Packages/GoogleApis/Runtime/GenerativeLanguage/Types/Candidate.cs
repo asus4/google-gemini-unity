@@ -1,75 +1,186 @@
 #nullable enable
 
+using System.Text.Json.Serialization;
 using System.Runtime.Serialization;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
-// Other types
 namespace GoogleApis.GenerativeLanguage
 {
     /// <summary>
     /// A response candidate generated from the model.
     /// 
-    /// https://ai.google.dev/api/rest/v1beta/Candidate
+    /// https://ai.google.dev/api/generate-content#v1beta.Candidate
     /// </summary>
     public partial record Candidate
     {
-        public Content content;
-        [JsonConverter(typeof(StringEnumConverter))]
-        public FinishReason finishReason;
-        public int index;
-        public SafetyRating[]? safetyRatings;
-        public CitationMetadata? citationMetadata;
-        public int? tokenCount;
-        public GroundingAttribution? groundingAttribution;
+        /// <summary>
+        /// Output only. Generated content returned from the model.
+        /// </summary>
+        [JsonPropertyName("content")]
+        public Content Content { get; set; }
+
+        /// <summary>
+        /// Optional. Output only. The reason why the model stopped generating tokens.
+        /// If empty, the model has not stopped generating tokens.
+        /// </summary>
+        [JsonPropertyName("finishReason")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public FinishReason? FinishReason { get; set; }
+
+        /// <summary>
+        /// List of ratings for the safety of a response candidate.
+        /// There is at most one rating per category.
+        /// </summary>
+        [JsonPropertyName("safetyRatings")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public SafetyRating[]? SafetyRatings { get; set; }
+
+        /// <summary>
+        /// Output only. Citation information for model-generated candidate.
+        /// This field may be populated with recitation information for any text included in the content. These are passages that are "recited" from copyrighted material in the foundational LLM's training data.
+        /// </summary>
+        [JsonPropertyName("citationMetadata")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public CitationMetadata? CitationMetadata;
+
+        /// <summary>
+        /// Output only. Token count for this candidate.
+        /// </summary>
+        [JsonPropertyName("tokenCount")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public int? TokenCount { get; set; }
+
+        /// <summary>
+        /// Output only. Attribution information for sources that contributed to a grounded answer.
+        /// This field is populated for GenerateAnswer calls.
+        /// </summary>
+        [JsonPropertyName("groundingAttributions")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public GroundingAttribution[]? GroundingAttributions { get; set; }
+
+        // TODO: Implement GroundingMetadata
+        // public GroundingMetadata? groundingMetadata;
+
+        /// <summary>
+        /// Output only. Average log probability score of the candidate.
+        /// </summary>
+        [JsonPropertyName("avgLogprobs")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public float? AvgLogprobs { get; set; }
+
+        /// <summary>
+        /// Output only. Log-likelihood scores for the response tokens and top tokens
+        /// </summary>
+        [JsonPropertyName("logprobsResult")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public float? LogprobsResult { get; set; }
+
+        [JsonPropertyName("index")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public int? Index { get; set; }
 
         public Candidate(Content content)
         {
-            this.content = content;
+            Content = content;
         }
     }
 
-    // Internal types of Candidate
-    partial record Candidate
+    /// <summary>
+    /// Defines the reason why the model stopped generating tokens.
+    /// </summary>
+    public enum FinishReason
     {
-        public enum FinishReason
-        {
-            [EnumMember(Value = "FINISH_REASON_UNSPECIFIED")]
-            Unspecified, // Default value. This value is unused.
-            [EnumMember(Value = "STOP")]
-            Stop, // Natural stop point of the model or provided stop sequence.
-            [EnumMember(Value = "MAX_TOKENS")]
-            MaxTokens, // The maximum number of tokens as specified in the request was reached.
-            [EnumMember(Value = "SAFETY")]
-            Safety,// The candidate content was flagged for safety reasons.
-            [EnumMember(Value = "RECITATION")]
-            Recitation,// The candidate content was flagged for recitation reasons.
-            [EnumMember(Value = "OTHER")]
-            Other,
-        }
+        FINISH_REASON_UNSPECIFIED, // Default value. This value is unused.
+        STOP, // Natural stop point of the model or provided stop sequence.
+        MAX_TOKENS, // The maximum number of tokens as specified in the request was reached.
+        SAFETY, // The candidate content was flagged for safety reasons.
+        RECITATION, // The candidate content was flagged for recitation reasons.
+        OTHER, // Unknown reason.
+        BLOCKLIST, // Token generation stopped because the content contains forbidden terms.
+        PROHIBITED_CONTENT, // Token generation stopped for potentially containing prohibited content.
+        SPII, // Token generation stopped because the content potentially contains Sensitive Personally Identifiable Information (SPII).
+        MALFORMED_FUNCTION_CALL, // The function call generated by the model is invalid.
+        IMAGE_SAFETY, // Token generation stopped because generated images contain safety violations.
+    }
 
-        public record GroundingAttribution
-        {
-            public AttributionSourceId? sourceId;
-            public Content? content;
-        }
+    /// <summary>
+    /// Attribution for a source that contributed to an answer.
+    /// </summary>
+    public record GroundingAttribution
+    {
+        /// <summary>
+        /// Output only. Identifier for the source contributing to this attribution.
+        /// </summary>
+        [JsonPropertyName("sourceId")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public AttributionSourceId? SourceId { get; set; }
 
-        public record AttributionSourceId
-        {
-            public GroundingPassageId? groundingPassage;
-            public SemanticRetrieverChunk? semanticRetrieverChunk;
-        }
+        /// <summary>
+        /// Grounding source content that makes up this attribution.
+        /// </summary>
+        [JsonPropertyName("content")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public Content? Content { get; set; }
+    }
 
-        public record GroundingPassageId
-        {
-            public string? passageId;
-            public int partIndex;
-        }
+    /// <summary>
+    /// Identifier for the source contributing to this attribution.
+    /// </summary>
+    public record AttributionSourceId
+    {
+        /// <summary>
+        /// Identifier for an inline passage.
+        /// </summary>
+        [JsonPropertyName("groundingPassage")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public GroundingPassageId? GroundingPassage { get; set; }
 
-        public record SemanticRetrieverChunk
-        {
-            public string? source;
-            public string? chunk;
-        }
+        /// <summary>
+        /// Identifier for a Chunk fetched via Semantic Retriever.
+        /// </summary>
+        [JsonPropertyName("semanticRetrieverChunk")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public SemanticRetrieverChunk? SemanticRetrieverChunk { get; set; }
+    }
+
+    /// <summary>
+    /// Identifier for a part within a GroundingPassage.
+    /// </summary>
+    public record GroundingPassageId
+    {
+        /// <summary>
+        /// Output only. ID of the passage matching the GenerateAnswerRequest's GroundingPassage.id.
+        /// </summary>
+        [JsonPropertyName("passageId")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+
+        public string? PassageId { get; set; }
+
+        /// <summary>
+        /// Output only. Index of the part within the GenerateAnswerRequest's GroundingPassage.content.
+        /// </summary>
+        [JsonPropertyName("partIndex")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public int? PartIndex { get; set; }
+    }
+
+    /// <summary>
+    /// Identifier for a Chunk retrieved via Semantic Retriever specified in the GenerateAnswerRequest using SemanticRetrieverConfig.
+    /// </summary>
+    public record SemanticRetrieverChunk
+    {
+        /// <summary>
+        /// Output only. Name of the source matching the request's SemanticRetrieverConfig.source. Example: corpora/123 or corpora/123/documents/abc
+        /// </summary>
+        [JsonPropertyName("source")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public string? Source { get; set; }
+
+        /// <summary>
+        /// Output only. Name of the Chunk containing the attributed text. Example: corpora/123/documents/abc/chunks/xyz
+        /// </summary>
+        [JsonPropertyName("chunk")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public string? Chunk { get; set; }
     }
 }

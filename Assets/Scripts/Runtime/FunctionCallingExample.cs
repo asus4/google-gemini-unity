@@ -83,7 +83,7 @@ namespace GoogleApis.Example
             // Set system instruction
             if (!string.IsNullOrWhiteSpace(systemInstruction))
             {
-                systemInstructionContent = new Content(new Content.Part[] { systemInstruction });
+                systemInstructionContent = new Content(new Part[] { systemInstruction });
             }
 
             // Build Tools from all [FunctionCall("description")] attributes in the script.
@@ -114,7 +114,7 @@ namespace GoogleApis.Example
             }
             inputField.text = string.Empty;
 
-            Content content = new(Role.User, input);
+            Content content = new(Role.user, input);
             messages.Add(content);
             RefreshView();
 
@@ -123,17 +123,17 @@ namespace GoogleApis.Example
                 // 1. Make request with Tools
                 GenerateContentRequest request = new()
                 {
-                    contents = messages,
-                    tools = tools,
+                    Contents = messages,
+                    Tools = tools,
                 };
                 if (systemInstructionContent != null)
                 {
-                    request.systemInstruction = systemInstructionContent;
+                    request.SystemInstruction = systemInstructionContent;
                 }
 
                 // 2. Receive response
                 var response = await model.GenerateContentAsync(request, destroyCancellationToken);
-                var modelContent = response.candidates.First().content;
+                var modelContent = response.Candidates.First().Content;
                 messages.Add(modelContent);
                 RefreshView();
 

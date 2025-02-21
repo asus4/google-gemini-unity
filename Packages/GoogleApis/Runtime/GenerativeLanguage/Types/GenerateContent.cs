@@ -2,90 +2,123 @@
 
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+using System.Text.Json.Serialization;
+using System.Runtime.Serialization;
 
 namespace GoogleApis.GenerativeLanguage
 {
     /// <summary>
-    /// https://ai.google.dev/api/rest/v1beta/models/generateContent
+    /// Generates a model response given an input GenerateContentRequest.
+    /// https://ai.google.dev/api/generate-content#v1beta.models.generateContent
     /// </summary>
-    public record GenerateContentRequest
+    public class GenerateContentRequest
     {
         /// <summary>
         /// Required. The content of the current conversation with the model.
         ///
         /// For single-turn queries, this is a single instance. For multi-turn queries, this is a repeated field that contains conversation history + latest request.
         /// </summary>
-        public ICollection<Content>? contents;
+        [JsonPropertyName("contents")]
+        public ICollection<Content>? Contents { get; set; }
 
         /// <summary>
         /// Optional. A list of Tools the model may use to generate the next response.
         /// </summary>
-        public ICollection<Tool>? tools;
+        [JsonPropertyName("tools")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public ICollection<Tool>? Tools { get; set; }
 
         /// <summary>
         /// Optional. Tool configuration for any Tool specified in the request.
         /// </summary>
-        public Tool.ToolConfig? toolConfig;
+        [JsonPropertyName("toolConfig")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public Tool.ToolConfig? ToolConfig { get; set; }
 
         /// <summary>
         /// Optional. A list of unique SafetySetting instances for blocking unsafe content.
         /// </summary>
-        public ICollection<SafetySetting>? safetySettings;
+        [JsonPropertyName("safetySettings")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public ICollection<SafetySetting>? SafetySettings { get; set; }
 
         /// <summary>
         /// Optional. Developer set system instruction. Currently, text only.
         /// </summary>
-        public Content? systemInstruction;
+        [JsonPropertyName("systemInstruction")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public Content? SystemInstruction { get; set; }
 
         /// <summary>
         /// Optional. Configuration options for model generation and outputs.
         /// </summary>
-        public GenerationConfig? generationConfig;
+        [JsonPropertyName("generationConfig")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public GenerationConfig? GenerationConfig { get; set; }
 
         /// <summary>
         /// Optional. The name of the cached content used as context to serve the prediction. Note: only used in explicit caching, where users can have control over caching (e.g. what content to cache) and enjoy guaranteed cost savings. Format: cachedContents/{cachedContent}
         /// </summary>
-        public string? cachedContent;
+        [JsonPropertyName("cachedContent")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public string? CachedContent { get; set; }
 
         // Constructor syntax sugars
-        public static implicit operator GenerateContentRequest(Content[] contents) => new() { contents = contents };
-        public static implicit operator GenerateContentRequest(List<Content> contents) => new() { contents = contents };
+        public static implicit operator GenerateContentRequest(Content[] contents) => new() { Contents = contents };
+        public static implicit operator GenerateContentRequest(List<Content> contents) => new() { Contents = contents };
     }
 
     /// <summary>
-    /// https://ai.google.dev/api/rest/v1beta/GenerateContentResponse
+    /// https://ai.google.dev/api/generate-content#v1beta.GenerateContentResponse
     /// </summary>
-    public partial record GenerateContentResponse
+    public class GenerateContentResponse
     {
-        public ReadOnlyCollection<Candidate> candidates;
-        public PromptFeedback? promptFeedback;
+        [JsonPropertyName("candidates")]
+        public Candidate[] Candidates { get; set; }
 
-        public GenerateContentResponse(Candidate[] candidates, PromptFeedback? promptFeedback)
+        [JsonPropertyName("promptFeedback")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public PromptFeedback? PromptFeedback { get; set; }
+
+        // TODO:
+        // usageMetadata
+        // modelVersion
+
+        [JsonConstructor]
+        public GenerateContentResponse(Candidate[] candidates)
         {
-            this.candidates = new(candidates);
-            this.promptFeedback = promptFeedback;
+            Candidates = candidates;
         }
+
         public override string ToString()
         {
             return this.SerializeToJson(true);
         }
     }
 
-    partial record GenerateContentResponse
+    /// <summary>
+    /// A set of the feedback metadata the prompt specified in GenerateContentRequest.content.
+    /// </summary>
+    public record PromptFeedback
     {
-        public enum BlockReason
-        {
-            BLOCK_REASON_UNSPECIFIED,
-            SAFETY,
-            OTHER,
-        }
+        [JsonPropertyName("blockReason")]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public BlockReason BlockReason { get; set; }
 
-        public record PromptFeedback
-        {
-            [JsonConverter(typeof(StringEnumConverter))]
-            public BlockReason blockReason;
-        }
+        // TODO:
+        // safetyRatings
+    }
+
+    /// <summary>
+    /// Specifies the reason why the prompt was blocked.
+    /// </summary>
+    public enum BlockReason
+    {
+        BLOCK_REASON_UNSPECIFIED,
+        SAFETY,
+        OTHER,
+        BLOCKLIST,
+        PROHIBITED_CONTENT,
+        IMAGE_SAFETY,
     }
 }

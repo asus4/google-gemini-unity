@@ -78,3 +78,5 @@ crashlytics-build.properties
 .env
 Assets/Resources/GoogleApiSettings.asset
 Assets/Resources/GoogleApiSettings.asset.meta
+# NuGet for Unity Packages
+/Assets/Packages/*

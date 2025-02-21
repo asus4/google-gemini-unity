@@ -25,10 +25,10 @@ namespace GoogleApis.Tests
             var schema = typeof(TestClass1).ToSchema();
             Debug.Log(schema);
 
-            Assert.AreEqual(schema.properties.Count, 3);
-            foreach (var prop in schema.properties.Values)
+            Assert.AreEqual(schema.Properties.Count, 3);
+            foreach (var prop in schema.Properties.Values)
             {
-                Assert.IsNotEmpty(prop.description);
+                Assert.IsNotEmpty(prop.Description);
             }
 
         }

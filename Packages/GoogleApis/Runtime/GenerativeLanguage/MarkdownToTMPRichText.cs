@@ -173,11 +173,11 @@ namespace GoogleApis.GenerativeLanguage
         /// <param name="content">A Content</param>
         public static void AppendTMPRichText(this StringBuilder sb, Content content)
         {
-            if (content.role.HasValue)
+            if (content.Role.HasValue)
             {
-                sb.AppendLine($"<b>{content.role.Value}:</b>");
+                sb.AppendLine($"<b>{content.Role.Value}:</b>");
             }
-            foreach (var part in content.parts)
+            foreach (var part in content.Parts)
             {
                 sb.AppendTMPRichText(part);
             }
@@ -188,15 +188,15 @@ namespace GoogleApis.GenerativeLanguage
         /// </summary>
         /// <param name="sb">A StringBuilder</param>
         /// <param name="part">A Content.Part</param>
-        public static void AppendTMPRichText(this StringBuilder sb, Content.Part part)
+        public static void AppendTMPRichText(this StringBuilder sb, Part part)
         {
             string text = part switch
             {
-                _ when !string.IsNullOrEmpty(part.text) => part.text.MarkdownToRichText(),
-                { inlineData: not null } => $"inlineData: {part.inlineData.mimeType}",
-                { functionCall: not null } => $"functionCall: {part.functionCall.name}",
-                { functionResponse: not null } => $"functionResponse: {part.functionResponse.name}",
-                { fileData: not null } => $"fileData: mime={part.fileData.mimeType}, uri={part.fileData.fileUri}",
+                _ when !string.IsNullOrEmpty(part.Text) => part.Text.MarkdownToRichText(),
+                { InlineData: not null } => $"inlineData: {part.InlineData.MimeType}",
+                { FunctionCall: not null } => $"functionCall: {part.FunctionCall.Name}",
+                { FunctionResponse: not null } => $"functionResponse: {part.FunctionResponse.Name}",
+                { FileData: not null } => $"fileData: mime={part.FileData.MimeType}, uri={part.FileData.FileUri}",
                 _ => $"<u><color=red>Unsupported part</color></u>",
             };
             sb.AppendLine(text);

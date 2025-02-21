@@ -1,7 +1,6 @@
 #nullable enable
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+using System.Text.Json.Serialization;
 
 namespace GoogleApis.TTS
 {
@@ -14,7 +13,7 @@ namespace GoogleApis.TTS
         public VoiceSelectionParams voice;
         public AudioConfig audioConfig;
 
-        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public TimepointType? enableTimePointing;
 
         [JsonConstructor]
@@ -114,7 +113,7 @@ namespace GoogleApis.TTS
         /// <summary>
         /// Required. The format of the audio byte stream.
         /// </summary>
-        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public AudioEncoding audioEncoding;
 
         /// <summary>

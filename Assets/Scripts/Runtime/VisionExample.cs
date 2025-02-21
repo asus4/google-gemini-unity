@@ -42,16 +42,16 @@ namespace GoogleApis.Example
         {
             var blob = await inputTexture.ToJpgBlobAsync();
 
-            Content[] messages = { new(Role.User, blob, inputText) };
+            Content[] messages = { new(Role.user, blob, inputText) };
             sb.AppendTMPRichText(messages[0]);
             resultLabel.SetText(sb);
 
             var response = await model.GenerateContentAsync(messages, destroyCancellationToken);
             Debug.Log($"Response: {response}");
 
-            if (response.candidates.Count > 0)
+            if (response.Candidates.Length > 0)
             {
-                var modelContent = response.candidates[0].content;
+                var modelContent = response.Candidates[0].Content;
                 sb.AppendTMPRichText(modelContent);
                 resultLabel.SetText(sb);
             }
