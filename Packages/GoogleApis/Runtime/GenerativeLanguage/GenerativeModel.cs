@@ -1,9 +1,10 @@
 #nullable enable
 
 using System;
+using System.Collections.Concurrent;
 using System.Threading;
-using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
+using Cysharp.Threading.Tasks.Linq;
 using UnityEngine.Networking;
 
 namespace GoogleApis.GenerativeLanguage
@@ -63,35 +64,41 @@ namespace GoogleApis.GenerativeLanguage
         /// </summary>
         /// <param name="requestBody">A request data</param>
         /// <param name="cancellationToken">A cancellation token</param>
-        /// <param name="onReceive"></param>
         /// <returns></returns>
-        public async UniTask StreamGenerateContentAsync(
+        public IUniTaskAsyncEnumerable<GenerateContentResponse> StreamGenerateContentAsync(
             GenerateContentRequest requestBody,
-            CancellationToken cancellationToken,
-            Action<GenerateContentResponse> onReceive)
+            CancellationToken cancellationToken)
         {
-            string uri = $"{GenerativeAIClient.BASE_URL}/{ModelName}:streamGenerateContent?key={apiKey}";
-            string json = requestBody.SerializeToJson();
-            Api.Log($"request: {uri},\ndata: {json}");
-            using var request = UnityWebRequest.Post(
-                uri: uri,
-                postData: json,
-                contentType: "application/json"
-            );
-
-            using var downloadHandler = new DownloadHandlerJsonStream<GenerateContentResponse>(onReceive);
-            request.downloadHandler = downloadHandler;
-
-            await request.SendWebRequest();
-            if (cancellationToken.IsCancellationRequested)
+            return UniTaskAsyncEnumerable.Create<GenerateContentResponse>(async (writer, token) =>
             {
-                throw new TaskCanceledException();
-            }
-            if (request.result != UnityWebRequest.Result.Success)
-            {
-                throw new Exception($"code={request.responseCode}, result={request.result}, error={request.error}");
-            }
-            Api.Log($"Finished streaming");
+                string uri = $"{GenerativeAIClient.BASE_URL}/{ModelName}:streamGenerateContent?key={apiKey}";
+                string json = requestBody.SerializeToJson();
+                Api.Log($"request: {uri},\ndata: {json}");
+                using var request = UnityWebRequest.Post(
+                    uri: uri,
+                    postData: json,
+                    contentType: "application/json"
+                );
+
+                ConcurrentQueue<GenerateContentResponse> responses = new();
+                using var downloadHandler = new DownloadHandlerJsonStream<GenerateContentResponse>((response) =>
+                {
+                    responses.Enqueue(response);
+                });
+                request.downloadHandler = downloadHandler;
+
+                var asyncOp = request.SendWebRequest();
+                while (asyncOp.isDone == false && !token.IsCancellationRequested)
+                {
+                    if (responses.TryDequeue(out var response))
+                    {
+                        await writer.YieldAsync(response);
+                    }
+                    await UniTask.Yield();
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
+                Api.Log($"Finished streaming");
+            });
         }
 
         /// <summary>

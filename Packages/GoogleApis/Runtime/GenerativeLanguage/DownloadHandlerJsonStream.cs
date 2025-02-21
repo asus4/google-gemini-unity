@@ -33,10 +33,12 @@ namespace GoogleApis.GenerativeLanguage
                 textBuffer = new char[dataLength];
             }
 
-            // string text = Encoding.UTF8.GetString(data, 0, dataLength);
             int readLength = Encoding.UTF8.GetChars(data.AsSpan(0, dataLength), textBuffer);
             Span<char> textSpan = textBuffer.AsSpan(0, readLength);
-            // Log($"ReceiveData: {text.Length} chars,\n{text}");
+
+            // log
+            // string text = Encoding.UTF8.GetString(data, 0, dataLength);
+            // Log($"ReceiveData: {textSpan.Length} chars, text: {text}");
 
             if (readLength == 0)
             {

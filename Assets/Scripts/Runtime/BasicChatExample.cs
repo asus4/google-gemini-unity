@@ -102,7 +102,8 @@ namespace GoogleApis.Example
 
             if (useStream)
             {
-                await model.StreamGenerateContentAsync(request, destroyCancellationToken, (response) =>
+                var stream = model.StreamGenerateContentAsync(request, destroyCancellationToken);
+                await foreach (var response in stream)
                 {
                     if (response.candidates.Count == 0)
                     {
@@ -121,7 +122,7 @@ namespace GoogleApis.Example
                         messages.Add(streamContent);
                     }
                     RefreshView();
-                });
+                }
             }
             else
             {
