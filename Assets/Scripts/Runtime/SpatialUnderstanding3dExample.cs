@@ -1,10 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using GoogleApis.GenerativeLanguage;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.UI;
+using Unity.Mathematics;
 
 namespace GoogleApis.Example
 {
@@ -20,8 +20,20 @@ namespace GoogleApis.Example
         [Serializable]
         class Box3d
         {
+            /// <summary>
+            /// A label of the object.
+            /// </summary>
             public string label;
+
+            /// <summary>
+            /// x_center, y_center, z_center, x_size, y_size, z_size, roll, pitch, yaw
+            /// </summary>
             public float[] box_3d;
+
+            public float3 Position => new(box_3d[0], box_3d[1], box_3d[2]);
+            public float3 Size => new(box_3d[3], box_3d[4], box_3d[5]);
+            public float3 EulerAngles => new(box_3d[6], box_3d[7], box_3d[8]);
+            public quaternion Rotation => quaternion.Euler(EulerAngles);
         }
 
         [SerializeField]
@@ -45,6 +57,10 @@ namespace GoogleApis.Example
         Box3d[] results;
 
         private GenerativeModel model;
+        private readonly Vector3[] worldCorners = new Vector3[4];
+
+
+
 
         private async void Start()
         {
@@ -55,9 +71,10 @@ namespace GoogleApis.Example
                 aspectRatioFitter.aspectRatio = (float)inputTexture.width / inputTexture.height;
             }
 
+            // FIXME: skipping calling API
             if (isTest)
             {
-                string text = "```json\n[\n  {\"label\": \"sugar\", \"box_3d\": [0.19,0.77,0.3,0.3,0.12,0.25,44,-5,-2]},\n  {\"label\": \"sugar bowl\", \"box_3d\": [-0.11,0.71,0.13,0.18,0.13,0.18,-45,6,-15]},\n  {\"label\": \"dish towel\", \"box_3d\": [-0.27,0.6,-0.14,0.03,0.36,0.32,143,45,81]}\n]\n```";
+                string text = "```json\n[\n  {\"label\": \"sugar container\", \"box_3d\": [0.22,1.16,0.46,0.46,0.36,0.46,-34,0,-2]},\n  {\"label\": \"white ceramic container\", \"box_3d\": [-0.12,0.98,0.13,0.21,0.17,0.27,-58,-48,48]},\n  {\"label\": \"brown liquid\", \"box_3d\": [0.24,0.93,-0.04,0.04,0.18,0.32,133,34,87]},\n  {\"label\": \"brown and white napkin\", \"box_3d\": [-0.31,0.83,-0.16,0.05,0.4,0.42,145,34,87]}\n]\n```";
                 text = text.Replace("```json", "").Replace("```", "");
                 Debug.Log(text);
                 results = JsonConvert.DeserializeObject<Box3d[]>(text);
@@ -66,7 +83,8 @@ namespace GoogleApis.Example
 
             using var settings = GoogleApiSettings.Get();
             var client = new GenerativeAIClient(settings);
-            model = client.GetModel(Models.Gemini_2_0_Flash);
+            // model = client.GetModel(Models.Gemini_2_0_Flash);
+            model = client.GetModel(Models.Gemini_2_0_Pro_Exp);
 
             // Send request
             var blob = await inputTexture.ToJpgBlobAsync();
@@ -87,11 +105,69 @@ namespace GoogleApis.Example
 
             }
             var modelContent = response.candidates[0].content;
-            bool success = TryGetJson(modelContent, out results);
+            bool success = TryDeserializeJson(modelContent, out results);
             Debug.Log($"Success: {success}");
         }
 
-        bool TryGetJson<T>(Content content, out T result)
+
+#if UNITY_EDITOR
+        private void OnDrawGizmos()
+        {
+            if (results.Length == 0)
+            {
+                return;
+            }
+
+            var rt = rawImage.rectTransform;
+            rt.GetWorldCorners(worldCorners);
+            float3 rtPosition = rt.position;
+            float3 rectSize = worldCorners[2] - worldCorners[0];
+            float3x3 intrinsics = GetIntrinsics(rectSize.xy, fieldOfView);
+
+            Gizmos.color = Color.green;
+            UnityEditor.Handles.color = Color.green;
+
+            foreach (var result in results)
+            {
+                // 1. rotation matrix + center offset
+                // 2. view rotation matrix
+                // 3. intrinsics
+
+                float3x3 rotationMatrix = new(result.Rotation);
+                // float3x3 mvpMatrix = math.mul(intrinsics, math.mul(viewRotationMatrix, rotationMatrix));
+                float3x3 mvpMatrix = math.mul(viewRotationMatrix, rotationMatrix);
+                Gizmos.matrix = new float4x4(mvpMatrix, result.Position);
+                // Gizmos.DrawWireCube(Vector3.zero, Vector3.o/ne);
+
+                // Draw handle
+                float3 p = result.Position;
+                p.y = 1 - p.y;
+                float3 textPosition = math.mul(p, mvpMatrix);
+                UnityEditor.Handles.Label(textPosition, result.label);
+            }
+        }
+#endif // UNITY_EDITOR
+
+        static float3x3 GetIntrinsics(float2 size, float fov)
+        {
+            float f = size.x / (2 * math.tan(fov / 2f * math.PI / 180));
+            float cx = size.x / 2;
+            float cy = size.y / 2;
+            return new(
+                f, 0, cx,
+                0, f, cy,
+                0, 0, 1
+            );
+        }
+
+        const float tiltAngle = 90 * math.PI / 180;
+        readonly float3x3 viewRotationMatrix = new(
+            1, 0, 0,
+            0, math.cos(tiltAngle), -math.sin(tiltAngle),
+            0, math.sin(tiltAngle), math.cos(tiltAngle)
+        );
+
+        static bool TryDeserializeJson<T>(Content content, out T result)
         {
             if (content.parts.Count == 0)
             {
