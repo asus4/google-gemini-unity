@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Text;
+using UnityEngine;
 using UnityEngine.Networking;
 
 namespace GoogleApis.GenerativeLanguage
@@ -36,62 +37,65 @@ namespace GoogleApis.GenerativeLanguage
             int readLength = Encoding.UTF8.GetChars(data.AsSpan(0, dataLength), textBuffer);
             Span<char> textSpan = textBuffer.AsSpan(0, readLength);
 
-            // log
-            // string text = Encoding.UTF8.GetString(data, 0, dataLength);
-            // Log($"ReceiveData: {textSpan.Length} chars, text: {text}");
-
             if (readLength == 0)
             {
                 return true;
             }
 
-            // Beginning of stream
-            if (textSpan[0] == '[')
-            {
-                textSpan = textSpan[1..];
-            }
-            // Middle of stream
-            else if (textSpan[0] == ',')
-            {
-                textSpan = textSpan[1..];
-            }
-            // End of stream
-            else if (textSpan[^1] == ']')
-            {
-                textSpan = textSpan[..^1];
-            }
-            // Log($"Trimmed:\n{text}");
+            // Debug Log
+            // Log(Encoding.UTF8.GetString(data, 0, dataLength));
 
-            // Deserialize JSON
-            if (!IsNullOrWhitespace(textSpan))
-            {
-                T obj = JsonExtensions.DeserializeFromJson<T>(new string(textSpan));
-                onReceive(obj);
-            }
-            return true;
-        }
+            // Streaming format is like this:
+            /*
+            [{ a:1, b:2}
+            ,
+            { a:3, b:4}
+            ,
+            { a:5, b:6}
+            ]
+            */
 
-        [Conditional("UNITY_EDITOR")]
-        private static void Log(string message)
-        {
-            UnityEngine.Debug.Log(message);
-        }
+            int jsonStart = -1;
+            int depth = 0;
 
-        private static bool IsNullOrWhitespace(ReadOnlySpan<char> span)
-        {
-            if (span.Length == 0)
+            for (int i = 0; i < textSpan.Length; i++)
             {
-                return true;
-            }
-
-            foreach (var c in span)
-            {
-                if (!char.IsWhiteSpace(c))
+                switch (textSpan[i])
                 {
-                    return false;
+                    case '{':
+                        if (depth == 0)
+                        {
+                            jsonStart = i;
+                        }
+                        depth++;
+                        break;
+                    case '}':
+                        depth--;
+                        if (depth == 0)
+                        {
+                            ParseJson(textSpan.Slice(jsonStart, i - jsonStart + 1));
+                            jsonStart = -1;
+                        }
+                        break;
                 }
             }
             return true;
+        }
+
+        private void ParseJson(ReadOnlySpan<char> span)
+        {
+            // Deserialize JSON
+            string jsonStr = new(span);
+            // Log($"Parsed:\n{jsonStr}");
+            T obj = JsonExtensions.DeserializeFromJson<T>(jsonStr);
+            onReceive(obj);
+        }
+
+        [Conditional("UNITY_EDITOR")]
+        [HideInCallstack]
+        private static void Log(string message)
+        {
+            UnityEngine.Debug.Log(message);
         }
     }
 }
