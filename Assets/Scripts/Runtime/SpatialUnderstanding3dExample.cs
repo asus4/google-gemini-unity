@@ -54,6 +54,9 @@ namespace GoogleApis.Example
         private bool isTest = true;
 
         [SerializeField]
+        private float3 eulerOffset;
+
+        [SerializeField]
         Box3d[] results;
 
         private GenerativeModel model;
@@ -122,29 +125,26 @@ namespace GoogleApis.Example
             rt.GetWorldCorners(worldCorners);
             float3 rtPosition = rt.position;
             float3 rectSize = worldCorners[2] - worldCorners[0];
-            float3x3 intrinsics = GetIntrinsics(rectSize.xy, fieldOfView);
 
             Gizmos.color = Color.green;
             UnityEditor.Handles.color = Color.green;
 
             foreach (var result in results)
             {
-                // 1. rotation matrix + center offset
-                // 2. view rotation matrix
-                // 3. intrinsics
-
-                float3x3 rotationMatrix = new(result.Rotation);
-                // float3x3 mvpMatrix = math.mul(intrinsics, math.mul(viewRotationMatrix, rotationMatrix));
-                float3x3 mvpMatrix = math.mul(viewRotationMatrix, rotationMatrix);
-                Gizmos.matrix = new float4x4(mvpMatrix, result.Position);
-                // Gizmos.DrawWireCube(Vector3.zero, Vector3.o/ne);
+                Gizmos.matrix = Matrix4x4.TRS(
+                    (result.Position + new float3(0, -1, 0)) * new float3(rectSize.x, rectSize.y, 1) + rtPosition,
+                    quaternion.EulerZYX((result.EulerAngles + eulerOffset) * Mathf.Deg2Rad),
+                    result.Size * new float3(rectSize.y)
+                );
+                Gizmos.DrawWireCube(Vector3.zero, Vector3.one);
 
                 // Draw handle
-                float3 p = result.Position;
-                p.y = 1 - p.y;
-                float3 textPosition = math.mul(p, mvpMatrix);
-                UnityEditor.Handles.Label(textPosition, result.label);
+                float3 center = (result.Position + new float3(0, -1, 0)) * new float3(rectSize.x, rectSize.y, 1) + rtPosition;
+                UnityEditor.Handles.Label(center, result.label);
             }
+
+            Gizmos.matrix = Matrix4x4.identity;
+            Gizmos.DrawSphere(rtPosition, 0.1f);
         }
 #endif // UNITY_EDITOR
 
