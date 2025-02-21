@@ -3,31 +3,21 @@ using System.Runtime.Serialization;
 namespace GoogleApis.GenerativeLanguage
 {
     /// <summary>
-    /// https://ai.google.dev/api/rest/v1beta/HarmCategory
+    /// https://ai.google.dev/api/generate-content#v1beta.HarmCategory
     /// </summary>
     public enum HarmCategory
     {
-        [EnumMember(Value = "HARM_CATEGORY_UNSPECIFIED")]
-        Unspecified, //   Category is unspecified.
-        [EnumMember(Value = "HARM_CATEGORY_DEROGATORY")]
-        Derogatory, //    Negative or harmful comments targeting identity and/or protected attribute.
-        [EnumMember(Value = "HARM_CATEGORY_TOXICITY")]
-        Toxicity, // Content that is rude, disrespectful, or profane.
-        [EnumMember(Value = "HARM_CATEGORY_VIOLENCE")]
-        Violence, //  Describes scenarios depicting violence against an individual or group, or general descriptions of gore.
-        [EnumMember(Value = "HARM_CATEGORY_SEXUAL")]
-        Sexual, // Contains references to sexual acts or other lewd content.
-        [EnumMember(Value = "HARM_CATEGORY_MEDICAL")]
-        Medical, // Promotes unchecked medical advice.
-        [EnumMember(Value = "HARM_CATEGORY_DANGEROUS")]
-        Dangerous, // Dangerous content that promotes, facilitates, or encourages harmful acts.
-        [EnumMember(Value = "HARM_CATEGORY_HARASSMENT")]
-        Harassment, // Harasment content.
-        [EnumMember(Value = "HARM_CATEGORY_HATE_SPEECH")]
-        HateSpeech, // Hate speech and content.
-        [EnumMember(Value = "HARM_CATEGORY_SEXUALLY_EXPLICIT")]
-        SexuallyExplicit, // Sexually explicit content.
-        [EnumMember(Value = "HARM_CATEGORY_DANGEROUS_CONTENT")]
-        DangerousContent, // Dangerous content.
+        HARM_CATEGORY_UNSPECIFIED, //   Category is unspecified.
+        HARM_CATEGORY_DEROGATORY, //    Negative or harmful comments targeting identity and/or protected attribute.
+        HARM_CATEGORY_TOXICITY, // Content that is rude, disrespectful, or profane.
+        HARM_CATEGORY_VIOLENCE, //  Describes scenarios depicting violence against an individual or group, or general descriptions of gore.
+        HARM_CATEGORY_SEXUAL, // Contains references to sexual acts or other lewd content.
+        HARM_CATEGORY_MEDICAL, // Promotes unchecked medical advice.
+        HARM_CATEGORY_DANGEROUS, // Dangerous content that promotes, facilitates, or encourages harmful acts.
+        HARM_CATEGORY_HARASSMENT, // Gemini - Harassment content.
+        HARM_CATEGORY_HATE_SPEECH, // Gemini - Hate speech and content.
+        HARM_CATEGORY_SEXUALLY_EXPLICIT, // Gemini - Sexually explicit content.
+        HARM_CATEGORY_DANGEROUS_CONTENT, // Gemini - Dangerous content.
+        HARM_CATEGORY_CIVIC_INTEGRITY, // Gemini - Content that may be used to harm civic integrity.
     }
 }

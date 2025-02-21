@@ -74,10 +74,7 @@ namespace GoogleApis.GenerativeLanguage
 
         private void ParseJson(ReadOnlySpan<char> span)
         {
-            // Deserialize JSON
-            string jsonStr = new(span);
-            // Log($"Parsed:\n{jsonStr}");
-            T obj = JsonExtensions.DeserializeFromJson<T>(jsonStr);
+            T obj = JsonExtensions.DeserializeFromJson<T>(span);
             onReceive(obj);
         }
 

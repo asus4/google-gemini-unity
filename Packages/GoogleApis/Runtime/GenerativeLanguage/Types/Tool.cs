@@ -1,8 +1,7 @@
 #nullable enable
 
 using System.Collections.Generic;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+using System.Text.Json.Serialization;
 
 namespace GoogleApis.GenerativeLanguage
 {
@@ -19,21 +18,25 @@ namespace GoogleApis.GenerativeLanguage
         /// 
         /// The model or system does not execute the function. Instead the defined function may be returned as a [FunctionCall][content.part.function_call] with arguments to the client side for execution. The model may decide to call a subset of these functions by populating [FunctionCall][content.part.function_call] in the response. The next conversation turn may contain a [FunctionResponse][content.part.function_response] with the [content.role] "function" generation context for the next model turn.
         /// </summary>
-        public FunctionDeclaration[]? functionDeclarations;
+        [JsonPropertyName("functionDeclarations")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public FunctionDeclaration[]? FunctionDeclarations { get; set; }
 
         /// <summary>
         /// Optional. Retrieval tool that is powered by Google search.
         /// NOTE: The online document is `googleSearchRetrieval`. But it was 400 error.
         /// </summary>
-        public GoogleSearchRetrieval? googleSearch;
+        [JsonPropertyName("googleSearch")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public GoogleSearchRetrieval? GoogleSearch { get; set; }
 
         public override string ToString()
             => this.SerializeToJson(true);
 
         public static implicit operator Tool(FunctionDeclaration[] functionDeclarations)
-            => new() { functionDeclarations = functionDeclarations };
+            => new() { FunctionDeclarations = functionDeclarations };
         public static implicit operator Tool(GoogleSearchRetrieval googleSearchRetrieval)
-            => new() { googleSearch = googleSearchRetrieval };
+            => new() { GoogleSearch = googleSearchRetrieval };
     }
 
     partial record Tool
@@ -49,23 +52,27 @@ namespace GoogleApis.GenerativeLanguage
             /// <summary>
             /// Required. The name of the function to call. Must be a-z, A-Z, 0-9, or contain underscores and dashes, with a maximum length of 63.
             /// </summary>
-            public string name;
+            [JsonPropertyName("name")]
+            public string Name { get; set; }
 
             /// <summary>
             /// Required. A brief description of the function.
             /// </summary>
-            public string description;
+            [JsonPropertyName("description")]
+            public string Description { get; set; }
 
             /// <summary>
             /// Optional. Describes the parameters to this function. Reflects the Open API 3.03 Parameter Object string Key: the name of the parameter. Parameter names are case sensitive. Schema Value: the Schema defining the type used for the parameter.
             /// </summary>
-            public Schema? parameters;
+            [JsonPropertyName("parameters")]
+            [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+            public Schema? Parameters { get; set; }
 
             public FunctionDeclaration(string name, string description, Schema? parameters)
             {
-                this.name = name;
-                this.description = description;
-                this.parameters = parameters;
+                Name = name;
+                Description = description;
+                Parameters = parameters;
             }
         }
 
@@ -74,44 +81,58 @@ namespace GoogleApis.GenerativeLanguage
             /// <summary>
             /// Data type
             /// </summary>
-            [JsonConverter(typeof(StringEnumConverter))]
-            public Type type;
+            [JsonPropertyName("type")]
+            [JsonConverter(converterType: typeof(JsonStringEnumConverter))]
+            public Type Type { get; set; }
 
             /// <summary>
             /// Optional. The format of the data. This is used only for primitive datatypes. Supported formats: for NUMBER type: float, double for INTEGER type: int32, int64
             /// </summary>
-            public string? format;
+            [JsonPropertyName("format")]
+            [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+            public string? Format { get; set; }
 
             /// <summary>
             /// Optional. A brief description of the parameter. This could contain examples of use. Parameter description may be formatted as Markdown.
             /// </summary>
-            public string? description;
+            [JsonPropertyName("description")]
+            [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+            public string? Description { get; set; }
 
             /// <summary>
             /// Optional. Indicates if the value may be null.
             /// </summary>
-            public bool? nullable;
+            [JsonPropertyName("nullable")]
+            [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+            public bool? Nullable { get; set; }
 
             /// <summary>
             /// Optional. Possible values of the element of Type.STRING with enum format. For example we can define an Enum Direction as : {type:STRING, format:enum, enum:["EAST", NORTH", "SOUTH", "WEST"]}
             /// </summary>
-            [JsonProperty("enum")]
-            public string[]? enums;
+            [JsonPropertyName("enum")]
+            [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+            public string[]? Enums { get; set; }
 
             /// <summary>
             /// Optional. Properties of Type.OBJECT.
             /// </summary>
-            public Dictionary<string, Schema>? properties;
+            [JsonPropertyName("properties")]
+            [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+            public Dictionary<string, Schema>? Properties { get; set; }
 
             /// <summary>
             /// Optional. Required properties of Type.OBJECT.
             /// </summary>
-            public string[]? required;
+            [JsonPropertyName("required")]
+            [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+            public string[]? Required { get; set; }
 
             /// <summary>
             /// Optional. Schema of the elements of Type.ARRAY.
             /// </summary>
-            public Schema? items;
+            [JsonPropertyName("items")]
+            [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+            public Schema? Items { get; set; }
 
             public override string ToString()
             {
@@ -139,7 +160,9 @@ namespace GoogleApis.GenerativeLanguage
         /// </summary>
         public record ToolConfig
         {
-            public FunctionCallingConfig? functionCallingConfig;
+            [JsonPropertyName("functionCallingConfig")]
+            [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+            public FunctionCallingConfig? FunctionCallingConfig { get; set; }
         }
 
         /// <summary>
@@ -148,18 +171,6 @@ namespace GoogleApis.GenerativeLanguage
         /// </summary>
         public record FunctionCallingConfig
         {
-            public enum Mode
-            {
-                // Unspecified function calling mode. This value should not be used.
-                MODE_UNSPECIFIED,
-                // Default model behavior, model decides to predict either a function call or a natural language response.
-                AUTO,
-                // Model is constrained to always predicting a function call only. If "allowedFunctionNames" are set, the predicted function call will be limited to any one of "allowedFunctionNames", else the predicted function call will be any one of the provided "functionDeclarations".
-                ANY,
-                // Model will not predict any function call. Model behavior is same as when not passing any function declarations.
-                NONE,
-            }
-
             /*
             JSON representation
 
@@ -171,29 +182,51 @@ namespace GoogleApis.GenerativeLanguage
             }
             */
 
-            [JsonConverter(typeof(StringEnumConverter))]
-            public Mode? mode;
+            [JsonPropertyName("mode")]
+            [JsonConverter(typeof(JsonStringEnumConverter))]
+            [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+            public FunctionCallingConfigMode? Mode { get; set; }
             public string[]? allowedFunctionNames;
+        }
+
+        public enum FunctionCallingConfigMode
+        {
+            // Unspecified function calling mode. This value should not be used.
+            MODE_UNSPECIFIED,
+            // Default model behavior, model decides to predict either a function call or a natural language response.
+            AUTO,
+            // Model is constrained to always predicting a function call only. If "allowedFunctionNames" are set, the predicted function call will be limited to any one of "allowedFunctionNames", else the predicted function call will be any one of the provided "functionDeclarations".
+            ANY,
+            // Model will not predict any function call. Model behavior is same as when not passing any function declarations.
+            NONE,
         }
 
         // https://ai.google.dev/api/caching#GoogleSearchRetrieval
         public record GoogleSearchRetrieval
         {
-            public DynamicRetrievalConfig? dynamicRetrievalConfig;
+            [JsonPropertyName("dynamicRetrievalConfig")]
+            [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+            public DynamicRetrievalConfig? DynamicRetrievalConfig { get; set; }
         }
 
         public record DynamicRetrievalConfig
         {
-            public enum Mode
-            {
-                // Always trigger retrieval.
-                MODE_UNSPECIFIED,
-                // Run retrieval only when system decides it is necessary.
-                MODE_DYNAMIC,
-            }
+            [JsonPropertyName("mode")]
+            [JsonConverter(typeof(JsonStringEnumConverter))]
+            [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+            public DynamicRetrievalConfigMode? Mode { get; set; }
 
-            public Mode? mode;
-            public double? dynamicThreshold;
+            [JsonPropertyName("dynamicThreshold")]
+            [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+            public double? DynamicThreshold { get; set; }
+        }
+
+        public enum DynamicRetrievalConfigMode
+        {
+            // Always trigger retrieval.
+            MODE_UNSPECIFIED,
+            // Run retrieval only when system decides it is necessary.
+            MODE_DYNAMIC,
         }
     }
 }

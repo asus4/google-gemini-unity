@@ -1,7 +1,8 @@
 using System;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using GoogleApis.GenerativeLanguage;
-using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.UI;
 using Unity.Mathematics;
@@ -80,7 +81,7 @@ namespace GoogleApis.Example
                 string text = "```json\n[\n  {\"label\": \"sugar container\", \"box_3d\": [0.22,1.16,0.46,0.46,0.36,0.46,-34,0,-2]},\n  {\"label\": \"white ceramic container\", \"box_3d\": [-0.12,0.98,0.13,0.21,0.17,0.27,-58,-48,48]},\n  {\"label\": \"brown liquid\", \"box_3d\": [0.24,0.93,-0.04,0.04,0.18,0.32,133,34,87]},\n  {\"label\": \"brown and white napkin\", \"box_3d\": [-0.31,0.83,-0.16,0.05,0.4,0.42,145,34,87]}\n]\n```";
                 text = text.Replace("```json", "").Replace("```", "");
                 Debug.Log(text);
-                results = JsonConvert.DeserializeObject<Box3d[]>(text);
+                results = JsonSerializer.Deserialize<Box3d[]>(text);
                 return;
             }
 
@@ -92,22 +93,22 @@ namespace GoogleApis.Example
             // Send request
             var blob = await inputTexture.ToJpgBlobAsync();
 
-            Content[] messages = { new(Role.User, blob, inputText) };
+            Content[] messages = { new(Role.user, blob, inputText) };
             GenerateContentRequest request = new()
             {
-                contents = messages,
-                generationConfig = new GenerationConfig
+                Contents = messages,
+                GenerationConfig = new GenerationConfig
                 {
-                    temperature = 0.5,
+                    Temperature = 0.5,
                 },
             };
             var response = await model.GenerateContentAsync(request, destroyCancellationToken);
-            if (response.candidates.Count == 0)
+            if (response.Candidates.Length == 0)
             {
                 Debug.LogError("No response found");
 
             }
-            var modelContent = response.candidates[0].content;
+            var modelContent = response.Candidates[0].Content;
             bool success = TryDeserializeJson(modelContent, out results);
             Debug.Log($"Success: {success}");
         }
@@ -169,12 +170,12 @@ namespace GoogleApis.Example
 
         static bool TryDeserializeJson<T>(Content content, out T result)
         {
-            if (content.parts.Count == 0)
+            if (content.Parts.Count == 0)
             {
                 result = default;
                 return false;
             }
-            var text = content.parts.First().text;
+            var text = content.Parts.First().Text;
             if (string.IsNullOrWhiteSpace(text))
             {
                 result = default;
@@ -182,7 +183,7 @@ namespace GoogleApis.Example
             }
             // Remove ```json and ``` from text
             text = text.Replace("```json", "").Replace("```", "");
-            result = JsonConvert.DeserializeObject<T>(text);
+            result = JsonSerializer.Deserialize<T>(text);
             return result != null;
         }
     }

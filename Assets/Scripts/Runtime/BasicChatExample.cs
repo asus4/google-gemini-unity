@@ -73,31 +73,31 @@ namespace GoogleApis.Example
             }
             inputField.text = string.Empty;
 
-            Content content = new(Role.User, input);
+            Content content = new(Role.user, input);
             messages.Add(content);
             RefreshView();
 
             GenerateContentRequest request = messages;
             if(enableSearch)
             {
-                request.tools = new Tool[]
+                request.Tools = new Tool[]
                 {
                     new Tool.GoogleSearchRetrieval(),
                 };
             }
-            request.safetySettings = new List<SafetySetting>()
+            request.SafetySettings = new List<SafetySetting>()
             {
                 new ()
                 {
-                    category = HarmCategory.Harassment,
-                    threshold = HarmBlockThreshold.Low,
+                    category = HarmCategory.HARM_CATEGORY_HARASSMENT,
+                    threshold = HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
                 }
             };
 
             // Set System prompt if exists
             if (!string.IsNullOrWhiteSpace(systemInstruction))
             {
-                request.systemInstruction = new Content(new Content.Part[] { systemInstruction });
+                request.SystemInstruction = new Content(new Part[] { systemInstruction });
             }
 
             if (useStream)
@@ -105,14 +105,14 @@ namespace GoogleApis.Example
                 var stream = model.StreamGenerateContentAsync(request, destroyCancellationToken);
                 await foreach (var response in stream)
                 {
-                    if (response.candidates.Count == 0)
+                    if (response.Candidates.Length == 0)
                     {
                         return;
                     }
                     // Merge to last message if the role is the same
-                    Content streamContent = response.candidates[0].content;
+                    Content streamContent = response.Candidates[0].Content;
                     bool mergeToLast = messages.Count > 0
-                        && messages[^1].role == streamContent.role;
+                        && messages[^1].Role == streamContent.Role;
                     if (mergeToLast)
                     {
                         messages[^1] = MergeContent(messages[^1], streamContent);
@@ -127,9 +127,9 @@ namespace GoogleApis.Example
             else
             {
                 var response = await model.GenerateContentAsync(request, destroyCancellationToken);
-                if (response.candidates.Count > 0)
+                if (response.Candidates.Length > 0)
                 {
-                    var modelContent = response.candidates[0].content;
+                    var modelContent = response.Candidates[0].Content;
                     messages.Add(modelContent);
                     RefreshView();
                 }
@@ -148,37 +148,37 @@ namespace GoogleApis.Example
 
         private static Content MergeContent(Content a, Content b)
         {
-            if (a.role != b.role)
+            if (a.Role != b.Role)
             {
                 return null;
             }
 
             sb.Clear();
-            var parts = new List<Content.Part>();
-            foreach (var part in a.parts)
+            var parts = new List<Part>();
+            foreach (var part in a.Parts)
             {
-                if (string.IsNullOrWhiteSpace(part.text))
+                if (string.IsNullOrWhiteSpace(part.Text))
                 {
                     parts.Add(part);
                 }
                 else
                 {
-                    sb.Append(part.text);
+                    sb.Append(part.Text);
                 }
             }
-            foreach (var part in b.parts)
+            foreach (var part in b.Parts)
             {
-                if (string.IsNullOrWhiteSpace(part.text))
+                if (string.IsNullOrWhiteSpace(part.Text))
                 {
                     parts.Add(part);
                 }
                 else
                 {
-                    sb.Append(part.text);
+                    sb.Append(part.Text);
                 }
             }
             parts.Insert(0, sb.ToString());
-            return new Content(a.role.Value, parts.ToArray());
+            return new Content(a.Role.Value, parts.ToArray());
         }
     }
 }

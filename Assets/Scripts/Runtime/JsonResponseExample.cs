@@ -78,17 +78,17 @@ namespace GoogleApis.Example
 
             var request = new GenerateContentRequest()
             {
-                contents = new List<Content>()
+                Contents = new List<Content>()
                 {
-                    new(Role.User, prompt)
+                    new(Role.user, prompt)
                 },
-                generationConfig = config,
+                GenerationConfig = config,
             };
 
             var response = await model.GenerateContentAsync(request, destroyCancellationToken);
-            if (response.candidates.Count > 0)
+            if (response.Candidates.Length > 0)
             {
-                var modelContent = response.candidates[0].content;
+                var modelContent = response.Candidates[0].Content;
                 sb.AppendTMPRichText(modelContent);
             }
             else

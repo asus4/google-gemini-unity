@@ -22,15 +22,15 @@ namespace GoogleApis.GenerativeLanguage
 
         public static async Task<object?> InvokeFunctionCallAsync(
             this object instance,
-            Content.FunctionCall functionCall,
+            FunctionCall functionCall,
             CancellationToken cancellationToken = default,
             BindingFlags flags = DefaultBindings)
         {
-            MethodInfo method = instance.GetType().GetMethod(functionCall.name, flags)
-                ?? throw new MissingMethodException(instance.GetType().Name, functionCall.name);
+            MethodInfo method = instance.GetType().GetMethod(functionCall.Name, flags)
+                ?? throw new MissingMethodException(instance.GetType().Name, functionCall.Name);
 
             // No arguments
-            if (functionCall.args == null)
+            if (functionCall.Args == null)
             {
                 return method.Invoke(instance, null);
             }
@@ -48,7 +48,7 @@ namespace GoogleApis.GenerativeLanguage
                     parameters[i] = cancellationToken;
                     continue;
                 }
-                if (functionCall.args.TryGetValue(parameter.Name, out object value))
+                if (functionCall.Args.TryGetValue(parameter.Name, out object value))
                 {
                     parameters[i] = value.JsonCastTo(type);
                     // Debug.Log($"Parameter: {parameter.Name}, Type: {type}, Value: {parameters[i]}");
@@ -95,30 +95,30 @@ namespace GoogleApis.GenerativeLanguage
                 throw new ArgumentException("No function calls found in content");
             }
 
-            List<Content.Part> parts = new();
-            foreach (var part in functionCallContent.parts)
+            List<Part> parts = new();
+            foreach (var part in functionCallContent.Parts)
             {
-                if (part.functionCall == null)
+                if (part.FunctionCall == null)
                 {
                     continue;
                 }
-                string name = part.functionCall.name;
+                string name = part.FunctionCall.Name;
                 try
                 {
                     object? result = await instance.InvokeFunctionCallAsync(
-                        part.functionCall,
+                        part.FunctionCall,
                         cancellationToken,
                         flags);
-                    parts.Add(new Content.FunctionResponse(name, result));
+                    parts.Add(new FunctionResponse(name, result));
                 }
                 catch (Exception e)
                 {
-                    parts.Add(new Content.FunctionResponse(name, new(e.ToString(), e.Message)));
+                    parts.Add(new FunctionResponse(name, new(e.ToString(), e.Message)));
                     Debug.LogError($"Error invoking function {name}: {e.Message}");
                 }
                 cancellationToken.ThrowIfCancellationRequested();
             }
-            return new Content(Role.Function, parts);
+            return new Content(Role.function, parts);
         }
 
         /// <summary>
@@ -128,13 +128,13 @@ namespace GoogleApis.GenerativeLanguage
         /// <returns>Returns true if the content contains a function call.</returns>
         public static bool ContainsFunctionCall(this Content content)
         {
-            if (content.parts == null || content.parts.Count == 0)
+            if (content.Parts == null || content.Parts.Count == 0)
             {
                 return false;
             }
-            foreach (var part in content.parts)
+            foreach (var part in content.Parts)
             {
-                if (part.functionCall != null)
+                if (part.FunctionCall != null)
                 {
                     return true;
                 }
@@ -191,9 +191,9 @@ namespace GoogleApis.GenerativeLanguage
                 description: description,
                 parameters: new Tool.Schema()
                 {
-                    type = returnType.AsToolType(),
-                    format = returnType.GetTypeFormat(),
-                    properties = parameters?.ToDictionary(
+                    Type = returnType.AsToolType(),
+                    Format = returnType.GetTypeFormat(),
+                    Properties = parameters?.ToDictionary(
                         parameter => parameter.Name,
                         parameter => parameter.ToSchema()
                     ),
@@ -209,15 +209,15 @@ namespace GoogleApis.GenerativeLanguage
         public static Tool.Schema ToSchema(this ParameterInfo parameter, int depth = 0)
         {
             var schema = parameter.ParameterType.ToSchema(depth);
-            schema.description = parameter.GetCustomAttribute<DescriptionAttribute>()?.Description;
-            schema.nullable = parameter.IsOptional;
+            schema.Description = parameter.GetCustomAttribute<DescriptionAttribute>()?.Description;
+            schema.Nullable = parameter.IsOptional;
             return schema;
         }
 
         public static Tool.Schema ToSchema(this FieldInfo field, int depth = 0)
         {
             var schema = field.FieldType.ToSchema(depth);
-            schema.description = field.GetCustomAttribute<DescriptionAttribute>()?.Description;
+            schema.Description = field.GetCustomAttribute<DescriptionAttribute>()?.Description;
             return schema;
         }
 
@@ -232,15 +232,15 @@ namespace GoogleApis.GenerativeLanguage
 
             return new Tool.Schema()
             {
-                type = toolType,
-                format = type.GetTypeFormat(),
-                nullable = false,
-                enums = type.IsEnum ? Enum.GetNames(type) : null,
-                properties = toolType == Tool.Type.OBJECT ? type.GetFields(DefaultBindings).ToDictionary(
+                Type = toolType,
+                Format = type.GetTypeFormat(),
+                Nullable = false,
+                Enums = type.IsEnum ? Enum.GetNames(type) : null,
+                Properties = toolType == Tool.Type.OBJECT ? type.GetFields(DefaultBindings).ToDictionary(
                     field => field.Name,
                     field => field.ToSchema(depth + 1)
                 ) : null,
-                items = toolType == Tool.Type.ARRAY ? type.GetElementType().ToSchema(depth + 1) : null,
+                Items = toolType == Tool.Type.ARRAY ? type.GetElementType().ToSchema(depth + 1) : null,
             };
         }
 

@@ -1,8 +1,6 @@
 #nullable enable
 
-using System.Runtime.Serialization;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+using System.Text.Json.Serialization;
 
 // Other types
 namespace GoogleApis.GenerativeLanguage
@@ -14,9 +12,9 @@ namespace GoogleApis.GenerativeLanguage
     /// </summary>
     public partial record SafetySetting
     {
-        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public HarmCategory category;
-        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public HarmBlockThreshold threshold;
     }
 }

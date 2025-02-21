@@ -43,8 +43,8 @@ namespace GoogleApis.Example
         {
             // Add audio data to the message
             byte[] audioData = audioClip.ConvertToWav();
-            var blob = new Content.Blob("audio/wav", audioData);
-            Content[] messages = { new(Role.User, inputText, blob), };
+            var blob = new Blob("audio/wav", audioData);
+            Content[] messages = { new(Role.user, inputText, blob), };
 
             sb.AppendTMPRichText(messages[0]);
             resultLabel.SetText(sb);
@@ -52,9 +52,9 @@ namespace GoogleApis.Example
             var response = await model.GenerateContentAsync(messages, destroyCancellationToken);
             Debug.Log($"Response: {response}");
 
-            if (response.candidates.Count > 0)
+            if (response.Candidates.Length > 0)
             {
-                var modelContent = response.candidates[0].content;
+                var modelContent = response.Candidates[0].Content;
                 sb.AppendTMPRichText(modelContent);
                 resultLabel.SetText(sb);
             }

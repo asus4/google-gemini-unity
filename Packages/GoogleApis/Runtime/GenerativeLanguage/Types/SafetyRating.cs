@@ -1,8 +1,7 @@
 #nullable enable
 
+using System.Text.Json.Serialization;
 using System.Runtime.Serialization;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 // Other types
 namespace GoogleApis.GenerativeLanguage
@@ -14,9 +13,10 @@ namespace GoogleApis.GenerativeLanguage
     /// </summary>
     public partial record SafetyRating
     {
-        [JsonConverter(typeof(StringEnumConverter))]
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public HarmCategory category;
-        [JsonConverter(typeof(StringEnumConverter))]
+
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public HarmProbability probability;
         public bool? blocked;
     }
@@ -25,16 +25,11 @@ namespace GoogleApis.GenerativeLanguage
     {
         public enum HarmProbability
         {
-            [EnumMember(Value = "HARM_PROBABILITY_UNSPECIFIED")]
-            Unspecified,
-            [EnumMember(Value = "NEGLIGIBLE")]
-            Negligible,
-            [EnumMember(Value = "LOW")]
-            Low,
-            [EnumMember(Value = "MEDIUM")]
-            Medium,
-            [EnumMember(Value = "HIGH")]
-            High,
+            HARM_PROBABILITY_UNSPECIFIED,
+            NEGLIGIBLE,
+            LOW,
+            MEDIUM,
+            HIGH,
         }
     }
 }

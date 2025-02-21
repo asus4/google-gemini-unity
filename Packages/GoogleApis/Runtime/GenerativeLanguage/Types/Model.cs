@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace GoogleApis.GenerativeLanguage
 {
     /// <summary>
@@ -6,25 +8,38 @@ namespace GoogleApis.GenerativeLanguage
     /// </summary>
     public record Model
     {
-        public string name;
-        public string baseModelId;
-        public string version;
-        public string displayName;
-        public string description;
-        public int inputTokenLimit;
-        public int outputTokenLimit;
-        public string[] supportedGenerationMethods;
-        public float temperature;
-        public float maxTemperature;
-        public float topP;
-        public int topK;
+        [JsonPropertyName("name")]
+        public string Name { get; set; }
+        [JsonPropertyName("baseModelId")]
+        public string BaseModelId { get; set; }
+        [JsonPropertyName("version")]
+        public string Version { get; set; }
+        [JsonPropertyName("displayName")]
+        public string DisplayName { get; set; }
+        [JsonPropertyName("description")]
+        public string Description { get; set; }
+        [JsonPropertyName("inputTokenLimit")]
+        public int InputTokenLimit { get; set; }
+        [JsonPropertyName("outputTokenLimit")]
+        public int OutputTokenLimit { get; set; }
+        [JsonPropertyName("supportedGenerationMethods")]
+        public string[] SupportedGenerationMethods { get; set; }
+        [JsonPropertyName("temperature")]
+        public float Temperature { get; set; }
+        [JsonPropertyName("maxTemperature")]
+        public float MaxTemperature { get; set; }
+        [JsonPropertyName("topP")]
+        public float TopP { get; set; }
+        [JsonPropertyName("topK")]
+        public int TopK { get; set; }
 
         public override string ToString() => this.SerializeToJson(true);
     }
 
     public record ModelList
     {
-        public Model[] models;
+        [JsonPropertyName("models")]
+        public Model[] Models { get; set; }
 
         public override string ToString() => this.SerializeToJson(true);
     }

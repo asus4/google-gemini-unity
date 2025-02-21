@@ -15,15 +15,15 @@ namespace GoogleApis.GenerativeLanguage
     {
         private const string MIME_JPEG = "image/jpeg";
 
-        public static Content.Blob ToJpgBlob(this Texture2D texture, int quality = 75)
+        public static Blob ToJpgBlob(this Texture2D texture, int quality = 75)
         {
             Assert.IsTrue(texture.isReadable, "Texture2D must be marked as readable");
 
             var bytes = texture.EncodeToJPG(quality);
-            return new Content.Blob(MIME_JPEG, bytes);
+            return new Blob(MIME_JPEG, bytes);
         }
 
-        public static async Task<Content.Blob> ToJpgBlobAsync(this Texture texture, int quality = 75)
+        public static async Task<Blob> ToJpgBlobAsync(this Texture texture, int quality = 75)
         {
             if (texture is Texture2D texture2D && texture2D.isReadable)
             {
@@ -35,7 +35,7 @@ namespace GoogleApis.GenerativeLanguage
             const GraphicsFormat format = GraphicsFormat.R8G8B8_SRGB;
             NativeArray<byte> imageBytes = new(width * height * 3, Allocator.Persistent);
 
-            Content.Blob blob = null;
+            Blob blob = null;
             try
             {
                 var request = await AsyncGPUReadback.RequestIntoNativeArray(ref imageBytes, texture, 0, format, (request) =>
@@ -46,7 +46,7 @@ namespace GoogleApis.GenerativeLanguage
                     }
                 });
                 using NativeArray<byte> jpgBytes = ImageConversion.EncodeNativeArrayToJPG(imageBytes, format, (uint)width, (uint)height, 0, quality);
-                blob = new Content.Blob(MIME_JPEG, jpgBytes.AsReadOnlySpan());
+                blob = new Blob(MIME_JPEG, jpgBytes.AsReadOnlySpan());
             }
             finally
             {
