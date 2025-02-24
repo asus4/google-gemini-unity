@@ -25,13 +25,31 @@ The following examples are available:
 API_KEY=abc123
 ```
 
-## How to install via UPM
+## How to install
 
-This library depends on UniTask. Add the following lines to `Packages/manifest.json` to install the Gemini for Unity package via UPM:
+1. This library depends on System.Text.Json. Add the following lines to `Packages/manifest.json` to install the Gemini for Unity package via UPM:
+
+```json
+"scopedRegistries": [
+    {
+      "name": "package.openupm.com",
+      "url": "https://package.openupm.com",
+      "scopes": [
+        "com.cysharp.unitask",
+        "com.github-glitchenzo.nugetforunity"
+      ]
+    }
+],
+"dependencies": {
+    "com.github-glitchenzo.nugetforunity": "4.3.0",
+}
+```
+
+2. From the Menu, select `NuGet` -> `Manage NuGet Packages`. Find `System.Text.Json` and install it.
+3. Install this package via UPM.
 
 ```json
 "dependencies": {
-    "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#2.5.10",
     "com.github.asus4.googleapis-unity": "https://github.com/asus4/google-gemini-unity.git?path=Packages/GoogleApis#v0.1.0",
     ... other dependencies
 }
