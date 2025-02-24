@@ -32,8 +32,10 @@ namespace GoogleApis.GenerativeLanguage
 
             int width = texture.width;
             int height = texture.height;
-            const GraphicsFormat format = GraphicsFormat.R8G8B8_SRGB;
-            NativeArray<byte> imageBytes = new(width * height * 3, Allocator.Persistent);
+
+            // This format throws an exception on metal but it actually works...
+            GraphicsFormat format = FindSupportedFormat();
+            NativeArray<byte> imageBytes = new(width * height * 4, Allocator.Persistent);
 
             Blob blob = null;
             try
@@ -45,14 +47,33 @@ namespace GoogleApis.GenerativeLanguage
                         throw new System.Exception($"AsyncGPUReadback.RequestIntoNativeArray failed: {request}");
                     }
                 });
-                using NativeArray<byte> jpgBytes = ImageConversion.EncodeNativeArrayToJPG(imageBytes, format, (uint)width, (uint)height, 0, quality);
-                blob = new Blob(MIME_JPEG, jpgBytes.AsReadOnlySpan());
+                var jpgBytes = ImageConversion.EncodeArrayToJPG(imageBytes.ToArray(), format, (uint)width, (uint)height, 0, quality);
+                blob = new Blob(MIME_JPEG, jpgBytes);
             }
             finally
             {
                 imageBytes.Dispose();
             }
             return blob;
+        }
+
+
+        static readonly GraphicsFormat[] FORMATS = {
+            GraphicsFormat.R8G8B8A8_SRGB,
+            GraphicsFormat.R8G8B8A8_UNorm,
+            GraphicsFormat.R8G8B8A8_SNorm,
+        };
+
+        static GraphicsFormat FindSupportedFormat()
+        {
+            foreach (var format in FORMATS)
+            {
+                if (SystemInfo.IsFormatSupported(format, FormatUsage.GetPixels))
+                {
+                    return format;
+                }
+            }
+            throw new System.InvalidOperationException("No supported format found");
         }
     }
 }

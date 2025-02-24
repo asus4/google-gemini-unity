@@ -137,19 +137,13 @@ namespace GoogleApis.GenerativeLanguage
         /// Raw bytes for media formats. A base64-encoded string.
         /// </summary>
         [JsonPropertyName("data")]
-        public string Data { get; set; }
+        public ReadOnlyMemory<byte> Data { get; set; }
 
         [JsonConstructor]
-        public Blob(string mimeType, string data)
+        public Blob(string mimeType, ReadOnlyMemory<byte> data)
         {
             MimeType = mimeType;
             Data = data;
-        }
-
-        public Blob(string mimeType, ReadOnlySpan<byte> data)
-        {
-            MimeType = mimeType;
-            Data = Convert.ToBase64String(data);
         }
     }
 
