@@ -46,6 +46,7 @@ API_KEY=abc123
 ```
 
 2. From the Menu, select `NuGet` -> `Manage NuGet Packages`. Find `System.Text.Json` and install it.
+![nuget-fig](https://github.com/user-attachments/assets/9dd9afdc-4230-4fda-851a-cbf6518f6c08)
 3. Install this package via UPM.
 
 ```json
