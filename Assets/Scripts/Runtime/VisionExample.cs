@@ -46,7 +46,13 @@ namespace GoogleApis.Example
             sb.AppendTMPRichText(messages[0]);
             resultLabel.SetText(sb);
 
-            var response = await model.GenerateContentAsync(messages, destroyCancellationToken);
+            GenerateContentRequest request = messages;
+            request.Tools = new Tool[]
+            {
+                new Tool.GoogleSearchRetrieval(),
+            };
+
+            var response = await model.GenerateContentAsync(request, destroyCancellationToken);
             Debug.Log($"Response: {response}");
 
             if (response.Candidates.Length > 0)
