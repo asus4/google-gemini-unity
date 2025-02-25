@@ -19,21 +19,23 @@ namespace GoogleApis.Example
     public sealed class SpatialUnderstanding3dExample : MonoBehaviour
     {
         [Serializable]
-        class Box3d
+        class BoundingBox3d
         {
             /// <summary>
             /// A label of the object.
             /// </summary>
-            public string label;
+            [JsonPropertyName("label")]
+            public string Label { get; set; }
 
             /// <summary>
             /// x_center, y_center, z_center, x_size, y_size, z_size, roll, pitch, yaw
             /// </summary>
-            public float[] box_3d;
+            [JsonPropertyName("box_3d")]
+            public float[] Values { get; set; }
 
-            public float3 Position => new(box_3d[0], box_3d[1], box_3d[2]);
-            public float3 Size => new(box_3d[3], box_3d[4], box_3d[5]);
-            public float3 EulerAngles => new(box_3d[6], box_3d[7], box_3d[8]);
+            public float3 Position => new(Values[0], Values[1], Values[2]);
+            public float3 Size => new(Values[3], Values[4], Values[5]);
+            public float3 EulerAngles => new(Values[6], Values[7], Values[8]);
             public quaternion Rotation => quaternion.Euler(EulerAngles);
         }
 
@@ -58,7 +60,7 @@ namespace GoogleApis.Example
         private float3 eulerOffset;
 
         [SerializeField]
-        Box3d[] results;
+        BoundingBox3d[] results;
 
         private GenerativeModel model;
         private readonly Vector3[] worldCorners = new Vector3[4];
@@ -75,18 +77,22 @@ namespace GoogleApis.Example
                 aspectRatioFitter.aspectRatio = (float)inputTexture.width / inputTexture.height;
             }
 
-            // FIXME: skipping calling API
+            // FIXME: skipping API call for quick testing
             if (isTest)
             {
+#pragma warning disable JSON001 // Invalid JSON pattern
                 string text = "```json\n[\n  {\"label\": \"sugar container\", \"box_3d\": [0.22,1.16,0.46,0.46,0.36,0.46,-34,0,-2]},\n  {\"label\": \"white ceramic container\", \"box_3d\": [-0.12,0.98,0.13,0.21,0.17,0.27,-58,-48,48]},\n  {\"label\": \"brown liquid\", \"box_3d\": [0.24,0.93,-0.04,0.04,0.18,0.32,133,34,87]},\n  {\"label\": \"brown and white napkin\", \"box_3d\": [-0.31,0.83,-0.16,0.05,0.4,0.42,145,34,87]}\n]\n```";
                 text = text.Replace("```json", "").Replace("```", "");
+#pragma warning restore JSON001 // Invalid JSON pattern
                 Debug.Log(text);
-                results = JsonSerializer.Deserialize<Box3d[]>(text);
+                results = JsonSerializer.Deserialize<BoundingBox3d[]>(text);
                 return;
             }
 
             using var settings = GoogleApiSettings.Get();
             var client = new GenerativeAIClient(settings);
+
+            // Gemini 2.0 Pro returns better results
             // model = client.GetModel(Models.Gemini_2_0_Flash);
             model = client.GetModel(Models.Gemini_2_0_Pro_Exp);
 
@@ -97,7 +103,7 @@ namespace GoogleApis.Example
             GenerateContentRequest request = new()
             {
                 Contents = messages,
-                GenerationConfig = new GenerationConfig
+                GenerationConfig = new()
                 {
                     Temperature = 0.5,
                 },
@@ -141,7 +147,7 @@ namespace GoogleApis.Example
 
                 // Draw handle
                 float3 center = (result.Position + new float3(0, -1, 0)) * new float3(rectSize.x, rectSize.y, 1) + rtPosition;
-                UnityEditor.Handles.Label(center, result.label);
+                UnityEditor.Handles.Label(center, result.Label);
             }
 
             Gizmos.matrix = Matrix4x4.identity;
