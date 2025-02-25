@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18018535, g: 0.22559482, b: 0.30677685, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -566,12 +565,12 @@ MonoBehaviour:
   m_RequiresColorTexture: 0
   m_Version: 2
   m_TaaSettings:
-    quality: 3
-    frameInfluence: 0.1
-    jitterScale: 1
-    mipBias: 0
-    varianceClampScale: 0.9
-    contrastAdaptiveSharpening: 0
+    m_Quality: 3
+    m_FrameInfluence: 0.1
+    m_JitterScale: 1
+    m_MipBias: 0
+    m_VarianceClampScale: 0.9
+    m_ContrastAdaptiveSharpening: 0
 --- !u!1 &364108231
 GameObject:
   m_ObjectHideFlags: 0
@@ -616,8 +615,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26ca10a158ac34423ae0a6416f86e46a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inputTexture: {fileID: 2800000, guid: a3c3ac95c1deb4bf787f54c19ac67994, type: 3}
-  inputText: Describe the image.
+  inputTexture: {fileID: 2800000, guid: 7332f9ce4f21947b3a60e56033274e09, type: 3}
+  inputText: 'I''m standing at
+
+    - Latitude: 35.66679369361298
+
+    - Longitude:
+    139.72753510500672
+
+    .
+
+    Please seach on the internet and tell me what
+    the building in the image is now?
+
+'
   resultLabel: {fileID: 69440744}
   sendButton: {fileID: 1746934718}
 --- !u!1 &410087039
@@ -876,6 +887,7 @@ MonoBehaviour:
   m_DeselectOnBackgroundClick: 1
   m_PointerBehavior: 0
   m_CursorLockBehavior: 0
+  m_ScrollDeltaPerTick: 6
 --- !u!1 &1325193851
 GameObject:
   m_ObjectHideFlags: 0
@@ -1265,7 +1277,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: a3c3ac95c1deb4bf787f54c19ac67994, type: 3}
+  m_Texture: {fileID: 2800000, guid: 7332f9ce4f21947b3a60e56033274e09, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
