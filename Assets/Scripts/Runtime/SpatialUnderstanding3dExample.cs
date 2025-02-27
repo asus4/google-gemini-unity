@@ -25,12 +25,14 @@ namespace GoogleApis.Example
             /// A label of the object.
             /// </summary>
             [JsonPropertyName("label")]
+            [field: SerializeField]
             public string Label { get; set; }
 
             /// <summary>
             /// x_center, y_center, z_center, x_size, y_size, z_size, roll, pitch, yaw
             /// </summary>
             [JsonPropertyName("box_3d")]
+            [field: SerializeField]
             public float[] Values { get; set; }
 
             public float3 Position => new(Values[0], Values[1], Values[2]);
@@ -54,7 +56,11 @@ namespace GoogleApis.Example
         private float fieldOfView = 69f;
 
         [SerializeField]
-        private bool isTest = true;
+        private bool useTest = true;
+
+        [SerializeField]
+        [TextArea]
+        private string testData;
 
         [SerializeField]
         private float3 eulerOffset;
@@ -64,9 +70,6 @@ namespace GoogleApis.Example
 
         private GenerativeModel model;
         private readonly Vector3[] worldCorners = new Vector3[4];
-
-
-
 
         private async void Start()
         {
@@ -78,12 +81,11 @@ namespace GoogleApis.Example
             }
 
             // FIXME: skipping API call for quick testing
-            if (isTest)
+            if (useTest && !string.IsNullOrWhiteSpace(testData))
             {
-#pragma warning disable JSON001 // Invalid JSON pattern
-                string text = "```json\n[\n  {\"label\": \"sugar container\", \"box_3d\": [0.22,1.16,0.46,0.46,0.36,0.46,-34,0,-2]},\n  {\"label\": \"white ceramic container\", \"box_3d\": [-0.12,0.98,0.13,0.21,0.17,0.27,-58,-48,48]},\n  {\"label\": \"brown liquid\", \"box_3d\": [0.24,0.93,-0.04,0.04,0.18,0.32,133,34,87]},\n  {\"label\": \"brown and white napkin\", \"box_3d\": [-0.31,0.83,-0.16,0.05,0.4,0.42,145,34,87]}\n]\n```";
-                text = text.Replace("```json", "").Replace("```", "");
-#pragma warning restore JSON001 // Invalid JSON pattern
+                var text = testData
+                    .Replace("```json", "")
+                    .Replace("```", "");
                 Debug.Log(text);
                 results = JsonSerializer.Deserialize<BoundingBox3d[]>(text);
                 return;
@@ -93,8 +95,8 @@ namespace GoogleApis.Example
             var client = new GenerativeAIClient(settings);
 
             // Gemini 2.0 Pro returns better results
-            // model = client.GetModel(Models.Gemini_2_0_Flash);
-            model = client.GetModel(Models.Gemini_2_0_Pro_Exp);
+            model = client.GetModel(Models.Gemini_2_0_Flash);
+            // model = client.GetModel(Models.Gemini_2_0_Pro_Exp);
 
             // Send request
             var blob = await inputTexture.ToJpgBlobAsync();
@@ -117,6 +119,15 @@ namespace GoogleApis.Example
             var modelContent = response.Candidates[0].Content;
             bool success = TryDeserializeJson(modelContent, out results);
             Debug.Log($"Success: {success}");
+
+            if (success)
+            {
+                Debug.Log(modelContent.Parts.First().Text);
+                if (useTest)
+                {
+                    testData = JsonSerializer.Serialize(results);
+                }
+            }
         }
 
 
