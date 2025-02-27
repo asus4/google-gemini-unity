@@ -148,7 +148,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 140909522}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
   m_Name: 
@@ -401,7 +401,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 364108231}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b9075e293c90a4a598f7eb19594286cd, type: 3}
   m_Name: 
@@ -425,7 +425,95 @@ MonoBehaviour:
     x: 0
     y: 0
     z: 0
-  results: []
+  results:
+  - <Label>k__BackingField: range hood
+    <Values>k__BackingField:
+    - -0.11
+    - 3.3
+    - 0.74
+    - 0.8
+    - 0.45
+    - 0.57
+    - 4
+    - 0
+    - 0
+  - <Label>k__BackingField: range
+    <Values>k__BackingField:
+    - -0.11
+    - 3.26
+    - -0.67
+    - 0.76
+    - 0.6
+    - 1.19
+    - 4
+    - 0
+    - 0
+  - <Label>k__BackingField: dishwasher
+    <Values>k__BackingField:
+    - -0.88
+    - 2.31
+    - -0.86
+    - 0.17
+    - 0.61
+    - 0.86
+    - 4
+    - 0
+    - 0
+  - <Label>k__BackingField: microwave
+    <Values>k__BackingField:
+    - 1.13
+    - 3.28
+    - -0.22
+    - 0.49
+    - 0.32
+    - 0.29
+    - 4
+    - 0
+    - 0
+  - <Label>k__BackingField: coffee maker
+    <Values>k__BackingField:
+    - 0.63
+    - 3.29
+    - -0.14
+    - 0.2
+    - 0.24
+    - 0.33
+    - 4
+    - 0
+    - 0
+  - <Label>k__BackingField: toaster
+    <Values>k__BackingField:
+    - -0.99
+    - 3.31
+    - -0.16
+    - 0.29
+    - 0.17
+    - 0.19
+    - 4
+    - 0
+    - 0
+  - <Label>k__BackingField: kitchen cabinets
+    <Values>k__BackingField:
+    - -0.87
+    - 2.27
+    - -0.86
+    - 0.47
+    - 1.86
+    - 0.97
+    - 4
+    - 0
+    - 0
+  - <Label>k__BackingField: kitchen cabinets
+    <Values>k__BackingField:
+    - 0.88
+    - 2.15
+    - 1.06
+    - 0.47
+    - 1.86
+    - 0.97
+    - 4
+    - 0
+    - 0
 --- !u!114 &364108235
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -433,7 +521,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 364108231}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dd0ad64ab73db4d78a612452d8dddb74, type: 3}
   m_Name: 
@@ -471,10 +559,9 @@ MonoBehaviour:
     center: {x: 0.88, y: 2.15, z: 1.06}
     size: {x: 0.47, y: 1.86, z: 0.97}
     rotation: {x: 4, y: 0, z: 0}
-  fov: 60
-  zoom: 1.5
-  panOffset: {x: 0, y: 150}
   _texture: {fileID: 2800000, guid: 24d8d7228660d4bcfaae28ed553d46f2, type: 3}
+  scale: 0.00606
+  imageContainer: {fileID: 1021075252}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -804,7 +891,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 0}
+  m_Texture: {fileID: 2800000, guid: 24d8d7228660d4bcfaae28ed553d46f2, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0

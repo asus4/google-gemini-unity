@@ -1,3 +1,22 @@
+// Original source:
+// https://github.com/google-gemini/cookbook/blob/main/examples/Spatial_understanding_3d.ipynb
+// Ported to Unity3D by @asus4
+//
+// Copyright 2024 Google LLC
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     https://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
 using System;
 using System.Linq;
 using System.Text.Json;
@@ -14,7 +33,6 @@ namespace GoogleApis.Example
     /// 
     /// Original source:
     /// https://github.com/google-gemini/cookbook/blob/main/examples/Spatial_understanding_3d.ipynb
-    /// https://github.com/google-gemini/starter-applets/blob/main/spatial/src/Content.tsx
     /// </summary>
     public sealed class SpatialUnderstanding3dExample : MonoBehaviour
     {
@@ -81,13 +99,8 @@ namespace GoogleApis.Example
             }
 
             // FIXME: skipping API call for quick testing
-            if (useTest && !string.IsNullOrWhiteSpace(testData))
+            if (useTest && TryDeserializeJson(testData, out results))
             {
-                var text = testData
-                    .Replace("```json", "")
-                    .Replace("```", "");
-                Debug.Log(text);
-                results = JsonSerializer.Deserialize<BoundingBox3d[]>(text);
                 return;
             }
 
@@ -136,6 +149,10 @@ namespace GoogleApis.Example
         {
             if (results.Length == 0)
             {
+                if (useTest && !string.IsNullOrWhiteSpace(testData))
+                {
+                    TryDeserializeJson(testData, out results);
+                }
                 return;
             }
 
@@ -193,13 +210,20 @@ namespace GoogleApis.Example
                 return false;
             }
             var text = content.Parts.First().Text;
+            return TryDeserializeJson(text, out result);
+        }
+
+        static bool TryDeserializeJson<T>(string text, out T result)
+        {
             if (string.IsNullOrWhiteSpace(text))
             {
                 result = default;
                 return false;
             }
             // Remove ```json and ``` from text
-            text = text.Replace("```json", "").Replace("```", "");
+            text = text
+            .Replace("```json", "")
+                .Replace("```", "");
             result = JsonSerializer.Deserialize<T>(text);
             return result != null;
         }

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
@@ -14,7 +13,9 @@ public class BoxVisualizer : MonoBehaviour
         public Vector3 rotation; // Euler angles (degrees)
     }
 
-    public List<BoxData> boxesData = new() {
+    [SerializeField]
+    BoxData[] boxesData = new BoxData[]
+    {
         new () { label = "range hood", center = new Vector3(-0.11f, 3.3f, 0.74f), size = new Vector3(0.8f, 0.45f, 0.57f), rotation = new Vector3(4, 0, 0) },
         new () { label = "range", center = new Vector3(-0.11f, 3.26f, -0.67f), size = new Vector3(0.76f, 0.6f, 1.19f), rotation = new Vector3(4, 0, 0) },
         new () { label = "dishwasher", center = new Vector3(-0.88f, 2.31f, -0.86f), size = new Vector3(0.17f, 0.61f, 0.86f), rotation = new Vector3(4, 0, 0) },
@@ -26,24 +27,36 @@ public class BoxVisualizer : MonoBehaviour
     };
 
     [Range(50, 120)]
-    public float fov = 60f;
+    float fov = 60f;
 
     [SerializeField]
-    private Texture2D _texture;
+    Texture2D _texture;
+
+    [SerializeField]
+    [Range(0.001f, 0.02f)]
+    float scale = 0.005f;
+
+    [SerializeField]
+    RectTransform imageContainer;
 
     static readonly Color LineColor = new(0x29 / 255f, 0x62 / 255f, 0xFF / 255f, 1);
     static readonly Lazy<GUIStyle> LabelStyle = new(()
     => new()
     {
         normal = new GUIStyleState { textColor = Color.white },
-        fontSize = 12,
+        fontSize = 10,
         fontStyle = FontStyle.Bold,
         alignment = TextAnchor.MiddleCenter
     });
 
+    void Update()
+    {
+
+    }
+
     private void OnDrawGizmos()
     {
-        if (_texture == null)
+        if (!enabled || _texture == null)
         {
             return;
         }
@@ -53,55 +66,42 @@ public class BoxVisualizer : MonoBehaviour
 
     private void DrawPerspectiveView()
     {
-        Matrix4x4 originalMatrix = Gizmos.matrix;
-
         // 画像の原点（左上）をシーンの原点に合わせる変換行列
-        float imageWidth = _texture.width;
-        float imageHeight = _texture.height;
-        float aspectRatio = imageHeight / imageWidth;
-        float scaleX = 0.1f / aspectRatio; // 5は任意。画面に収まるようなスケールにする
-        float scaleY = 0.1f;  // 縦横比から計算する
-        Vector3 imageCenterOffset = new Vector3(scaleX / 2f, -scaleY / 2f, 0);
-
-        // Gizmosの位置、回転、スケールを設定
-        Gizmos.matrix = Matrix4x4.TRS(transform.position - imageCenterOffset, Quaternion.identity, new Vector3(scaleX, scaleY, 1));
-        Gizmos.DrawGUITexture(new Rect(0, 0, 1, 1), _texture);
-        Gizmos.matrix = originalMatrix;
-
+        float aspectRatio = _texture.width / _texture.height;
+        Vector3 worldCenter = imageContainer.position;
+        Vector2 worldScale = new(scale / aspectRatio, scale);
 
         // Calculate camera intrinsics
-        float f = (scaleX * imageWidth) / (2 * Mathf.Tan(fov * 0.5f * Mathf.Deg2Rad));
-        Vector3 cameraCenter = transform.position; // Use the GameObject's position as the camera position
+        float f = (worldScale.x * _texture.width) / (2 * Mathf.Tan(fov * 0.5f * Mathf.Deg2Rad));
 
+        Gizmos.color = LineColor;
 
         foreach (BoxData boxData in boxesData)
         {
-            DrawBox(boxData, f, cameraCenter, scaleX, scaleY);
+            DrawBox(boxData, f, worldCenter, worldScale);
         }
-
     }
 
-
-    private void DrawBox(BoxData boxData, float focalLength, Vector3 cameraCenter, float scaleX, float scaleY)
+    static void DrawBox(BoxData boxData, float focalLength, Vector3 worldCenter, Vector2 scale)
     {
         Vector3 center = boxData.center;
-        Vector3 size = boxData.size;
         Quaternion rotation = Quaternion.Euler(boxData.rotation);
 
         // Calculate half size for convenience
-        Vector3 halfSize = size * 0.5f;
+        Vector3 halfSize = boxData.size * 0.5f;
 
         // Define the 8 corners of the box in local space
-        Vector3[] corners = new Vector3[]
+        Span<Vector3> corners = stackalloc Vector3[]
         {
-            new (-halfSize.x, -halfSize.y, -halfSize.z),
-            new ( halfSize.x, -halfSize.y, -halfSize.z),
-            new (-halfSize.x,  halfSize.y, -halfSize.z),
-            new ( halfSize.x,  halfSize.y, -halfSize.z),
-            new (-halfSize.x, -halfSize.y,  halfSize.z),
-            new ( halfSize.x, -halfSize.y,  halfSize.z),
-            new (-halfSize.x,  halfSize.y,  halfSize.z),
-            new ( halfSize.x,  halfSize.y,  halfSize.z),
+            new ( halfSize.x, -halfSize.y, -halfSize.z), // 1
+            new ( halfSize.x,  halfSize.y, -halfSize.z), // 3
+            new ( halfSize.x,  halfSize.y,  halfSize.z),  // 7
+            new ( halfSize.x, -halfSize.y,  halfSize.z),  // 5
+            new (-halfSize.x, -halfSize.y, -halfSize.z), // 0
+            new (-halfSize.x,  halfSize.y, -halfSize.z), // 2
+            new (-halfSize.x,  halfSize.y,  halfSize.z),  // 6
+            new (-halfSize.x, -halfSize.y,  halfSize.z), // 4
+            Vector3.zero // Center
         };
 
         // Transform corners to world space
@@ -110,76 +110,50 @@ public class BoxVisualizer : MonoBehaviour
             corners[i] = rotation * corners[i] + center;
         }
 
-        // Reorder corners to match the original JavaScript code
-        Vector3[] reorderedCorners = new Vector3[] {
-            corners[1], corners[3], corners[7], corners[5],
-            corners[0], corners[2], corners[6], corners[4]
-        };
-        corners = reorderedCorners;
-
         // Create the view rotation matrix (90-degree tilt)
         Matrix4x4 viewRotationMatrix = Matrix4x4.Rotate(Quaternion.Euler(90, 0, 0));
 
         // Rotate, translate points, and calculate distances
-        List<Vector3> rotatedPoints = new List<Vector3>();
-        List<float> vertexDistances = new List<float>();
+        Span<Vector3> rotatedPoints = stackalloc Vector3[corners.Length];
 
-        foreach (var p in corners)
+        for (int i = 0; i < corners.Length; i++)
         {
-            Vector3 rotatedPoint = viewRotationMatrix.MultiplyPoint(p);
-            rotatedPoints.Add(rotatedPoint);
-            vertexDistances.Add(rotatedPoint.magnitude);
+            Vector3 rotatedPoint = viewRotationMatrix.MultiplyPoint(corners[i]);
+            rotatedPoints[i] = rotatedPoint;
         }
 
         // Project points
-        List<Vector2> projectedPoints = new List<Vector2>();
-        foreach (var p in rotatedPoints)
+        Span<Vector3> projectedPoints = stackalloc Vector3[corners.Length];
+        for (int i = 0; i < corners.Length; i++)
         {
-            float projectedX = (focalLength * p.x / p.z);
-            float projectedY = (focalLength * p.y / p.z);
+            float projectedX = focalLength * rotatedPoints[i].x / rotatedPoints[i].z;
+            float projectedY = focalLength * rotatedPoints[i].y / rotatedPoints[i].z;
 
             // Scale and center projected points to image coordinates
-            projectedX += scaleX * 0.5f; // シーンの原点
-            projectedY = -projectedY + (scaleY * 0.5f);  // UnityのY軸は下向き
+            projectedX += scale.x * 0.5f; // シーンの原点
+            projectedY = -projectedY + (scale.y * 0.5f);  // UnityのY軸は下向き
 
-            projectedPoints.Add(new Vector2(projectedX, projectedY));
+            projectedPoints[i] = new Vector3(projectedX, projectedY, 0) + worldCenter;
         }
 
-        Gizmos.color = LineColor;
+        DrawProjectedLines(projectedPoints[..^1]);
 
-        DrawProjectedLines(projectedPoints);
-
-
-        // Project text position
-        Vector3 rotatedTextPoint = viewRotationMatrix.MultiplyPoint(center);
-        float textProjectedX = focalLength * rotatedTextPoint.x / rotatedTextPoint.z;
-        float textProjectedY = focalLength * rotatedTextPoint.y / rotatedTextPoint.z;
-
-        textProjectedX += scaleX * 0.5f;
-        textProjectedY = -textProjectedY + (scaleY * 0.5f);
-
-        // Draw the label
-        Handles.Label(
-            new Vector3(textProjectedX, textProjectedY, 0),
-            boxData.label,
-            LabelStyle.Value);
+        // Draw the label at center
+        Handles.Label(projectedPoints[^1], boxData.label, LabelStyle.Value);
     }
 
-    static void DrawProjectedLines(List<Vector2> projectedPoints)
+    static void DrawProjectedLines(Span<Vector3> projectedPoints)
     {
         // Split vertices into top and bottom
-        List<Vector2> topVertices = projectedPoints.GetRange(0, 4);
-        List<Vector2> bottomVertices = projectedPoints.GetRange(4, 4);
+        var topVertices = projectedPoints[..4];
+        var bottomVertices = projectedPoints[4..];
 
-        // Draw lines between the vertices
         for (int i = 0; i < 4; i++)
         {
             // Top lines
             Gizmos.DrawLine(topVertices[i], topVertices[(i + 1) % 4]);
-
             // Bottom lines
             Gizmos.DrawLine(bottomVertices[i], bottomVertices[(i + 1) % 4]);
-
             // Connecting lines
             Gizmos.DrawLine(topVertices[i], bottomVertices[i]);
         }
