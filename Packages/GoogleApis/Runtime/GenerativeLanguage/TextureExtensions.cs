@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using Unity.Collections;
 using UnityEngine;
@@ -23,7 +22,7 @@ namespace GoogleApis.GenerativeLanguage
             return new Blob(MIME_JPEG, bytes);
         }
 
-        public static async Task<Blob> ToJpgBlobAsync(this Texture texture, int quality = 75)
+        public static async UniTask<Blob> ToJpgBlobAsync(this Texture texture, int quality = 75)
         {
             if (texture is Texture2D texture2D && texture2D.isReadable)
             {
