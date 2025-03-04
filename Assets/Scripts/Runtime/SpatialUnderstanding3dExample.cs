@@ -24,7 +24,6 @@ using System.Text.Json.Serialization;
 using GoogleApis.GenerativeLanguage;
 using UnityEngine;
 using UnityEngine.UI;
-using Unity.Mathematics;
 
 namespace GoogleApis.Example
 {
@@ -53,41 +52,41 @@ namespace GoogleApis.Example
             [field: SerializeField]
             public float[] Values { get; set; }
 
-            public float3 Position => new(Values[0], Values[1], Values[2]);
-            public float3 Size => new(Values[3], Values[4], Values[5]);
-            public float3 EulerAngles => new(Values[6], Values[7], Values[8]);
-            public quaternion Rotation => quaternion.Euler(EulerAngles);
+            public Vector3 Position => new(Values[0], Values[1], Values[2]);
+            public Vector3 Size => new(Values[3], Values[4], Values[5]);
+            public Vector3 EulerAngles => new(Values[6], Values[7], Values[8]);
+            public Quaternion Rotation => Quaternion.Euler(EulerAngles);
         }
 
         [SerializeField]
-        private Texture inputTexture;
+        Texture inputTexture;
 
         [SerializeField]
-        private RawImage rawImage;
+        RawImage rawImage;
 
         [SerializeField]
         [TextArea]
-        private string inputText = "Output in json. Detect the 3D bounding boxes of items , output no more than 10 items. Return a list where each entry contains the object name in \"label\" and its 3D bounding box in \"box_3d\".";
+        string inputText = "Output in json. Detect the 3D bounding boxes of items , output no more than 10 items. Return a list where each entry contains the object name in \"label\" and its 3D bounding box in \"box_3d\".";
 
         [SerializeField]
         [Range(10f, 120f)]
-        private float fieldOfView = 69f;
+        float fieldOfView = 69f;
 
         [SerializeField]
-        private bool useTest = true;
+        [Range(0.001f, 0.02f)]
+        float scale = 0.005f;
+
+        [SerializeField]
+        bool useTest = true;
 
         [SerializeField]
         [TextArea]
-        private string testData;
-
-        [SerializeField]
-        private float3 eulerOffset;
+        string testData;
 
         [SerializeField]
         BoundingBox3d[] results;
 
-        private GenerativeModel model;
-        private readonly Vector3[] worldCorners = new Vector3[4];
+        GenerativeModel model;
 
         private async void Start()
         {
@@ -157,50 +156,86 @@ namespace GoogleApis.Example
             }
 
             var rt = rawImage.rectTransform;
-            rt.GetWorldCorners(worldCorners);
-            float3 rtPosition = rt.position;
-            float3 rectSize = worldCorners[2] - worldCorners[0];
+            // Debug.Log($"rt size: {rt.sizeDelta} rect: {rt.rect} position: {rt.position}");
 
-            Gizmos.color = Color.green;
-            UnityEditor.Handles.color = Color.green;
+            // Create the view rotation matrix (90-degree tilt)
+            Matrix4x4 viewRotationMatrix = Matrix4x4.Rotate(Quaternion.Euler(90, 0, 0));
+
+            float aspectRatio = rt.rect.width / rt.rect.height;
+            float scale = this.scale;
+            Vector2 worldScale = new(scale / aspectRatio, scale);
+            Vector3 worldCenter = rt.position;
+
+            float focalLength = (worldScale.x * rt.rect.width) / (2 * Mathf.Tan(fieldOfView * 0.5f * Mathf.Deg2Rad));
+
 
             foreach (var result in results)
             {
-                Gizmos.matrix = Matrix4x4.TRS(
-                    (result.Position + new float3(0, -1, 0)) * new float3(rectSize.x, rectSize.y, 1) + rtPosition,
-                    quaternion.EulerZYX((result.EulerAngles + eulerOffset) * Mathf.Deg2Rad),
-                    result.Size * new float3(rectSize.y)
-                );
-                Gizmos.DrawWireCube(Vector3.zero, Vector3.one);
+                Span<Vector3> corners = stackalloc Vector3[]
+                {
+                    new(1, -1, -1), // 1
+                    new(1, 1, -1), // 3
+                    new(1, 1, 1),  // 7
+                    new(1, -1, 1),  // 5
+                    new(-1, -1, -1), // 0
+                    new(-1, 1, -1), // 2
+                    new(-1, 1, 1),  // 6
+                    new(-1, -1, 1), // 4
+                    Vector3.zero // Center
+                };
 
-                // Draw handle
-                float3 center = (result.Position + new float3(0, -1, 0)) * new float3(rectSize.x, rectSize.y, 1) + rtPosition;
-                UnityEditor.Handles.Label(center, result.Label);
+                // Apply object -> view matrix
+                Vector3 halfSize = result.Size * 0.5f;
+                for (int i = 0; i < corners.Length; i++)
+                {
+                    Matrix4x4 objectToView = viewRotationMatrix
+                        * Matrix4x4.TRS(result.Position, result.Rotation, halfSize);
+                    corners[i] = objectToView.MultiplyPoint3x4(corners[i]);
+                }
+
+                Gizmos.color = Color.blue;
+                DrawWireBox(corners[..^1]);
+
+
+                // Apply projection matrix
+                Span<Vector3> projectedPoints = stackalloc Vector3[corners.Length];
+                for (int i = 0; i < corners.Length; i++)
+                {
+                    Vector2 projected = focalLength * new Vector2(
+                        corners[i].x / corners[i].z,
+                        corners[i].y / corners[i].z
+                    );
+                    // Flip Y axis for Unity
+                    projected.y = -projected.y;
+                    projected += worldScale * 0.5f;
+                    projectedPoints[i] = (Vector3)projected + worldCenter;
+                }
+
+                Gizmos.color = Color.green;
+                DrawWireBox(projectedPoints[..^1]);
+                UnityEditor.Handles.Label(projectedPoints[^1], result.Label);
             }
 
             Gizmos.matrix = Matrix4x4.identity;
-            Gizmos.DrawSphere(rtPosition, 0.1f);
+        }
+
+        static void DrawWireBox(Span<Vector3> projectedPoints)
+        {
+            // Split vertices into top and bottom
+            var topVertices = projectedPoints[..4];
+            var bottomVertices = projectedPoints[4..];
+
+            for (int i = 0; i < 4; i++)
+            {
+                // Top lines
+                Gizmos.DrawLine(topVertices[i], topVertices[(i + 1) % 4]);
+                // Bottom lines
+                Gizmos.DrawLine(bottomVertices[i], bottomVertices[(i + 1) % 4]);
+                // Connecting lines
+                Gizmos.DrawLine(topVertices[i], bottomVertices[i]);
+            }
         }
 #endif // UNITY_EDITOR
-
-        static float3x3 GetIntrinsics(float2 size, float fov)
-        {
-            float f = size.x / (2 * math.tan(fov / 2f * math.PI / 180));
-            float cx = size.x / 2;
-            float cy = size.y / 2;
-            return new(
-                f, 0, cx,
-                0, f, cy,
-                0, 0, 1
-            );
-        }
-
-        const float tiltAngle = 90 * math.PI / 180;
-        readonly float3x3 viewRotationMatrix = new(
-            1, 0, 0,
-            0, math.cos(tiltAngle), -math.sin(tiltAngle),
-            0, math.sin(tiltAngle), math.cos(tiltAngle)
-        );
 
         static bool TryDeserializeJson<T>(Content content, out T result)
         {

@@ -192,7 +192,7 @@ Canvas:
   serializedVersion: 3
   m_RenderMode: 1
   m_Camera: {fileID: 330585545}
-  m_PlaneDistance: 5
+  m_PlaneDistance: 6
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
   m_OverrideSorting: 0
@@ -284,7 +284,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 10
-  field of view: 60
+  field of view: 55.1
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -371,7 +371,6 @@ GameObject:
   m_Component:
   - component: {fileID: 364108233}
   - component: {fileID: 364108234}
-  - component: {fileID: 364108235}
   m_Layer: 5
   m_Name: SpatialUnderstanding3dExample
   m_TagString: Untagged
@@ -411,8 +410,9 @@ MonoBehaviour:
   inputText: Output in json. Detect the 3D bounding boxes of items , output no more
     than 10 items. Return a list where each entry contains the object name in "label"
     and its 3D bounding box in "box_3d".
-  fieldOfView: 69
-  useTest: 1
+  fieldOfView: 45.3
+  scale: 0.01001
+  useTest: 0
   testData: "```json\n[\n  {\"label\": \"range hood\", \"box_3d\": [-0.11,3.3,0.74,0.8,0.45,0.57,4,0,0]},\n 
     {\"label\": \"range\", \"box_3d\": [-0.11,3.26,-0.67,0.76,0.6,1.19,4,0,0]},\n 
     {\"label\": \"dishwasher\", \"box_3d\": [-0.88,2.31,-0.86,0.17,0.61,0.86,4,0,0]},\n 
@@ -421,10 +421,6 @@ MonoBehaviour:
     {\"label\": \"toaster\", \"box_3d\": [-0.99,3.31,-0.16,0.29,0.17,0.19,4,0,0]},\n 
     {\"label\": \"kitchen cabinets\", \"box_3d\": [-0.87,2.27,-0.86,0.47,1.86,0.97,4,0,0]},\n 
     {\"label\": \"kitchen cabinets\", \"box_3d\": [0.88,2.15,1.06,0.47,1.86,0.97,4,0,0]}\n]\n```"
-  eulerOffset:
-    x: 0
-    y: 0
-    z: 0
   results:
   - <Label>k__BackingField: range hood
     <Values>k__BackingField:
@@ -514,54 +510,6 @@ MonoBehaviour:
     - 4
     - 0
     - 0
---- !u!114 &364108235
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 364108231}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dd0ad64ab73db4d78a612452d8dddb74, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  boxesData:
-  - label: range hood
-    center: {x: -0.11, y: 3.3, z: 0.74}
-    size: {x: 0.8, y: 0.45, z: 0.57}
-    rotation: {x: 4, y: 0, z: 0}
-  - label: range
-    center: {x: -0.11, y: 3.26, z: -0.67}
-    size: {x: 0.76, y: 0.6, z: 1.19}
-    rotation: {x: 4, y: 0, z: 0}
-  - label: dishwasher
-    center: {x: -0.88, y: 2.31, z: -0.86}
-    size: {x: 0.17, y: 0.61, z: 0.86}
-    rotation: {x: 4, y: 0, z: 0}
-  - label: microwave
-    center: {x: 1.13, y: 3.28, z: -0.22}
-    size: {x: 0.49, y: 0.32, z: 0.29}
-    rotation: {x: 4, y: 0, z: 0}
-  - label: coffee maker
-    center: {x: 0.63, y: 3.29, z: -0.14}
-    size: {x: 0.2, y: 0.24, z: 0.33}
-    rotation: {x: 4, y: 0, z: 0}
-  - label: toaster
-    center: {x: -0.99, y: 3.31, z: -0.16}
-    size: {x: 0.29, y: 0.17, z: 0.19}
-    rotation: {x: 4, y: 0, z: 0}
-  - label: kitchen cabinets
-    center: {x: -0.87, y: 2.27, z: -0.86}
-    size: {x: 0.47, y: 1.86, z: 0.97}
-    rotation: {x: 4, y: 0, z: 0}
-  - label: kitchen cabinets
-    center: {x: 0.88, y: 2.15, z: 1.06}
-    size: {x: 0.47, y: 1.86, z: 0.97}
-    rotation: {x: 4, y: 0, z: 0}
-  _texture: {fileID: 2800000, guid: 24d8d7228660d4bcfaae28ed553d46f2, type: 3}
-  scale: 0.00606
-  imageContainer: {fileID: 1021075252}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
