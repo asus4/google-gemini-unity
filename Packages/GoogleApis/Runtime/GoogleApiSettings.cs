@@ -34,19 +34,28 @@ namespace GoogleApis
 #if UNITY_EDITOR
             const string PATH = "Assets/Resources/GoogleApiSettings.asset";
             var settings = AssetDatabase.LoadAssetAtPath<GoogleApiSettings>(PATH);
-            if (settings == null)
+            if (settings != null)
             {
-                settings = CreateInstance<GoogleApiSettings>();
-
-                // Load from env
-                var envPath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
-                var envFile = File.ReadAllText(envPath);
-                settings.apiKey = FromEnvText(envFile, key);
-
-                AssetDatabase.CreateAsset(settings, PATH);
-                AssetDatabase.SaveAssets();
-                Debug.Log($"Created {PATH}");
+                return;
             }
+
+            // Create directory if not exist
+            string dir = Path.GetDirectoryName(PATH);
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+
+            settings = CreateInstance<GoogleApiSettings>();
+
+            // Load from env
+            var envPath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
+            var envFile = File.ReadAllText(envPath);
+            settings.apiKey = FromEnvText(envFile, key);
+
+            AssetDatabase.CreateAsset(settings, PATH);
+            AssetDatabase.SaveAssets();
+            Debug.Log($"Created {PATH}");
 #endif // UNITY_EDITOR
         }
 
