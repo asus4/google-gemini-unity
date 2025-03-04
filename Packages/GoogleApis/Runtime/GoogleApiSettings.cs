@@ -23,13 +23,13 @@ namespace GoogleApis
             Resources.UnloadAsset(this);
         }
 
-        public static GoogleApiSettings Get(string key = "API_KEY")
+        public static GoogleApiSettings Get(string key = "GOOGLE_API_KEY")
         {
             EnsureSettingExist(key);
             return Resources.Load<GoogleApiSettings>("GoogleApiSettings");
         }
 
-        public static void EnsureSettingExist(string key = "API_KEY")
+        public static void EnsureSettingExist(string key = "GOOGLE_API_KEY")
         {
 #if UNITY_EDITOR
             const string PATH = "Assets/Resources/GoogleApiSettings.asset";
