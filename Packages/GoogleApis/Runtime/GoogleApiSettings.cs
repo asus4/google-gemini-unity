@@ -23,30 +23,39 @@ namespace GoogleApis
             Resources.UnloadAsset(this);
         }
 
-        public static GoogleApiSettings Get(string key = "API_KEY")
+        public static GoogleApiSettings Get(string key = "GOOGLE_API_KEY")
         {
             EnsureSettingExist(key);
             return Resources.Load<GoogleApiSettings>("GoogleApiSettings");
         }
 
-        public static void EnsureSettingExist(string key = "API_KEY")
+        public static void EnsureSettingExist(string key = "GOOGLE_API_KEY")
         {
 #if UNITY_EDITOR
             const string PATH = "Assets/Resources/GoogleApiSettings.asset";
             var settings = AssetDatabase.LoadAssetAtPath<GoogleApiSettings>(PATH);
-            if (settings == null)
+            if (settings != null)
             {
-                settings = CreateInstance<GoogleApiSettings>();
-
-                // Load from env
-                var envPath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
-                var envFile = File.ReadAllText(envPath);
-                settings.apiKey = FromEnvText(envFile, key);
-
-                AssetDatabase.CreateAsset(settings, PATH);
-                AssetDatabase.SaveAssets();
-                Debug.Log($"Created {PATH}");
+                return;
             }
+
+            // Create directory if not exist
+            string dir = Path.GetDirectoryName(PATH);
+            if (!Directory.Exists(dir))
+            {
+                Directory.CreateDirectory(dir);
+            }
+
+            settings = CreateInstance<GoogleApiSettings>();
+
+            // Load from env
+            var envPath = Path.Combine(Directory.GetCurrentDirectory(), ".env");
+            var envFile = File.ReadAllText(envPath);
+            settings.apiKey = FromEnvText(envFile, key);
+
+            AssetDatabase.CreateAsset(settings, PATH);
+            AssetDatabase.SaveAssets();
+            Debug.Log($"Created {PATH}");
 #endif // UNITY_EDITOR
         }
 

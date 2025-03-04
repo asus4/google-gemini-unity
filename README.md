@@ -22,7 +22,7 @@ The following examples are available:
 2. Put `.env` file in the project root with the following content:
 
 ```sh
-API_KEY=abc123
+GOOGLE_API_KEY=abc123
 ```
 
 ## How to install
