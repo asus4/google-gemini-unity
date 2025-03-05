@@ -405,111 +405,60 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9075e293c90a4a598f7eb19594286cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inputTexture: {fileID: 2800000, guid: 24d8d7228660d4bcfaae28ed553d46f2, type: 3}
+  inputTexture: {fileID: 2800000, guid: 56c06d62539574e3ba5288c4bbc6be72, type: 3}
   rawImage: {fileID: 1021075254}
   inputText: Output in json. Detect the 3D bounding boxes of items , output no more
     than 10 items. Return a list where each entry contains the object name in "label"
     and its 3D bounding box in "box_3d".
   fieldOfView: 45.3
   scale: 0.01001
-  useTest: 0
-  testData: "```json\n[\n  {\"label\": \"range hood\", \"box_3d\": [-0.11,3.3,0.74,0.8,0.45,0.57,4,0,0]},\n 
-    {\"label\": \"range\", \"box_3d\": [-0.11,3.26,-0.67,0.76,0.6,1.19,4,0,0]},\n 
-    {\"label\": \"dishwasher\", \"box_3d\": [-0.88,2.31,-0.86,0.17,0.61,0.86,4,0,0]},\n 
-    {\"label\": \"microwave\", \"box_3d\": [1.13,3.28,-0.22,0.49,0.32,0.29,4,0,0]},\n 
-    {\"label\": \"coffee maker\", \"box_3d\": [0.63,3.29,-0.14,0.2,0.24,0.33,4,0,0]},\n 
-    {\"label\": \"toaster\", \"box_3d\": [-0.99,3.31,-0.16,0.29,0.17,0.19,4,0,0]},\n 
-    {\"label\": \"kitchen cabinets\", \"box_3d\": [-0.87,2.27,-0.86,0.47,1.86,0.97,4,0,0]},\n 
-    {\"label\": \"kitchen cabinets\", \"box_3d\": [0.88,2.15,1.06,0.47,1.86,0.97,4,0,0]}\n]\n```"
+  useTest: 1
+  testData: {fileID: 4900000, guid: 46af9b895020741d1973394f0b168bd4, type: 3}
   results:
-  - <Label>k__BackingField: range hood
+  - <Label>k__BackingField: notebook
     <Values>k__BackingField:
-    - -0.11
-    - 3.3
-    - 0.74
-    - 0.8
-    - 0.45
-    - 0.57
-    - 4
-    - 0
-    - 0
-  - <Label>k__BackingField: range
-    <Values>k__BackingField:
-    - -0.11
-    - 3.26
-    - -0.67
-    - 0.76
-    - 0.6
-    - 1.19
-    - 4
-    - 0
-    - 0
-  - <Label>k__BackingField: dishwasher
-    <Values>k__BackingField:
-    - -0.88
-    - 2.31
-    - -0.86
-    - 0.17
-    - 0.61
-    - 0.86
-    - 4
-    - 0
-    - 0
-  - <Label>k__BackingField: microwave
-    <Values>k__BackingField:
-    - 1.13
-    - 3.28
-    - -0.22
-    - 0.49
-    - 0.32
-    - 0.29
-    - 4
-    - 0
-    - 0
-  - <Label>k__BackingField: coffee maker
-    <Values>k__BackingField:
-    - 0.63
-    - 3.29
-    - -0.14
     - 0.2
-    - 0.24
-    - 0.33
-    - 4
-    - 0
-    - 0
-  - <Label>k__BackingField: toaster
+    - 1.03
+    - 0.12
+    - 0.02
+    - 0.6
+    - 0.32
+    - 168
+    - 69
+    - 89
+  - <Label>k__BackingField: pen
     <Values>k__BackingField:
-    - -0.99
-    - 3.31
-    - -0.16
-    - 0.29
-    - 0.17
-    - 0.19
-    - 4
-    - 0
-    - 0
-  - <Label>k__BackingField: kitchen cabinets
+    - 0.15
+    - 0.86
+    - -0.01
+    - 0.01
+    - 0.01
+    - 0.15
+    - 81
+    - 69
+    - 89
+  - <Label>k__BackingField: mug
     <Values>k__BackingField:
-    - -0.87
-    - 2.27
-    - -0.86
-    - 0.47
-    - 1.86
-    - 0.97
-    - 4
-    - 0
-    - 0
-  - <Label>k__BackingField: kitchen cabinets
+    - -0.24
+    - 0.87
+    - 0.05
+    - 0.13
+    - 0.1
+    - 0.11
+    - 17
+    - 11
+    - -32
+  - <Label>k__BackingField: cell phone
     <Values>k__BackingField:
-    - 0.88
-    - 2.15
-    - 1.06
-    - 0.47
-    - 1.86
-    - 0.97
-    - 4
-    - 0
-    - 0
+    - -0.04
+    - 0.72
+    - -0.08
+    - 0.01
+    - 0.15
+    - 0.08
+    - 13
+    - 69
+    - 89
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -818,7 +767,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AspectMode: 3
-  m_AspectRatio: 1
+  m_AspectRatio: 0.5625
 --- !u!114 &1021075254
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -839,7 +788,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: 24d8d7228660d4bcfaae28ed553d46f2, type: 3}
+  m_Texture: {fileID: 2800000, guid: 56c06d62539574e3ba5288c4bbc6be72, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0

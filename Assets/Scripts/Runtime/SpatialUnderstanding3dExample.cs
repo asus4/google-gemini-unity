@@ -80,15 +80,14 @@ namespace GoogleApis.Example
         bool useTest = true;
 
         [SerializeField]
-        [TextArea]
-        string testData;
+        TextAsset testData;
 
         [SerializeField]
         BoundingBox3d[] results;
 
         GenerativeModel model;
 
-        private async void Start()
+        async void Start()
         {
             // Set image
             rawImage.texture = inputTexture;
@@ -98,7 +97,7 @@ namespace GoogleApis.Example
             }
 
             // FIXME: skipping API call for quick testing
-            if (useTest && TryDeserializeJson(testData, out results))
+            if (useTest && testData != null && TryDeserializeJson(testData.text, out results))
             {
                 return;
             }
@@ -135,23 +134,32 @@ namespace GoogleApis.Example
             if (success)
             {
                 Debug.Log(modelContent.Parts.First().Text);
-                if (useTest)
-                {
-                    testData = JsonSerializer.Serialize(results);
-                }
             }
         }
 
 
 #if UNITY_EDITOR
-        private void OnDrawGizmos()
+        void OnValidate()
+        {
+            if (inputTexture != null && rawImage != null)
+            {
+                rawImage.texture = inputTexture;
+                if (rawImage.TryGetComponent(out AspectRatioFitter aspectRatioFitter))
+                {
+                    aspectRatioFitter.aspectRatio = (float)inputTexture.width / inputTexture.height;
+                }
+            }
+
+            if (useTest && testData != null)
+            {
+                TryDeserializeJson(testData.text, out results);
+            }
+        }
+
+        void OnDrawGizmos()
         {
             if (results.Length == 0)
             {
-                if (useTest && !string.IsNullOrWhiteSpace(testData))
-                {
-                    TryDeserializeJson(testData, out results);
-                }
                 return;
             }
 
