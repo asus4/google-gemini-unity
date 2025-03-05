@@ -22,6 +22,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using GoogleApis.GenerativeLanguage;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -54,12 +55,25 @@ namespace GoogleApis.Example
 
             public Vector3 Position => new(Values[0], Values[1], Values[2]);
             public Vector3 Size => new(Values[3], Values[4], Values[5]);
-            public Vector3 EulerAngles => new(Values[6], Values[7], Values[8]);
-            public Quaternion Rotation => Quaternion.Euler(EulerAngles);
+            // public Vector3 EulerAngles => new(Values[6], Values[7], Values[8]);
+            // public Quaternion Rotation => Quaternion.Euler(EulerAngles);
+
+            public Quaternion GetRotation(math.RotationOrder rotationOrder)
+            {
+                var euler = new float3(Values[6], Values[7], Values[8]);
+                // return Quaternion.Euler(euler);
+                return quaternion.Euler(math.radians(euler), rotationOrder);
+            }
         }
 
         [SerializeField]
         Texture inputTexture;
+
+        [SerializeField]
+        bool useTest = true;
+
+        [SerializeField]
+        TextAsset testData;
 
         [SerializeField]
         RawImage rawImage;
@@ -77,15 +91,32 @@ namespace GoogleApis.Example
         float scale = 0.005f;
 
         [SerializeField]
-        bool useTest = true;
-
-        [SerializeField]
-        TextAsset testData;
+        math.RotationOrder rotationOrder = math.RotationOrder.XYZ;
 
         [SerializeField]
         BoundingBox3d[] results;
 
         GenerativeModel model;
+
+        // Gemini -> Unity Camera conversion matrix
+        static readonly Matrix4x4 GeminiToUnityCameraMatrix
+            // Flip Y for Unity coordinate system
+            = Matrix4x4.Scale(new(1, -1, 1))
+            // Rotate 90 degrees around X
+            * Matrix4x4.Rotate(Quaternion.Euler(90, 0, 0));
+
+        static readonly Vector3[] UnitCorners = new Vector3[]
+         {
+            new(0.5f, -0.5f, -0.5f), // 1
+            new(0.5f, 0.5f, -0.5f), // 3
+            new(0.5f, 0.5f, 0.5f),  // 7
+            new(0.5f, -0.5f, 0.5f),  // 5
+            new(-0.5f, -0.5f, -0.5f), // 0
+            new(-0.5f, 0.5f, -0.5f), // 2
+            new(-0.5f, 0.5f, 0.5f),  // 6
+            new(-0.5f, -0.5f, 0.5f), // 4
+            Vector3.zero // Center
+         };
 
         async void Start()
         {
@@ -137,7 +168,6 @@ namespace GoogleApis.Example
             }
         }
 
-
 #if UNITY_EDITOR
         void OnValidate()
         {
@@ -166,9 +196,6 @@ namespace GoogleApis.Example
             var rt = rawImage.rectTransform;
             // Debug.Log($"rt size: {rt.sizeDelta} rect: {rt.rect} position: {rt.position}");
 
-            // Create the view rotation matrix (90-degree tilt)
-            Matrix4x4 viewRotationMatrix = Matrix4x4.Rotate(Quaternion.Euler(90, 0, 0));
-
             float aspectRatio = rt.rect.width / rt.rect.height;
             float scale = this.scale;
             Vector2 worldScale = new(scale / aspectRatio, scale);
@@ -177,45 +204,48 @@ namespace GoogleApis.Example
             float focalLength = (worldScale.x * rt.rect.width) / (2 * Mathf.Tan(fieldOfView * 0.5f * Mathf.Deg2Rad));
 
 
+            Span<Vector3> corners = stackalloc Vector3[UnitCorners.Length];
+            Span<Vector3> projectedPoints = stackalloc Vector3[UnitCorners.Length];
+
             foreach (var result in results)
             {
-                Span<Vector3> corners = stackalloc Vector3[]
-                {
-                    new(1, -1, -1), // 1
-                    new(1, 1, -1), // 3
-                    new(1, 1, 1),  // 7
-                    new(1, -1, 1),  // 5
-                    new(-1, -1, -1), // 0
-                    new(-1, 1, -1), // 2
-                    new(-1, 1, 1),  // 6
-                    new(-1, -1, 1), // 4
-                    Vector3.zero // Center
-                };
+                // Rest corners
+                UnitCorners.CopyTo(corners);
 
                 // Apply object -> view matrix
-                Vector3 halfSize = result.Size * 0.5f;
+                Matrix4x4 localToCameraMatrix = GeminiToUnityCameraMatrix
+                    * Matrix4x4.TRS(
+                        result.Position,
+                        result.GetRotation(rotationOrder),
+                        result.Size
+                    );
                 for (int i = 0; i < corners.Length; i++)
                 {
-                    Matrix4x4 objectToView = viewRotationMatrix
-                        * Matrix4x4.TRS(result.Position, result.Rotation, halfSize);
-                    corners[i] = objectToView.MultiplyPoint3x4(corners[i]);
+                    corners[i] = localToCameraMatrix.MultiplyPoint(corners[i]);
                 }
 
-                Gizmos.color = Color.blue;
-                DrawWireBox(corners[..^1]);
-
+                // Draw corners
+                {
+                    Gizmos.color = Color.blue;
+                    DrawWireBox(corners[..^1]);
+                }
+                // Draw wire cube
+                {
+                    Gizmos.color = Color.red;
+                    Gizmos.matrix = localToCameraMatrix;
+                    Gizmos.DrawWireCube(Vector3.zero, Vector3.one);
+                    UnityEditor.Handles.Label(corners[^1], result.Label);
+                }
+                Gizmos.matrix = Matrix4x4.identity;
 
                 // Apply projection matrix
-                Span<Vector3> projectedPoints = stackalloc Vector3[corners.Length];
                 for (int i = 0; i < corners.Length; i++)
                 {
                     Vector2 projected = focalLength * new Vector2(
                         corners[i].x / corners[i].z,
                         corners[i].y / corners[i].z
                     );
-                    // Flip Y axis for Unity
-                    projected.y = -projected.y;
-                    projected += worldScale * 0.5f;
+                    projected += worldScale;
                     projectedPoints[i] = (Vector3)projected + worldCenter;
                 }
 
@@ -227,11 +257,11 @@ namespace GoogleApis.Example
             Gizmos.matrix = Matrix4x4.identity;
         }
 
-        static void DrawWireBox(Span<Vector3> projectedPoints)
+        static void DrawWireBox(Span<Vector3> vertices)
         {
             // Split vertices into top and bottom
-            var topVertices = projectedPoints[..4];
-            var bottomVertices = projectedPoints[4..];
+            var topVertices = vertices[..4];
+            var bottomVertices = vertices[4..];
 
             for (int i = 0; i < 4; i++)
             {

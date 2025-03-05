@@ -405,60 +405,83 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9075e293c90a4a598f7eb19594286cd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  inputTexture: {fileID: 2800000, guid: 56c06d62539574e3ba5288c4bbc6be72, type: 3}
+  inputTexture: {fileID: 2800000, guid: 34b1f595537a1451b8c0a155cdd90b7b, type: 3}
+  useTest: 1
+  testData: {fileID: 4900000, guid: 5286bee7b26e44ad2a7307ed948fd5dc, type: 3}
   rawImage: {fileID: 1021075254}
   inputText: Output in json. Detect the 3D bounding boxes of items , output no more
     than 10 items. Return a list where each entry contains the object name in "label"
     and its 3D bounding box in "box_3d".
-  fieldOfView: 45.3
-  scale: 0.01001
-  useTest: 1
-  testData: {fileID: 4900000, guid: 46af9b895020741d1973394f0b168bd4, type: 3}
+  fieldOfView: 51.4
+  scale: 0.0139
+  rotationOrder: 0
   results:
   - <Label>k__BackingField: notebook
     <Values>k__BackingField:
-    - 0.2
-    - 1.03
-    - 0.12
-    - 0.02
-    - 0.6
-    - 0.32
-    - 168
-    - 69
-    - 89
-  - <Label>k__BackingField: pen
+    - 0.03
+    - 1.16
+    - 0.17
+    - 0.04
+    - 0.43
+    - 0.33
+    - 164
+    - 55
+    - 87
+  - <Label>k__BackingField: table
     <Values>k__BackingField:
-    - 0.15
-    - 0.86
-    - -0.01
-    - 0.01
-    - 0.01
-    - 0.15
-    - 81
-    - 69
-    - 89
+    - -0.07
+    - 1.65
+    - 0.42
+    - 0.73
+    - 1.08
+    - 2.48
+    - 14
+    - 55
+    - 87
+  - <Label>k__BackingField: chair
+    <Values>k__BackingField:
+    - 0.98
+    - 1.62
+    - 0.47
+    - 0.76
+    - 0.69
+    - 1.94
+    - 27
+    - -21
+    - 31
   - <Label>k__BackingField: mug
     <Values>k__BackingField:
-    - -0.24
-    - 0.87
-    - 0.05
+    - -0.3
+    - 0.93
+    - 0.06
     - 0.13
-    - 0.1
-    - 0.11
-    - 17
-    - 11
-    - -32
-  - <Label>k__BackingField: cell phone
+    - 0.17
+    - 0.22
+    - 28
+    - 20
+    - -36
+  - <Label>k__BackingField: phone
     <Values>k__BackingField:
-    - -0.04
-    - 0.72
-    - -0.08
+    - -0.13
+    - 0.77
+    - -0.16
     - 0.01
+    - 0.21
+    - 0.1
+    - 7
+    - 55
+    - 87
+  - <Label>k__BackingField: pen
+    <Values>k__BackingField:
+    - 0.02
+    - 0.95
+    - -0.05
+    - 0.02
+    - 0.02
     - 0.15
-    - 0.08
-    - 13
-    - 69
-    - 89
+    - 84
+    - 55
+    - 87
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -767,7 +790,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_AspectMode: 3
-  m_AspectRatio: 0.5625
+  m_AspectRatio: 1.7777778
 --- !u!114 &1021075254
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -788,7 +811,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 2800000, guid: 56c06d62539574e3ba5288c4bbc6be72, type: 3}
+  m_Texture: {fileID: 2800000, guid: 34b1f595537a1451b8c0a155cdd90b7b, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
