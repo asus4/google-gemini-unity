@@ -2,6 +2,9 @@
 
 ![imagen-example](https://github.com/user-attachments/assets/4c4dae15-c9a3-4fdb-a77a-0b31697d7c3f)
 
+https://github.com/user-attachments/assets/304172b4-5b39-4ddf-b417-e65108e97da8
+
+
 Non-official Google Gemini API client for Unity. Limited use cases are currently supported.
 
 ## How to use
