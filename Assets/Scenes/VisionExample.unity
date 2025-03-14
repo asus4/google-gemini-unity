@@ -625,10 +625,8 @@ MonoBehaviour:
 
     .
 
-    Please seach on the internet and tell me what
-    the building in the image is now?
-
-'
+    Please search on the internet and tell me what
+    the building in the image is now?'
   resultLabel: {fileID: 69440744}
   sendButton: {fileID: 1746934718}
 --- !u!1 &410087039
