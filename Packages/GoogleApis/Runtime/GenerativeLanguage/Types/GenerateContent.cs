@@ -100,7 +100,6 @@ namespace GoogleApis.GenerativeLanguage
     public record PromptFeedback
     {
         [JsonPropertyName("blockReason")]
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public BlockReason BlockReason { get; set; }
 
         // TODO:
@@ -110,6 +109,7 @@ namespace GoogleApis.GenerativeLanguage
     /// <summary>
     /// Specifies the reason why the prompt was blocked.
     /// </summary>
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum BlockReason
     {
         BLOCK_REASON_UNSPECIFIED,

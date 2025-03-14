@@ -1,9 +1,11 @@
+using System.Text.Json.Serialization;
 
 namespace GoogleApis.GenerativeLanguage
 {
     /// <summary>
     /// https://ai.google.dev/api/generate-content#Modality
     /// </summary> 
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum Modality
     {
         MODALITY_UNSPECIFIED,
@@ -17,6 +19,7 @@ namespace GoogleApis.GenerativeLanguage
     /// <summary>
     /// https://ai.google.dev/api/generate-content#HarmProbability
     /// </summary>
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum HarmProbability
     {
         HARM_PROBABILITY_UNSPECIFIED,
@@ -29,6 +32,7 @@ namespace GoogleApis.GenerativeLanguage
     /// <summary>
     /// https://ai.google.dev/api/generate-content#v1beta.HarmCategory
     /// </summary>
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum HarmCategory
     {
         HARM_CATEGORY_UNSPECIFIED, //   Category is unspecified.
@@ -48,6 +52,7 @@ namespace GoogleApis.GenerativeLanguage
     /// <summary>
     /// hhttps://ai.google.dev/api/generate-content#HarmBlockThreshold
     /// </summary>
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum HarmBlockThreshold
     {
         HARM_BLOCK_THRESHOLD_UNSPECIFIED, // Threshold is unspecified.

@@ -43,7 +43,6 @@ namespace GoogleApis.GenerativeLanguage
         /// </summary>
         [JsonPropertyName("responseModalities")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public Modality[]? ResponseModalities { get; set; }
 
         /// <summary>

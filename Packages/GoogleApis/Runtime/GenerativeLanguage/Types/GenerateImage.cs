@@ -56,6 +56,7 @@ namespace GoogleApis.GenerativeLanguage
             Ratio9by16,
         }
 
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public enum PersonGeneration
         {
             dont_allow,
@@ -71,7 +72,6 @@ namespace GoogleApis.GenerativeLanguage
             public string AspectRatio { get; set; }
 
             [JsonPropertyName("personGeneration")]
-            [JsonConverter(typeof(JsonStringEnumConverter))]
             public PersonGeneration PersonGeneration { get; set; }
 
             [JsonIgnore]

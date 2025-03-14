@@ -82,7 +82,6 @@ namespace GoogleApis.GenerativeLanguage
             /// Data type
             /// </summary>
             [JsonPropertyName("type")]
-            [JsonConverter(converterType: typeof(JsonStringEnumConverter))]
             public Type Type { get; set; }
 
             /// <summary>
@@ -143,6 +142,7 @@ namespace GoogleApis.GenerativeLanguage
         /// <summary>
         /// Type contains the list of OpenAPI data types as defined by https://spec.openapis.org/oas/v3.0.3#data-types
         /// </summary>
+        [JsonConverter(converterType: typeof(JsonStringEnumConverter))]
         public enum Type
         {
             TYPE_UNSPECIFIED,
@@ -183,12 +183,12 @@ namespace GoogleApis.GenerativeLanguage
             */
 
             [JsonPropertyName("mode")]
-            [JsonConverter(typeof(JsonStringEnumConverter))]
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
             public FunctionCallingConfigMode? Mode { get; set; }
             public string[]? allowedFunctionNames;
         }
 
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public enum FunctionCallingConfigMode
         {
             // Unspecified function calling mode. This value should not be used.
@@ -212,7 +212,6 @@ namespace GoogleApis.GenerativeLanguage
         public record DynamicRetrievalConfig
         {
             [JsonPropertyName("mode")]
-            [JsonConverter(typeof(JsonStringEnumConverter))]
             [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
             public DynamicRetrievalConfigMode? Mode { get; set; }
 
@@ -221,6 +220,7 @@ namespace GoogleApis.GenerativeLanguage
             public double? DynamicThreshold { get; set; }
         }
 
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public enum DynamicRetrievalConfigMode
         {
             // Always trigger retrieval.

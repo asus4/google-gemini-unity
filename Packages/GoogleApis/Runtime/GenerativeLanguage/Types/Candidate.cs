@@ -24,7 +24,6 @@ namespace GoogleApis.GenerativeLanguage
         /// </summary>
         [JsonPropertyName("finishReason")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public FinishReason? FinishReason { get; set; }
 
         /// <summary>
@@ -88,6 +87,7 @@ namespace GoogleApis.GenerativeLanguage
     /// <summary>
     /// Defines the reason why the model stopped generating tokens.
     /// </summary>
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum FinishReason
     {
         FINISH_REASON_UNSPECIFIED, // Default value. This value is unused.

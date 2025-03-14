@@ -12,9 +12,7 @@ namespace GoogleApis.GenerativeLanguage
     /// </summary>
     public partial record SafetySetting
     {
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public HarmCategory category;
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public HarmBlockThreshold threshold;
     }
 }
