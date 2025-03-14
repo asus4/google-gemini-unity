@@ -13,23 +13,8 @@ namespace GoogleApis.GenerativeLanguage
     /// </summary>
     public partial record SafetyRating
     {
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public HarmCategory category;
-
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public HarmProbability probability;
         public bool? blocked;
-    }
-
-    partial record SafetyRating
-    {
-        public enum HarmProbability
-        {
-            HARM_PROBABILITY_UNSPECIFIED,
-            NEGLIGIBLE,
-            LOW,
-            MEDIUM,
-            HIGH,
-        }
     }
 }

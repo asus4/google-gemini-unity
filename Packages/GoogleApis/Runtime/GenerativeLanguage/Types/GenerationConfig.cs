@@ -1,16 +1,14 @@
 #nullable enable
 
 using System;
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using UnityEngine;
 
 namespace GoogleApis.GenerativeLanguage
 {
     /// <summary>
     /// Configuration options for model generation and outputs. Not all parameters may be configurable for every model.
     ///
-    /// https://ai.google.dev/api/rest/v1beta/GenerationConfig
+    /// https://ai.google.dev/api/generate-content#v1beta.GenerationConfig
     /// </summary>
     public record GenerationConfig
     {
@@ -38,8 +36,14 @@ namespace GoogleApis.GenerativeLanguage
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Tool.Schema? ResponseSchema { get; set; }
 
-        // TODO:
-        // responseModalities
+        /// <summary>
+        /// Optional. The requested modalities of the response. Represents the set of modalities that the model can return, and should be expected in the response. This is an exact match to the modalities of the response.
+        /// A model may have multiple combinations of supported modalities. If the requested modalities do not match any of the supported combinations, an error will be returned.
+        /// An empty list is equivalent to requesting only text.
+        /// </summary>
+        [JsonPropertyName("responseModalities")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public Modality[]? ResponseModalities { get; set; }
 
         /// <summary>
         /// Optional. Number of generated responses to return. If unset, this will default to 1. Please note that this doesn't work for previous generation models (Gemini 1.0 family)

@@ -1,5 +1,6 @@
 using System.Text;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using GoogleApis.GenerativeLanguage;
 using TMPro;
 using UnityEngine;
@@ -38,7 +39,7 @@ namespace GoogleApis.Example
             sendButton.onClick.AddListener(async () => await SendRequest());
         }
 
-        private async Task SendRequest()
+        private async UniTask SendRequest()
         {
             var blob = await inputTexture.ToJpgBlobAsync();
 
@@ -46,10 +47,13 @@ namespace GoogleApis.Example
             sb.AppendTMPRichText(messages[0]);
             resultLabel.SetText(sb);
 
-            GenerateContentRequest request = messages;
-            request.Tools = new Tool[]
+            GenerateContentRequest request = new()
             {
-                new Tool.GoogleSearchRetrieval(),
+                Contents = messages,
+                Tools = new Tool[]
+                {
+                    new Tool.GoogleSearchRetrieval(),
+                },
             };
 
             var response = await model.GenerateContentAsync(request, destroyCancellationToken);

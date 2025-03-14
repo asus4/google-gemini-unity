@@ -7,6 +7,7 @@ using System.Runtime.Serialization;
 
 namespace GoogleApis.GenerativeLanguage
 {
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum Role
     {
         user,
@@ -26,7 +27,6 @@ namespace GoogleApis.GenerativeLanguage
         /// Useful to set for multi-turn conversations, otherwise can be left blank or unset.
         /// </summary>
         [JsonPropertyName("role")]
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public Role? Role { get; set; }
 

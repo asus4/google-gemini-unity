@@ -13,7 +13,6 @@ namespace GoogleApis.TTS
         public VoiceSelectionParams voice;
         public AudioConfig audioConfig;
 
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public TimepointType? enableTimePointing;
 
         [JsonConstructor]
@@ -61,6 +60,7 @@ namespace GoogleApis.TTS
         }
     }
 
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum TimepointType
     {
         TIMEPOINT_TYPE_UNSPECIFIED, // Not specified. No timepoint information will be returned.
@@ -113,7 +113,6 @@ namespace GoogleApis.TTS
         /// <summary>
         /// Required. The format of the audio byte stream.
         /// </summary>
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public AudioEncoding audioEncoding;
 
         /// <summary>
@@ -144,6 +143,7 @@ namespace GoogleApis.TTS
         public static implicit operator AudioConfig(AudioEncoding audioEncoding) => new() { audioEncoding = audioEncoding, };
     }
 
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum AudioEncoding
     {
         AUDIO_ENCODING_UNSPECIFIED, // Not specified. Will return result google.rpc.Code.INVALID_ARGUMENT.
