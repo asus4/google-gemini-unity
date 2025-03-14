@@ -20,16 +20,4 @@ namespace GoogleApis.GenerativeLanguage
         public HarmProbability probability;
         public bool? blocked;
     }
-
-    partial record SafetyRating
-    {
-        public enum HarmProbability
-        {
-            HARM_PROBABILITY_UNSPECIFIED,
-            NEGLIGIBLE,
-            LOW,
-            MEDIUM,
-            HIGH,
-        }
-    }
 }

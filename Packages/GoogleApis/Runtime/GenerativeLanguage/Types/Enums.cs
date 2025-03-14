@@ -1,7 +1,31 @@
-using System.Runtime.Serialization;
 
 namespace GoogleApis.GenerativeLanguage
 {
+    /// <summary>
+    /// https://ai.google.dev/api/generate-content#Modality
+    /// </summary> 
+    public enum Modality
+    {
+        MODALITY_UNSPECIFIED,
+        TEXT,
+        IMAGE,
+        VIDEO,
+        AUDIO,
+        DOCUMENT,
+    }
+
+    /// <summary>
+    /// https://ai.google.dev/api/generate-content#HarmProbability
+    /// </summary>
+    public enum HarmProbability
+    {
+        HARM_PROBABILITY_UNSPECIFIED,
+        NEGLIGIBLE,
+        LOW,
+        MEDIUM,
+        HIGH,
+    }
+
     /// <summary>
     /// https://ai.google.dev/api/generate-content#v1beta.HarmCategory
     /// </summary>
@@ -19,5 +43,18 @@ namespace GoogleApis.GenerativeLanguage
         HARM_CATEGORY_SEXUALLY_EXPLICIT, // Gemini - Sexually explicit content.
         HARM_CATEGORY_DANGEROUS_CONTENT, // Gemini - Dangerous content.
         HARM_CATEGORY_CIVIC_INTEGRITY, // Gemini - Content that may be used to harm civic integrity.
+    }
+
+    /// <summary>
+    /// hhttps://ai.google.dev/api/generate-content#HarmBlockThreshold
+    /// </summary>
+    public enum HarmBlockThreshold
+    {
+        HARM_BLOCK_THRESHOLD_UNSPECIFIED, // Threshold is unspecified.
+        BLOCK_LOW_AND_ABOVE, // Content with NEGLIGIBLE will be allowed.
+        BLOCK_MEDIUM_AND_ABOVE, // Content with NEGLIGIBLE and LOW will be allowed.
+        BLOCK_ONLY_HIGH, // Content with NEGLIGIBLE, LOW, and MEDIUM will be allowed.
+        BLOCK_NONE, // All content will be allowed.
+        OFF, // Turn off the safety filter.
     }
 }

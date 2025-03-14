@@ -1,9 +1,7 @@
 #nullable enable
 
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Text.Json.Serialization;
-using System.Runtime.Serialization;
 
 namespace GoogleApis.GenerativeLanguage
 {
