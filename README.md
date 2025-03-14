@@ -28,7 +28,7 @@ The following examples are available:
 GOOGLE_API_KEY=abc123
 ```
 
-## How to install
+## How to install via UPM
 
 1. This library depends on System.Text.Json. Add the following lines to `Packages/manifest.json` to install the Gemini for Unity package via UPM:
 
@@ -54,7 +54,7 @@ GOOGLE_API_KEY=abc123
 
 ```json
 "dependencies": {
-    "com.github.asus4.googleapis-unity": "https://github.com/asus4/google-gemini-unity.git?path=Packages/GoogleApis#v0.2.0",
+    "com.github.asus4.googleapis-unity": "https://github.com/asus4/google-gemini-unity.git?path=Packages/GoogleApis#v0.2.2",
     ... other dependencies
 }
 ```
@@ -62,6 +62,7 @@ GOOGLE_API_KEY=abc123
 ## Third-party assets and library licenses used in examples
 
 - [UniTask](https://github.com/Cysharp/UniTask): MIT
+- [NuGetForUnity](https://github.com/GlitchEnzo/NuGetForUnity): MIT
 - [Nunito Font](https://fonts.google.com/specimen/Nunito): OFL 1.1
 - [Sawarabi Gothic Font](https://fonts.google.com/specimen/Sawarabi+Gothic): OFL 1.1
 - [JFK library](https://www.jfklibrary.org/asset-viewer/archives/jfkwha-006): public domain
