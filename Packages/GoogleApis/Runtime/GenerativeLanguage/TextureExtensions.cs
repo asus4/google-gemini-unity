@@ -56,6 +56,17 @@ namespace GoogleApis.GenerativeLanguage
             return blob;
         }
 
+        public static Texture2D ToTexture(this Blob blob)
+        {
+            if (!blob.MimeType.StartsWith("image/"))
+            {
+                throw new System.ArgumentException($"Unsupported mime type: {blob.MimeType}");
+            }
+            var texture = new Texture2D(2, 2);
+            texture.LoadImage(blob.Data.ToArray());
+            return texture;
+        }
+
 
         static readonly GraphicsFormat[] FORMATS = {
             GraphicsFormat.R8G8B8A8_SRGB,

@@ -23,7 +23,8 @@ namespace GoogleApis.GenerativeLanguage
 
         // Gemini 2.0
         public const string Gemini_2_0_Flash = "models/gemini-2.0-flash";
-        public const string Gemini_2_0_Flash_Lite_Preview = "models/gemini-2.0-flash-lite-preview";
+        public const string Gemini_2_0_Flash_Exp = "models/gemini-2.0-flash-exp";
+        public const string Gemini_2_0_Flash_Lite = "models/gemini-2.0-flash-lite";
         public const string Gemini_2_0_Flash_Thinking_Exp = "models/gemini-2.0-flash-thinking-exp";
         public const string Gemini_2_0_Pro_Exp = "models/gemini-2.0-pro-exp";
 

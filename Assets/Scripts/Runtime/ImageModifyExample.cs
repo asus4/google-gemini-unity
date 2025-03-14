@@ -1,12 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using GoogleApis.GenerativeLanguage;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-
 
 namespace GoogleApis.Example
 {
@@ -31,7 +28,7 @@ namespace GoogleApis.Example
         {
             using var settings = GoogleApiSettings.Get();
             var client = new GenerativeAIClient(settings);
-            model = client.GetModel(Models.Gemini_2_0_Flash);
+            model = client.GetModel(Models.Gemini_2_0_Flash_Exp);
 
             sendButton.onClick.AddListener(async () => await SendRequest());
         }
@@ -48,7 +45,8 @@ namespace GoogleApis.Example
             sendButton.interactable = false;
             try
             {
-                outputImage.texture = await EditImageAsync(inputImage.texture, prompt);
+                var tex = await EditImageAsync(inputImage.texture, prompt);
+                SetImage(outputImage, tex);
             }
             finally
             {
@@ -66,7 +64,7 @@ namespace GoogleApis.Example
                 Contents = messages,
                 GenerationConfig = new()
                 {
-                    ResponseModalities = new[] { Modality.IMAGE },
+                    ResponseModalities = new[] { Modality.TEXT, Modality.IMAGE },
                 },
             };
 
@@ -78,9 +76,23 @@ namespace GoogleApis.Example
                 return null;
             }
 
-            var modelContent = response.Candidates[0].Content;
-            // TODO : parse content
-            return null;
+            var inlineData = response.Candidates[0].Content.Parts
+                .Where(part
+                    => part.InlineData != null && part.InlineData.MimeType.StartsWith("image/"))
+                .Select(part => part.InlineData)
+                .FirstOrDefault();
+
+            return inlineData?.ToTexture();
+        }
+
+
+        static void SetImage(RawImage image, Texture texture)
+        {
+            image.texture = texture;
+            if (image.TryGetComponent<AspectRatioFitter>(out var aspectRatioFitter))
+            {
+                aspectRatioFitter.aspectRatio = (float)texture.width / texture.height;
+            }
         }
     }
 }
