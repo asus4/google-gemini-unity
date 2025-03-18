@@ -1,0 +1,11 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:appui="Unity.AppUI.UI" editor-extension-mode="False">
+    <appui:Panel name="root-panel" theme="light" scale="large">
+        <appui:Heading text="Image Generation Example" size="L" name="title" class="app-title" />
+        <engine:ScrollView vertical-scroller-visibility="AlwaysVisible" style="flex-grow: 1;" />
+        <engine:VisualElement class="section prompt-input">
+            <!-- <appui:Text text="Extra large text" size="XL" /> -->
+            <appui:TextField class="prompt-input__text-field" placeholder="Enter Prompt" size="L" />
+            <appui:IconButton name="prompt-send-button" icon="sparkle" size="L" quiet="true" />
+        </engine:VisualElement>
+    </appui:Panel>
+</engine:UXML>
