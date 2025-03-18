@@ -14,8 +14,8 @@
       "dependencies": {},
       "url": "https://package.openupm.com"
     },
-    "com.github.asus4.googleapis-unity": {
-      "version": "file:GoogleApis",
+    "com.github.asus4.google-gemini": {
+      "version": "file:com.github.asus4.google-gemini",
       "depth": 0,
       "source": "embedded",
       "dependencies": {
