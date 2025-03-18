@@ -78,7 +78,7 @@ namespace GoogleApis.GenerativeLanguage
         {
             foreach (var format in FORMATS)
             {
-                if (SystemInfo.IsFormatSupported(format, FormatUsage.GetPixels))
+                if (SystemInfo.IsFormatSupported(format, GraphicsFormatUsage.GetPixels))
                 {
                     return format;
                 }
