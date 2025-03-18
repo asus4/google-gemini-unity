@@ -1,11 +1,13 @@
 {
   "name": "com.github.asus4.google-gemini",
-  "version": "0.2.3",
-  "displayName": "Google APIs",
+  "version": "0.2.4",
+  "displayName": "Google Gemini",
   "description": "Non Official Unity Client for Google Gemini API",
   "keywords": [
-    "unity",
-    "gemini"
+    "ai",
+    "gemini",
+    "google",
+    "unity"
   ],
   "unity": "2022.3",
   "unityRelease": "0f1",
@@ -20,10 +22,10 @@
   },
   "repository": {
     "type": "git",
-    "repository": "https://github.com/asus4/googleapis-unity.git"
+    "repository": "https://github.com/asus4/google-gemini-unity.git"
   },
-  "documentationUrl": "https://github.com/asus4/googleapis-unity.git",
-  "changelogUrl": "https://github.com/asus4/googleapis-unity/releases",
+  "documentationUrl": "https://github.com/asus4/google-gemini-unity.git",
+  "changelogUrl": "https://github.com/asus4/google-gemini-unity/releases",
   "licensesUrl": "https://github.com/asus4/google-gemini-unity/blob/main/LICENSE",
   "author": {
     "name": "Koki Ibukuro",
