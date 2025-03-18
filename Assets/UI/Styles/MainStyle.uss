@@ -1,0 +1,30 @@
+/* 
+    Unity Default Overrides
+*/
+.unity-text-element {
+    -unity-font-definition: url("project://database/Assets/UI/Font/Inter/static/Inter_18pt-Regular.ttf?fileID=12800000&guid=1b3856690a8704ca896bb1c0575d6462&type=3#Inter_18pt-Regular");
+    color: rgb(66, 66, 66);
+    font-size: 24px;
+}
+
+.unity-base-text-field {
+    font-size: 48px;
+}
+
+.unity-base-text-field__input {
+    border-width: 0;
+}
+
+/*
+    Project specific
+*/
+
+.container {
+    flex-grow: 1;
+    margin: 64px;
+}
+
+.prompt-input-field {
+    height: 96px;
+    border-radius: 24px;
+}
