@@ -10,7 +10,7 @@ namespace GoogleApis.Example
     /// Imagen 3.0 image generation example
     /// https://github.com/google-gemini/cookbook/blob/main/quickstarts/Get_started_imagen_rest.ipynb
     /// </summary>
-    public sealed class ImagenExample : MonoBehaviour
+    public sealed class ImageGenerationExample : MonoBehaviour
     {
         [Header("UI references")]
         [SerializeField]
