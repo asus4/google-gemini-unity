@@ -1,3 +1,7 @@
+/* Overrides variables */
+:root {
+    --appui-alias-control-border-radius: 12px;
+}
 
 #container {
     width: 100%;
@@ -9,14 +13,37 @@
     margin: var(--appui-spacing-400);
 }
 
+/* Section */
 .section {
-    margin: var(--appui-spacing-200);
+    margin: var(--appui-spacing-400);
 }
+
+/* Content List */
+.content-list-view {
+    flex-grow: 1;
+}
+
+.content-item {
+    margin: var(--appui-spacing-400);
+    padding: var(--appui-spacing-200);
+    border-radius: var(--appui-alias-control-border-radius);
+    background-color: var(--appui-backgrounds-200);
+}
+
+/* Prompt Input */
 
 .prompt-input {
     flex-direction: row;
+    align-content: stretch;
+    justify-content: space-between;
+    align-self: stretch;
+    align-items: flex-end;
 }
 
 .prompt-input__text-field {
     flex-grow: 1;
+}
+
+.prompt-input__text-area {
+    flex-shrink: 1;
 }

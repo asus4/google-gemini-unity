@@ -5,7 +5,7 @@ using GoogleApis.GenerativeLanguage;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Unity.AppUI.UI;
-using Unity.Properties;
+using GoogleApis.Example.UI.Components;
 
 namespace GoogleApis.Example
 {
@@ -29,6 +29,8 @@ namespace GoogleApis.Example
         [SerializeField]
         bool enableSearch = true;
 
+        [SerializeField]
+        List<ContentItem> contentItems;
 
         GenerativeModel model;
         readonly List<Content> messages = new();
@@ -47,10 +49,8 @@ namespace GoogleApis.Example
             }
 
             model = client.GetModel(Models.Gemini_2_0_Flash);
-        }
 
-        void OnEnable()
-        {
+            // Setup UI
             if (!TryGetComponent(out UIDocument document))
             {
                 Debug.LogError("UIDocument is missing");
@@ -60,6 +60,9 @@ namespace GoogleApis.Example
             var root = document.rootVisualElement;
             var promptSendButton = root.Q<IconButton>("prompt-send-button");
             promptSendButton.clicked += async () => await SendRequest();
+
+            var contentListView = root.Q<ListView>("content-list-view");
+            contentListView.itemsSource = contentItems;
         }
 
         async Task SendRequest()

@@ -2,8 +2,8 @@
     xmlns:engine="UnityEngine.UIElements"
     xmlns:appui="Unity.AppUI.UI" xsi:noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd">
     <engine:VisualElement class="section prompt-input">
-        <!-- <appui:Text text="Extra large text" size="XL" /> -->
+        <!-- <appui:TextArea class="prompt-input__text-area" placeholder="Enter Prompt" /> -->
         <appui:TextField class="prompt-input__text-field" placeholder="Enter Prompt" size="L" />
-        <appui:IconButton icon="sparkle" size="L" quiet="true" />
+        <appui:IconButton name="prompt-send-button" icon="sparkle" size="L" quiet="true" />
     </engine:VisualElement>
 </engine:UXML>
