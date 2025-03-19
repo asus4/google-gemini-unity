@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
-using System.Runtime.Serialization;
 
 namespace GoogleApis.GenerativeLanguage
 {
@@ -34,11 +33,11 @@ namespace GoogleApis.GenerativeLanguage
         /// Ordered Parts that constitute a single message. Parts may have different MIME types.
         /// </summary>
         [JsonPropertyName("parts")]
-        public ICollection<Part> Parts { get; set; }
+        public IReadOnlyList<Part> Parts { get; set; }
 
 
         [JsonConstructor]
-        public Content(ICollection<Part> parts)
+        public Content(IReadOnlyList<Part> parts)
         {
             Parts = parts;
         }
@@ -55,7 +54,7 @@ namespace GoogleApis.GenerativeLanguage
             Role = role;
         }
 
-        public Content(Role role, ICollection<Part> parts)
+        public Content(Role role, IReadOnlyList<Part> parts)
         {
             Parts = parts;
             Role = role;

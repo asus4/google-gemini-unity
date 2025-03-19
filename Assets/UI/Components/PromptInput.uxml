@@ -1,0 +1,10 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:appui="Unity.AppUI.UI" xmlns:llm="LlmUI" editor-extension-mode="False">
+    <llm:PromptInput data-source-type="LlmUI.PromptInput, LlmUI" class="prompt-input">
+        <appui:TextField name="prompt-input__text-field" placeholder="Enter Prompt" size="L" class="prompt-input__text-field" />
+        <appui:IconButton name="prompt-input__send-button" icon="sparkle" size="L" quiet="true">
+            <Bindings>
+                <engine:DataBinding property="enabledSelf" data-source-path="CanSend" binding-mode="ToTarget" />
+            </Bindings>
+        </appui:IconButton>
+    </llm:PromptInput>
+</engine:UXML>

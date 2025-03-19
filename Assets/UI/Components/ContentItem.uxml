@@ -1,0 +1,17 @@
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:engine="UnityEngine.UIElements"
+    xmlns:appui="Unity.AppUI.UI"
+    editor-extension-mode="False">
+    <engine:VisualElement data-source-type="LlmUI.ContentItem, LlmUI">
+        <Bindings>
+            <engine:DataBinding property="style.flexDirection" data-source-path="ContainerFlexDirection" binding-mode="ToTarget" />
+        </Bindings>
+        <engine:VisualElement class="content-item">
+            <appui:Text size="L" text="This is Text.">
+                <Bindings>
+                    <engine:DataBinding property="text" data-source-path="Text" binding-mode="ToTarget" />
+                </Bindings>
+            </appui:Text>
+        </engine:VisualElement>
+    </engine:VisualElement>
+</engine:UXML>
