@@ -1,7 +1,8 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:engine="UnityEngine.UIElements"
-    xmlns:appui="Unity.AppUI.UI" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <engine:VisualElement data-source-type="GoogleApis.Example.UI.Components.ContentItem, Assembly-CSharp">
+    xmlns:appui="Unity.AppUI.UI"
+    editor-extension-mode="False">
+    <engine:VisualElement data-source-type="LlmUI.ContentItem, LlmUI">
         <Bindings>
             <engine:DataBinding property="style.flexDirection" data-source-path="ContainerFlexDirection" binding-mode="ToTarget" />
         </Bindings>

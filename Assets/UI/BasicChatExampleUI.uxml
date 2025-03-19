@@ -3,10 +3,10 @@
     xmlns:engine="UnityEngine.UIElements"
     xmlns:appui="Unity.AppUI.UI"
     editor-extension-mode="False">
-    <engine:Template src="project://database/Assets/UI/Components/PromptInput.uxml" name="prompt-input-template"/>
+    <engine:Template name="PromptInput" src="project://database/Assets/UI/Components/PromptInput.uxml" />
     <appui:Panel name="root-panel" theme="light" scale="large">
         <appui:Heading text="Basic Chat Example" size="L" name="title" class="app-title" />
         <engine:ListView name="content-list-view" virtualization-method="DynamicHeight" item-template="project://database/Assets/UI/Components/ContentItem.uxml?fileID=9197481963319205126&amp;guid=2e33145714da84afa8069b88012b269c&amp;type=3#ContentItem" binding-source-selection-mode="AutoAssign" selection-type="None" class="content-list-view" />
-        <engine:Instance template="prompt-input-template" name="prompt-input" />
+        <engine:Instance template="PromptInput" name="prompt-input" />
     </appui:Panel>
 </engine:UXML>

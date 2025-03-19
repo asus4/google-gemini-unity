@@ -58,16 +58,18 @@ namespace GoogleApis.Example
             }
 
             var root = document.rootVisualElement;
-            var promptSendButton = root.Q<IconButton>("prompt-send-button");
-            promptSendButton.clicked += async () => await SendRequest();
-
+            var promptInput = root.Q("prompt-input").Q<PromptInput>();
+            promptInput.OnSend += async (text) =>
+            {
+                await SendRequest(text);
+            };
             var contentListView = root.Q<ListView>("content-list-view");
             contentListView.itemsSource = contentItems;
         }
 
-        async Task SendRequest()
+        async Task SendRequest(string text)
         {
-            Debug.Log("SendRequest");
+            Debug.Log($"SendRequest: {text}");
             return;
             // var input = inputField.text;
             var input = "How are you?";
