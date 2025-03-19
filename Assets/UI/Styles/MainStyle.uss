@@ -23,6 +23,14 @@
     flex-grow: 1;
 }
 
+.content-item-container__model {
+    flex-direction: row;
+}
+
+.content-item-container__user {
+    flex-direction: row-reverse;
+}
+
 .content-item {
     margin: var(--appui-spacing-400);
     padding: var(--appui-spacing-200);

@@ -306,9 +306,12 @@ MonoBehaviour:
   useStream: 0
   enableSearch: 1
   contentItems:
-  - <Text>k__BackingField: HELLOHELLO
-  - <Text>k__BackingField: Yes how are you?
-  - <Text>k__BackingField: Ummmmm
+  - <Role>k__BackingField: 0
+    <Text>k__BackingField: HELLOHELLO
+  - <Role>k__BackingField: 0
+    <Text>k__BackingField: Yes how are you?
+  - <Role>k__BackingField: 1
+    <Text>k__BackingField: Ummmmm
 --- !u!114 &364108235
 MonoBehaviour:
   m_ObjectHideFlags: 0
