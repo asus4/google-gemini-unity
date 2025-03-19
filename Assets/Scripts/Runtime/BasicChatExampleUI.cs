@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Cysharp.Threading.Tasks;
 using GoogleApis.GenerativeLanguage;
+using LlmUI;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Unity.AppUI.UI;
-using LlmUI;
+using System.Threading;
 
 namespace GoogleApis.Example
 {
@@ -29,12 +31,16 @@ namespace GoogleApis.Example
         [SerializeField]
         bool enableSearch = true;
 
-        [SerializeField]
-        List<ContentItem> contentItems;
-
         GenerativeModel model;
+        PromptInput promptInput;
+        readonly List<ContentItem> listViewSource = new();
         readonly List<Content> messages = new();
         static readonly StringBuilder sb = new();
+
+        void Awake()
+        {
+            Application.targetFrameRate = 60;
+        }
 
         async void Start()
         {
@@ -58,26 +64,33 @@ namespace GoogleApis.Example
             }
 
             var root = document.rootVisualElement;
-            var promptInput = root.Q("prompt-input").Q<PromptInput>();
-            promptInput.OnSend += async (text) =>
-            {
-                await SendRequest(text);
-            };
+            promptInput = root.Q("prompt-input").Q<PromptInput>();
+            promptInput.OnSend += SendRequest;
+            promptInput.Text = "Make a short story about a cat";
+            promptInput.Focus();
+
             var contentListView = root.Q<ListView>("content-list-view");
-            contentListView.itemsSource = contentItems;
+            contentListView.itemsSource = listViewSource;
         }
 
-        async Task SendRequest(string text)
+        void OnDestroy()
         {
-            Debug.Log($"SendRequest: {text}");
-            return;
-            // var input = inputField.text;
-            var input = "How are you?";
-            // if (string.IsNullOrEmpty(input))
-            // {
-            //     return;
-            // }
-            // inputField.text = string.Empty;
+            promptInput.OnSend -= SendRequest;
+        }
+
+        void SendRequest(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return;
+            }
+            SendRequestAsync(text, destroyCancellationToken)
+                .Forget();
+        }
+
+        async UniTask SendRequestAsync(string input, CancellationToken cancellationToken)
+        {
+            promptInput.Text = string.Empty;
 
             Content content = new(Role.user, input);
             messages.Add(content);
@@ -91,9 +104,9 @@ namespace GoogleApis.Example
                     new Tool.GoogleSearchRetrieval(),
                 };
             }
-            request.SafetySettings = new List<SafetySetting>()
+            request.SafetySettings = new SafetySetting[]
             {
-                new ()
+                new()
                 {
                     category = HarmCategory.HARM_CATEGORY_HARASSMENT,
                     threshold = HarmBlockThreshold.BLOCK_LOW_AND_ABOVE,
@@ -108,7 +121,7 @@ namespace GoogleApis.Example
 
             if (useStream)
             {
-                var stream = model.StreamGenerateContentAsync(request, destroyCancellationToken);
+                var stream = model.StreamGenerateContentAsync(request, cancellationToken);
                 await foreach (var response in stream)
                 {
                     if (response.Candidates.Length == 0)
@@ -132,7 +145,7 @@ namespace GoogleApis.Example
             }
             else
             {
-                var response = await model.GenerateContentAsync(request, destroyCancellationToken);
+                var response = await model.GenerateContentAsync(request, cancellationToken);
                 if (response.Candidates.Length > 0)
                 {
                     var modelContent = response.Candidates[0].Content;
@@ -144,14 +157,13 @@ namespace GoogleApis.Example
 
         void RefreshView()
         {
+            listViewSource.Clear();
             sb.Clear();
             foreach (var message in messages)
             {
                 sb.AppendTMPRichText(message);
+                listViewSource.Add(new ContentItem(message));
             }
-
-            Debug.Log($"TODO: Set Text Here: {sb}");
-            // messageLabel.SetText(sb);
         }
 
         static Content MergeContent(Content a, Content b)

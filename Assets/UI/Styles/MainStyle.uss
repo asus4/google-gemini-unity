@@ -32,7 +32,7 @@
 }
 
 .content-item {
-    margin: var(--appui-spacing-400);
+    margin: var(--appui-spacing-200) var(--appui-spacing-400);
     padding: var(--appui-spacing-200);
     border-radius: var(--appui-alias-control-border-radius);
     background-color: var(--appui-backgrounds-200);
@@ -46,6 +46,7 @@
     justify-content: space-between;
     align-self: stretch;
     align-items: flex-end;
+    margin: var(--appui-spacing-400) var(--appui-spacing-400) var(--appui-spacing-600) var(--appui-spacing-400);
 }
 
 .prompt-input__text-field {

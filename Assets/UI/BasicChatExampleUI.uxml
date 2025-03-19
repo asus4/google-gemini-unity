@@ -1,12 +1,8 @@
-<engine:UXML
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:engine="UnityEngine.UIElements"
-    xmlns:appui="Unity.AppUI.UI"
-    editor-extension-mode="False">
-    <engine:Template name="PromptInput" src="project://database/Assets/UI/Components/PromptInput.uxml" />
+<engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:appui="Unity.AppUI.UI" editor-extension-mode="False">
+    <engine:Template name="PromptInput" src="project://database/Assets/UI/Components/PromptInput.uxml?fileID=9197481963319205126&amp;guid=bcdcbf87440584b73bca527a716fbef2&amp;type=3#PromptInput" />
     <appui:Panel name="root-panel" theme="light" scale="large">
         <appui:Heading text="Basic Chat Example" size="L" name="title" class="app-title" />
-        <engine:ListView name="content-list-view" virtualization-method="DynamicHeight" item-template="project://database/Assets/UI/Components/ContentItem.uxml?fileID=9197481963319205126&amp;guid=2e33145714da84afa8069b88012b269c&amp;type=3#ContentItem" binding-source-selection-mode="AutoAssign" selection-type="None" class="content-list-view" />
+        <engine:ListView name="content-list-view" virtualization-method="DynamicHeight" item-template="project://database/Assets/UI/Components/ContentItem.uxml?fileID=9197481963319205126&amp;guid=2e33145714da84afa8069b88012b269c&amp;type=3#ContentItem" binding-source-selection-mode="AutoAssign" selection-type="None" focusable="false" class="content-list-view" />
         <engine:Instance template="PromptInput" name="prompt-input" />
     </appui:Panel>
 </engine:UXML>

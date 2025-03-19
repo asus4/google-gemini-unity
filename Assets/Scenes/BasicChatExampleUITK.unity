@@ -303,17 +303,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   systemInstruction: 
   showAvailableModels: 1
-  useStream: 0
+  useStream: 1
   enableSearch: 1
-  contentItems:
-  - <Role>k__BackingField: 0
-    <Text>k__BackingField: HELLOHELLO
-  - <Role>k__BackingField: 1
-    <Text>k__BackingField: Yes how are you?
-  - <Role>k__BackingField: 0
-    <Text>k__BackingField: "\u3053\u3093\u306B\u3061\u306F"
-  - <Role>k__BackingField: 2
-    <Text>k__BackingField: Function Call
 --- !u!114 &364108235
 MonoBehaviour:
   m_ObjectHideFlags: 0
