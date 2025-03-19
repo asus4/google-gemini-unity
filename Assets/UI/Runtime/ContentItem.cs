@@ -1,11 +1,10 @@
 using System;
-using System.Linq;
 using GoogleApis.GenerativeLanguage;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Unity.Properties;
 
-namespace GoogleApis.Example.UI.Components
+namespace LlmUI
 {
     [Serializable]
     public class ContentItem
@@ -38,7 +37,7 @@ namespace GoogleApis.Example.UI.Components
         public ContentItem(Content content)
         {
             Role = content.Role ?? Role.model;
-            Text = content.Parts.First().Text;
+            Text = content.Parts[0].Text;
         }    
     }
 }

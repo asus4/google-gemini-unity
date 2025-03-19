@@ -1,6 +1,6 @@
 /* Overrides variables */
 :root {
-    --appui-alias-control-border-radius: 12px;
+    --appui-alias-control-border-radius: 16px;
 }
 
 #container {

@@ -5,7 +5,7 @@ using GoogleApis.GenerativeLanguage;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Unity.AppUI.UI;
-using GoogleApis.Example.UI.Components;
+using LlmUI;
 
 namespace GoogleApis.Example
 {
