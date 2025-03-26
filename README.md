@@ -54,7 +54,7 @@ GOOGLE_API_KEY=abc123
 
 ```json
 "dependencies": {
-    "com.github.asus4.googleapis-unity": "https://github.com/asus4/google-gemini-unity.git?path=Packages/com.github.asus4.google-gemini#v0.2.4",
+    "com.github.asus4.google-gemini": "https://github.com/asus4/google-gemini-unity.git?path=Packages/com.github.asus4.google-gemini#v0.2.4",
     ... other dependencies
 }
 ```
