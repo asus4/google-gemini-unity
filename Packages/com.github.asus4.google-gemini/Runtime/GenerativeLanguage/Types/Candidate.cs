@@ -1,7 +1,7 @@
 #nullable enable
 
+using System;
 using System.Text.Json.Serialization;
-using System.Runtime.Serialization;
 
 namespace GoogleApis.GenerativeLanguage
 {
@@ -57,8 +57,13 @@ namespace GoogleApis.GenerativeLanguage
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public GroundingAttribution[]? GroundingAttributions { get; set; }
 
-        // TODO: Implement GroundingMetadata
-        // public GroundingMetadata? groundingMetadata;
+        /// <summary>
+        /// Output only. Grounding metadata for the candidate.
+        /// This field is populated for GenerateContent calls.
+        /// </summary>
+        [JsonPropertyName("groundingMetadata")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public GroundingMetadata? GroundingMetadata { get; set; }
 
         /// <summary>
         /// Output only. Average log probability score of the candidate.
@@ -105,6 +110,7 @@ namespace GoogleApis.GenerativeLanguage
 
     /// <summary>
     /// Attribution for a source that contributed to an answer.
+    /// https://ai.google.dev/api/generate-content#GroundingAttribution
     /// </summary>
     public record GroundingAttribution
     {
@@ -182,5 +188,63 @@ namespace GoogleApis.GenerativeLanguage
         [JsonPropertyName("chunk")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string? Chunk { get; set; }
+    }
+
+    /// <summary>
+    /// Metadata returned to client when grounding is enabled.
+    /// https://ai.google.dev/api/generate-content#GroundingAttribution
+    /// </summary>
+    public record GroundingMetadata
+    {
+        // public GroundingChunk[]? GroundingChunks { get; set; }
+        // public GroundingSupport[]? GroundingSupports { get; set; }
+
+        /// <summary>
+        /// Web search queries for the following-up web search.
+        /// </summary>
+        [JsonPropertyName("webSearchQueries")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public string[]? WebSearchQueries { get; set; }
+
+        [JsonPropertyName("searchEntryPoint")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public SearchEntryPoint? SearchEntryPoint { get; set; }
+
+        [JsonPropertyName("retrievalMetadata")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public RetrievalMetadata? RetrievalMetadata { get; set; }
+    }
+
+    /// <summary>
+    /// Google search entry point.
+    /// https://ai.google.dev/api/generate-content#SearchEntryPoint
+    /// </summary>
+    /// <value></value>
+    public record SearchEntryPoint
+    {
+        /// <summary>
+        /// Optional. Web content snippet that can be embedded in a web page or an app webview.
+        /// </summary>
+        [JsonPropertyName("renderedContent")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public string? RenderedContent { get; set; }
+
+        [JsonPropertyName("sdkBlob")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public ReadOnlyMemory<byte>? SdkBlob { get; set; }
+    }
+
+    /// <summary>
+    /// Metadata related to retrieval in the grounding flow.
+    /// https://ai.google.dev/api/generate-content#RetrievalMetadata
+    /// </summary>
+    public record RetrievalMetadata
+    {
+        /// <summary>
+        /// Optional. Score indicating how likely information from google search could help answer the prompt. The score is in the range [0, 1], where 0 is the least likely and 1 is the most likely. This score is only populated when google search grounding and dynamic retrieval is enabled. It will be compared to the threshold to determine whether to trigger google search.
+        /// </summary>
+        [JsonPropertyName("googleSearchDynamicRetrievalScore")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public double? GoogleSearchDynamicRetrievalScore { get; set; }
     }
 }

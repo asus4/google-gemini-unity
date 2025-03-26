@@ -1,5 +1,4 @@
 using System.Text;
-using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using GoogleApis.GenerativeLanguage;
 using TMPro;
@@ -61,8 +60,7 @@ namespace GoogleApis.Example
 
             if (response.Candidates.Length > 0)
             {
-                var modelContent = response.Candidates[0].Content;
-                sb.AppendTMPRichText(modelContent);
+                sb.AppendTMPRichText(response.Candidates[0]);
                 resultLabel.SetText(sb);
             }
         }
