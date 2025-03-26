@@ -170,6 +170,21 @@ namespace GoogleApis.GenerativeLanguage
         /// Append Content to StringBuilder as TextMesh Pro Rich Text Style
         /// </summary>
         /// <param name="sb">A StringBuilder</param>
+        /// <param name="content">A Candidate</param>
+        public static void AppendTMPRichText(this StringBuilder sb, Candidate candidate)
+        {
+            sb.AppendTMPRichText(candidate.Content);
+            if (candidate.GroundingMetadata != null)
+            {
+                sb.AppendLine("<b>Grounding Metadata:</b>");
+                sb.AppendTMPRichText(candidate.GroundingMetadata);
+            }
+        }
+
+        /// <summary>
+        /// Append Content to StringBuilder as TextMesh Pro Rich Text Style
+        /// </summary>
+        /// <param name="sb">A StringBuilder</param>
         /// <param name="content">A Content</param>
         public static void AppendTMPRichText(this StringBuilder sb, Content content)
         {
@@ -200,6 +215,19 @@ namespace GoogleApis.GenerativeLanguage
                 _ => $"<u><color=red>Unsupported part</color></u>",
             };
             sb.AppendLine(text);
+        }
+
+        public static void AppendTMPRichText(this StringBuilder sb, GroundingMetadata metadata)
+        {
+            if (metadata.WebSearchQueries != null && metadata.WebSearchQueries.Length > 0)
+            {
+                sb.AppendLine("<b>Web Search Queries:</b>");
+                foreach (var query in metadata.WebSearchQueries)
+                {
+                    sb.Append("- ");
+                    sb.AppendLine(query);
+                }
+            }
         }
     }
 }
