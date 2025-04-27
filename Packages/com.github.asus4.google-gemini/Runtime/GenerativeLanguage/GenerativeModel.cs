@@ -28,6 +28,10 @@ namespace GoogleApis.GenerativeLanguage
         public const string Gemini_2_0_Flash_Thinking_Exp = "models/gemini-2.0-flash-thinking-exp";
         public const string Gemini_2_0_Pro_Exp = "models/gemini-2.0-pro-exp";
 
+        // Gemini 2.5
+        public const string Gemini_2_5_Pro_Preview = "models/gemini-2.5-pro-preview-03-25";
+        public const string Gemini_2_5_Flash_Preview = "models/gemini-2.5-flash-preview-04-17";
+
         // Imagen
         public const string Imagen_3_0 = "models/imagen-3.0-generate-002";
     }
