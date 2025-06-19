@@ -54,7 +54,7 @@ namespace GoogleApis.Example
                 Debug.Log($"Available models: {models}");
             }
 
-            model = client.GetModel(Models.Gemini_2_0_Flash);
+            model = client.GetModel(Models.Gemini_2_5_Flash_Lite_Preview);
 
             // Setup UIs
             sendButton.onClick.AddListener(async () => await SendRequest());

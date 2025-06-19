@@ -1,6 +1,6 @@
 {
   "name": "com.github.asus4.google-gemini",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "displayName": "Google Gemini",
   "description": "Non Official Unity Client for Google Gemini API",
   "keywords": [
@@ -13,7 +13,7 @@
   "unityRelease": "0f1",
   "dependencies": {
     "com.cysharp.unitask": "2.5.10",
-    "com.github-glitchenzo.nugetforunity": "4.3.0",
+    "com.github-glitchenzo.nugetforunity": "4.4.0",
     "com.unity.modules.audio": "1.0.0",
     "com.unity.modules.imageconversion": "1.0.0",
     "com.unity.modules.unitywebrequest": "1.0.0",
