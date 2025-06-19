@@ -8,7 +8,7 @@
       "url": "https://package.openupm.com"
     },
     "com.github-glitchenzo.nugetforunity": {
-      "version": "4.3.0",
+      "version": "4.4.0",
       "depth": 1,
       "source": "registry",
       "dependencies": {},
@@ -20,7 +20,7 @@
       "source": "embedded",
       "dependencies": {
         "com.cysharp.unitask": "2.5.10",
-        "com.github-glitchenzo.nugetforunity": "4.3.0",
+        "com.github-glitchenzo.nugetforunity": "4.4.0",
         "com.unity.modules.audio": "1.0.0",
         "com.unity.modules.imageconversion": "1.0.0",
         "com.unity.modules.unitywebrequest": "1.0.0",
@@ -57,7 +57,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.dt.app-ui": {
-      "version": "2.0.0-pre.19",
+      "version": "2.0.0-pre.22",
       "depth": 0,
       "source": "registry",
       "dependencies": {
