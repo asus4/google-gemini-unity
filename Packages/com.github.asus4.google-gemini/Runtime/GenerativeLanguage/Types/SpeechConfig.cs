@@ -49,12 +49,12 @@ namespace GoogleApis.GenerativeLanguage
         public SpeechConfig(Voice voice, LanguageCode? languageCode = null)
         {
             VoiceConfig = voice;
-            LanguageCode = languageCode?.ToCodeString();
+            LanguageCode = languageCode?.ToCodeString() ?? null;
         }
         public SpeechConfig(SpeakerVoiceConfig[] speakers, LanguageCode? languageCode = null)
         {
             MultiSpeakerVoiceConfig = speakers;
-            LanguageCode = languageCode?.ToCodeString();
+            LanguageCode = languageCode?.ToCodeString() ?? null;
         }
     }
 
