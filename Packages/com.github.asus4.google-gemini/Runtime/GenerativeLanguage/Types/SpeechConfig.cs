@@ -13,8 +13,7 @@ namespace GoogleApis.GenerativeLanguage
     public record SpeechConfig
     {
         /// <summary>
-        /// Optional. Voice configuration for single-voice output.
-        /// Mutually exclusive with MultiSpeakerVoiceConfig.
+        /// The configuration in case of single-voice output.
         /// </summary>
         [JsonPropertyName("voiceConfig")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
@@ -37,44 +36,25 @@ namespace GoogleApis.GenerativeLanguage
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string? LanguageCode { get; set; }
 
-        /// <summary>
-        /// Creates a SpeechConfig with the specified voice name.
-        /// </summary>
-        /// <param name="voiceName">The name of the voice to use</param>
-        /// <param name="languageCode">Optional language code</param>
-        /// <returns>A configured SpeechConfig instance</returns>
-        public static SpeechConfig WithVoice(string voiceName, string? languageCode = null)
+
+        [JsonConstructor]
+        public SpeechConfig(VoiceConfig? voiceConfig = null, MultiSpeakerVoiceConfig? multiSpeakerVoiceConfig = null, string? languageCode = null)
         {
-            return new SpeechConfig
-            {
-                VoiceConfig = new VoiceConfig
-                {
-                    PrebuiltVoiceConfig = new PrebuiltVoiceConfig(voiceName)
-                },
-                LanguageCode = languageCode
-            };
+            VoiceConfig = voiceConfig;
+            MultiSpeakerVoiceConfig = multiSpeakerVoiceConfig;
+            LanguageCode = languageCode;
         }
 
-        /// <summary>
-        /// Creates a SpeechConfig with the specified voice.
-        /// </summary>
-        /// <param name="voice">The voice to use</param>
-        /// <param name="languageCode">Optional language code</param>
-        /// <returns>A configured SpeechConfig instance</returns>
-        public static SpeechConfig WithVoice(Voice voice, string? languageCode = null)
+        // Constructor syntax sugars
+        public SpeechConfig(Voice voice, LanguageCode? languageCode = null)
         {
-            return WithVoice(voice.ToString(), languageCode);
+            VoiceConfig = voice;
+            LanguageCode = languageCode?.ToCodeString();
         }
-
-        /// <summary>
-        /// Creates a SpeechConfig with the specified voice and language.
-        /// </summary>
-        /// <param name="voice">The voice to use</param>
-        /// <param name="language">The language to use</param>
-        /// <returns>A configured SpeechConfig instance</returns>
-        public static SpeechConfig WithVoice(Voice voice, LanguageCode language)
+        public SpeechConfig(SpeakerVoiceConfig[] speakers, LanguageCode? languageCode = null)
         {
-            return WithVoice(voice.ToString(), language.ToCodeString());
+            MultiSpeakerVoiceConfig = speakers;
+            LanguageCode = languageCode?.ToCodeString();
         }
     }
 
@@ -90,6 +70,9 @@ namespace GoogleApis.GenerativeLanguage
         [JsonPropertyName("prebuiltVoiceConfig")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public PrebuiltVoiceConfig? PrebuiltVoiceConfig { get; set; }
+
+        // Constructor syntax sugars
+        public static implicit operator VoiceConfig(Voice voice) => new() { PrebuiltVoiceConfig = new PrebuiltVoiceConfig(voice) };
     }
 
     /// <summary>
@@ -105,10 +88,9 @@ namespace GoogleApis.GenerativeLanguage
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public string VoiceName { get; set; }
 
-        public PrebuiltVoiceConfig(string voiceName)
-        {
-            VoiceName = voiceName;
-        }
+        [JsonConstructor]
+        public PrebuiltVoiceConfig(string voiceName) => VoiceName = voiceName;
+        public PrebuiltVoiceConfig(Voice voice) : this(voice.ToString()) { }
     }
 
     /// <summary>
@@ -117,7 +99,39 @@ namespace GoogleApis.GenerativeLanguage
     /// </summary>
     public record MultiSpeakerVoiceConfig
     {
-        // TODO: Add fields when documentation becomes available
+        /// <summary>
+        /// Required. All the enabled speaker voices.
+        /// </summary>
+        [JsonPropertyName("speakerVoiceConfigs")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public SpeakerVoiceConfig[]? SpeakerVoiceConfigs { get; set; }
+
+        // Constructor syntax sugars
+        public static implicit operator MultiSpeakerVoiceConfig(SpeakerVoiceConfig[] speakers) => new() { SpeakerVoiceConfigs = speakers };
+    }
+
+    /// <summary>
+    /// Configuration for a single speaker in a multi-speaker setup.
+    /// </summary>
+    public record SpeakerVoiceConfig
+    {
+        /// <summary>
+        /// Required. The name of the speaker to use. Should be the same as in the prompt.
+        /// </summary>
+        [JsonPropertyName("speaker")]
+        public string Speaker { get; set; }
+
+        /// <summary>
+        /// Required. The configuration for the voice to use.
+        /// </summary>
+        [JsonPropertyName("voiceConfig")]
+        public VoiceConfig VoiceConfig { get; set; }
+
+        public SpeakerVoiceConfig(string speaker, VoiceConfig voiceConfig)
+        {
+            Speaker = speaker;
+            VoiceConfig = voiceConfig;
+        }
     }
 
     /// <summary>
