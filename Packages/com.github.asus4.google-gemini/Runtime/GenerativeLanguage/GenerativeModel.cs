@@ -32,11 +32,14 @@ namespace GoogleApis.GenerativeLanguage
         public const string Gemini_2_5_Flash_Lite_Preview = "models/gemini-2.5-flash-lite-preview-06-17";
         public const string Gemini_2_5_Flash = "models/gemini-2.5-flash";
         public const string Gemini_2_5_Flash_Preview_Thinking = "models/gemini-2.5-flash-preview-04-17-thinking";
-        public const string Gemini_2_5_Flash_Preview_TTS = "models/gemini-2.5-flash-preview-tts";
         public const string Gemini_2_5_Pro = "models/gemini-2.5-pro";
 
         // Imagen
         public const string Imagen_3_0 = "models/imagen-3.0-generate-002";
+
+        // TTS
+        public const string Gemini_2_5_Flash_Preview_TTS = "models/gemini-2.5-flash-preview-tts";
+        public const string Gemini_2_5_Pro_Preview_TTS = "models/gemini-2.5-pro-preview-tts";
 
         // Veo
         public const string Veo_2_0 = "models/veo-2.0-generate-001";
