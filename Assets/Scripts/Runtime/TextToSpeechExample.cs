@@ -77,7 +77,8 @@ namespace GoogleApis.Example
         {
             return new GenerateContentRequest()
             {
-                Contents = {
+                Contents = new Content[]
+                {
                     new (new Part[] { input })
                 },
                 GenerationConfig = new()

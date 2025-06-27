@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+using System.Runtime.InteropServices;
+using Unity.Collections;
 using UnityEngine;
 
 namespace GoogleApis.GenerativeLanguage
@@ -8,48 +10,46 @@ namespace GoogleApis.GenerativeLanguage
     {
         public static AudioClip ToAudioClip(this GenerateContentResponse response)
         {
-            var audioData = response.Candidates
+            var blob = response.Candidates
                 .FirstOrDefault()?.Content?.Parts?
                 .FirstOrDefault(p => p.InlineData != null)?.InlineData;
 
-            if (audioData == null)
+            if (blob == null)
             {
                 throw new InvalidOperationException("No audio data found in response");
             }
 
-            return CreateAudioClipFromPCM(audioData.Data);
+            // TODO: Parse mimeType if needed
+            // "mimeType": "audio/L16;codec=pcm;rate=24000",
+            return CreateAudioClipFromPCM(blob.Data);
         }
 
-        static AudioClip CreateAudioClipFromPCM(ReadOnlyMemory<byte> pcmData)
+        static AudioClip CreateAudioClipFromPCM(ReadOnlyMemory<byte> pcmData, int sampleRate = 24000)
         {
-
-            if (pcmData.Length == 0)
+            if (pcmData.Length == 0 || pcmData.Length % 2 != 0)
             {
-                Debug.LogError("No audio data available");
-                return null;
+                throw new ArgumentException("The length of the memory region must be even.", nameof(pcmData));
             }
 
-            const int bytesPerSample = 2; // 16-bit
-            const int sampleRate = 24000; // TTS models output 24kHz audio
-            const int channels = 1; // Mono
+            const int bytesPerSample = 2; // 16-bit PCM
             int sampleCount = pcmData.Length / bytesPerSample;
 
+            ReadOnlySpan<byte> pcmSpan = pcmData.Span;
+            ReadOnlySpan<short> shortSpan = MemoryMarshal.Cast<byte, short>(pcmSpan);
+
             // Convert byte array to float array
-            float[] floatData = new float[sampleCount];
-            ReadOnlySpan<byte> span = pcmData.Span;
+            var floatData = new NativeArray<float>(sampleCount, Allocator.Temp);
             for (int i = 0; i < sampleCount; i++)
             {
-                // Convert 16-bit PCM to float (-1 to 1 range)
-                short sample = BitConverter.ToInt16(span.Slice(i * bytesPerSample, bytesPerSample));
-                floatData[i] = sample / 32768f;
+                floatData[i] = shortSpan[i] / 32768f;
             }
 
             // Create AudioClip
+            const int channels = 1; // Mono
             var audioClip = AudioClip.Create("TTS_Audio", sampleCount, channels, sampleRate, false);
             audioClip.SetData(floatData, 0);
 
             return audioClip;
         }
     }
-
 }
