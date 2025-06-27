@@ -1,13 +1,21 @@
 using System;
 using System.Linq;
 using System.Runtime.InteropServices;
+using Unity.Burst;
 using Unity.Collections;
+using Unity.Jobs;
 using UnityEngine;
 
 namespace GoogleApis.GenerativeLanguage
 {
     public static class GenerateContentResponseExtension
     {
+        /// <summary>
+        /// Convert GenerateContentResponse to AudioClip.
+        /// </summary>
+        /// <param name="response">A <see cref="GenerateContentResponse"/> object.</param>
+        /// <returns>An AudioClip created from the response.</returns>
+        /// <exception cref="InvalidOperationException"></exception>
         public static AudioClip ToAudioClip(this GenerateContentResponse response)
         {
             var blob = response.Candidates
@@ -28,28 +36,49 @@ namespace GoogleApis.GenerativeLanguage
         {
             if (pcmData.Length == 0 || pcmData.Length % 2 != 0)
             {
-                throw new ArgumentException("The length of the memory region must be even.", nameof(pcmData));
+                throw new ArgumentException("PCM data length must be even.", nameof(pcmData));
             }
 
-            const int bytesPerSample = 2; // 16-bit PCM
+            const int bytesPerSample = 2;
             int sampleCount = pcmData.Length / bytesPerSample;
-
-            ReadOnlySpan<byte> pcmSpan = pcmData.Span;
-            ReadOnlySpan<short> shortSpan = MemoryMarshal.Cast<byte, short>(pcmSpan);
-
-            // Convert byte array to float array
-            var floatData = new NativeArray<float>(sampleCount, Allocator.Temp);
-            for (int i = 0; i < sampleCount; i++)
-            {
-                floatData[i] = shortSpan[i] / 32768f;
-            }
-
-            // Create AudioClip
             const int channels = 1; // Mono
+
+            // Cast byte -> short
+            ReadOnlySpan<short> pcmShortSpan = MemoryMarshal.Cast<byte, short>(pcmData.Span);
+
+            // Prepare Job resources
+            using var pcmNativeArray = new NativeArray<short>(pcmShortSpan.ToArray(), Allocator.TempJob);
+            using var floatData = new NativeArray<float>(sampleCount, Allocator.TempJob);
+            var job = new ConvertShortToFloatJob
+            {
+                PcmData = pcmNativeArray,
+                FloatData = floatData
+            };
+            job.Run();
+
             var audioClip = AudioClip.Create("TTS_Audio", sampleCount, channels, sampleRate, false);
             audioClip.SetData(floatData, 0);
 
             return audioClip;
+        }
+
+        [BurstCompile(FloatPrecision.Standard, FloatMode.Fast, CompileSynchronously = true)]
+        private struct ConvertShortToFloatJob : IJob
+        {
+            [ReadOnly]
+            public NativeArray<short> PcmData;
+
+            [WriteOnly]
+            public NativeArray<float> FloatData;
+
+            public void Execute()
+            {
+                const float SCALE = 1.0f / 32768.0f;
+                for (int i = 0; i < PcmData.Length; i++)
+                {
+                    FloatData[i] = PcmData[i] * SCALE;
+                }
+            }
         }
     }
 }
