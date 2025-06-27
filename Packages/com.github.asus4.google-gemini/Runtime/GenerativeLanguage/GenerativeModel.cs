@@ -130,5 +130,21 @@ namespace GoogleApis.GenerativeLanguage
             return await Api.PostJsonAsync<GenerateImageRequest, GenerateImageResponse>(
                 uri, requestBody, cancellationToken);
         }
+
+        /// <summary>
+        /// Call generate speech API. Only "gemini-2.5-flash-preview-tts" and "gemini-2.5-pro-preview-tts" models are supported.
+        /// https://ai.google.dev/api/generate-content#v1beta.models.generateContent
+        /// </summary>
+        /// <param name="requestBody">A request data containing text and voice configuration</param>
+        /// <param name="cancellationToken">A cancellation token</param>
+        /// <returns>A GenerateSpeechResponse containing the audio data</returns>
+        public async UniTask<GenerateSpeechResponse> GenerateSpeechAsync(
+            GenerateSpeechRequest requestBody,
+            CancellationToken cancellationToken)
+        {
+            var generateContentRequest = requestBody.ToGenerateContentRequest();
+            var response = await GenerateContentAsync(generateContentRequest, cancellationToken);
+            return GenerateSpeechResponse.FromGenerateContentResponse(response);
+        }
     }
 }

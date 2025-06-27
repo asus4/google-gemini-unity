@@ -135,8 +135,14 @@ namespace GoogleApis.GenerativeLanguage
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public bool? EnableEnhancedCivicAnswers { get; set; }
 
+        /// <summary>
+        /// Optional. Speech generation config. Only applicable for models that support speech generation.
+        /// </summary>
+        [JsonPropertyName("speechConfig")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public SpeechConfig? SpeechConfig { get; set; }
+
         // TODO: 
-        // speechConfig
         // mediaResolution
 
         public void SetJsonMode(Type responseType)

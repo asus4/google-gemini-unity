@@ -1,12 +1,10 @@
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GoogleApis.TTS;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using GoogleApis.GenerativeLanguage;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.Networking;
 
 namespace GoogleApis.Example
 {
@@ -20,40 +18,41 @@ namespace GoogleApis.Example
         private Button sendButton;
 
         [SerializeField]
-        private string languageCode = "en-US";
+        private TMP_Dropdown voiceDropdown;
 
-        private TextToSpeech tts;
-
-        private VoiceSelectionParams voiceSelectionParams;
-        private AudioConfig audioConfig;
+        private GenerativeModel ttsModel;
         private AudioSource audioSource;
+        private CancellationTokenSource cts;
 
-        private async void Start()
+        private void Start()
         {
             audioSource = GetComponent<AudioSource>();
+            cts = new CancellationTokenSource();
 
             using var settings = GoogleApiSettings.Get();
-            tts = new TextToSpeech(settings);
+            var client = new GenerativeAIClient(settings);
+            // Use the TTS model
+            ttsModel = client.GetModel(Models.Gemini_2_5_Flash_Preview_TTS);
 
-            voiceSelectionParams = new VoiceSelectionParams(languageCode, null, null);
-            audioConfig = new AudioConfig()
+            // Setup voice dropdown if available
+            if (voiceDropdown != null)
             {
-                audioEncoding = AudioEncoding.MP3_64_KBPS,
-            };
+                voiceDropdown.ClearOptions();
+                voiceDropdown.AddOptions(new List<string>
+                { 
+                    "Kore", "Aoede", "Charon", "Fenrir", "Orpheus", "Puck" 
+                });
+                voiceDropdown.value = 0; // Default to Kore
+            }
 
             // Setup UIs
-            sendButton.onClick.AddListener(async () => await SendRequest());
-            inputField.onSubmit.AddListener(async _ => await SendRequest());
+            sendButton.onClick.AddListener(async () => await SendRequestAsync());
+            inputField.onSubmit.AddListener(async _ => await SendRequestAsync());
             // for Debug
-            inputField.text = "I have 57 cats, each owns 44 mittens, how many mittens is that in total?";
-
-            // Check all available voices
-            // https://cloud.google.com/text-to-speech/docs/voices
-            VoicesResponse voices = await tts.ListVoicesAsync(string.Empty, destroyCancellationToken);
-            Debug.Log($"Voices: {voices}");
+            inputField.text = "Say cheerfully: Have a wonderful day!";
         }
 
-        private async Task SendRequest()
+        private async UniTask SendRequestAsync()
         {
             var input = inputField.text;
             if (string.IsNullOrEmpty(input))
@@ -62,22 +61,49 @@ namespace GoogleApis.Example
             }
             inputField.text = string.Empty;
 
-            TextSynthesizeRequest requestBody = new(
-                input: input,
-                voice: voiceSelectionParams,
-                audioConfig: audioConfig
-            );
-            var response = await tts.SynthesizeAsync(requestBody, destroyCancellationToken);
-            Debug.Log($"response: {response}");
-
-            // Play audio
-            if (audioSource.clip != null)
+            try 
             {
-                Destroy(audioSource.clip);
+                // Get selected voice
+                string voiceName = voiceDropdown != null && voiceDropdown.options.Count > 0 
+                    ? voiceDropdown.options[voiceDropdown.value].text 
+                    : "Kore";
+
+                // Generate speech
+                var request = new GenerateSpeechRequest(
+                    text: input,
+                    voiceName: voiceName
+                );
+                
+                var response = await ttsModel.GenerateSpeechAsync(request, cts.Token);
+                Debug.Log($"TTS response received");
+
+                // Play audio
+                if (audioSource.clip != null)
+                {
+                    Destroy(audioSource.clip);
+                }
+                
+                var audioClip = await response.ToAudioClipAsync(cts.Token);
+                if (audioClip != null)
+                {
+                    audioSource.clip = audioClip;
+                    audioSource.Play();
+                }
+                else
+                {
+                    Debug.LogError("Failed to create audio clip from response");
+                }
             }
-            var audioClip = await response.ToAudioClipAsync(destroyCancellationToken);
-            audioSource.clip = audioClip;
-            audioSource.Play();
+            catch (System.Exception e)
+            {
+                Debug.LogError($"TTS Error: {e.Message}");
+            }
+        }
+
+        private void OnDestroy()
+        {
+            cts?.Cancel();
+            cts?.Dispose();
         }
     }
 }

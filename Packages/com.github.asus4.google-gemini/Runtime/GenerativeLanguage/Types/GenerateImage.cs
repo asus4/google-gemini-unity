@@ -2,7 +2,6 @@
 
 using System;
 using System.Text.Json.Serialization;
-using System.Runtime.Serialization;
 using UnityEngine;
 
 namespace GoogleApis.GenerativeLanguage
