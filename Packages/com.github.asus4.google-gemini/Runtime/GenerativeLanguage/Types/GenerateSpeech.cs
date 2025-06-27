@@ -12,7 +12,7 @@ namespace GoogleApis.GenerativeLanguage
     /// <summary>
     /// Request for generating speech from text using Gemini TTS models.
     /// </summary>
-    public record GenerateSpeechRequest
+    public partial record GenerateSpeechRequest
     {
         /// <summary>
         /// The text content to convert to speech.
@@ -33,12 +33,24 @@ namespace GoogleApis.GenerativeLanguage
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public SpeechConfig? SpeechConfig { get; set; }
 
-        public GenerateSpeechRequest(string text, string voiceName = "Kore", SpeechConfig? speechConfig = null)
+        [JsonConstructor]
+        public GenerateSpeechRequest(string text, string voiceName)
         {
             Text = text;
             VoiceName = voiceName;
+        }
+
+        public GenerateSpeechRequest(string text, string voiceName = "Kore", SpeechConfig? speechConfig = null)
+            : this(text, voiceName)
+        {
             SpeechConfig = speechConfig;
         }
+    }
+
+    // Non-JSON related functionality
+    public partial record GenerateSpeechRequest
+    {
+
 
         /// <summary>
         /// Converts this request to a GenerateContentRequest for the Gemini API.
@@ -58,7 +70,7 @@ namespace GoogleApis.GenerativeLanguage
                     {
                         VoiceConfig = new VoiceConfig
                         {
-                            PrebuiltVoiceConfig = new PrebuiltVoiceConfig(VoiceName)
+                            PrebuiltVoiceConfig = new PrebuiltVoiceConfig(voiceName: VoiceName)
                         }
                     }
                 }
@@ -69,7 +81,7 @@ namespace GoogleApis.GenerativeLanguage
     /// <summary>
     /// Response from speech generation containing audio data.
     /// </summary>
-    public record GenerateSpeechResponse
+    public partial record GenerateSpeechResponse
     {
         /// <summary>
         /// The audio data as PCM bytes (24kHz, 16-bit, mono).
@@ -95,13 +107,21 @@ namespace GoogleApis.GenerativeLanguage
         [JsonPropertyName("channels")]
         public int Channels { get; set; }
 
-        public GenerateSpeechResponse(byte[] audioData, string mimeType = "audio/pcm", int sampleRate = 24000, int channels = 1)
+        [JsonConstructor]
+        public GenerateSpeechResponse(byte[] audioData, string mimeType, int sampleRate, int channels)
         {
             AudioData = audioData;
             MimeType = mimeType;
             SampleRate = sampleRate;
             Channels = channels;
         }
+
+        public override string ToString() => this.SerializeToJson(true);
+    }
+
+    // Non-JSON related functionality
+    public partial record GenerateSpeechResponse
+    {
 
         /// <summary>
         /// Creates a GenerateSpeechResponse from a GenerateContentResponse.
@@ -144,7 +164,7 @@ namespace GoogleApis.GenerativeLanguage
 
             const int bytesPerSample = 2; // 16-bit
             int sampleCount = AudioData.Length / bytesPerSample;
-
+            
             // Convert byte array to float array
             float[] floatData = new float[sampleCount];
             for (int i = 0; i < sampleCount; i++)
@@ -160,7 +180,5 @@ namespace GoogleApis.GenerativeLanguage
 
             return audioClip;
         }
-
-        public override string ToString() => this.SerializeToJson(true);
     }
 }
